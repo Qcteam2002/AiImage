@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, Image, Share2, ShoppingCart, X, Maximize2 } from 'lucide-react';
+import { Download, Share2, ShoppingCart, X, Maximize2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
@@ -31,6 +31,7 @@ const VirtualTryOnPage: React.FC = () => {
     
     if (!user || user.credits <= 0) {
       console.error('Insufficient credits');
+      alert('You don\'t have enough credits to process images');
       return;
     }
     
@@ -61,29 +62,42 @@ const VirtualTryOnPage: React.FC = () => {
         formData.append('customPrompt', customPrompt);
       }
       
-      // Call backend API to handle credit deduction
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/images/virtual-tryon', {
+      // Call the new try-on API directly
+      const response = await fetch('http://localhost:3002/api/tryon', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
         body: formData
       });
       
       const data = await response.json();
       
-      if (data.success) {
-        setResult(data.generatedImageUrl);
-        // Update credits in context
-        if (updateCredits) {
-          updateCredits(user.credits - 1);
+        if (data.success) {
+          setResult(data.generatedImageUrl);
+          
+          // Deduct credit via backend API
+          try {
+            const token = localStorage.getItem('token');
+            await fetch('/api/images/deduct-credit', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ type: 'virtual_tryon' })
+            });
+            
+            // Update credits in context
+            if (updateCredits) {
+              updateCredits(user.credits - 1);
+            }
+          } catch (creditError) {
+            console.warn('Failed to deduct credit:', creditError);
+          }
+          
+          console.log('✅ Virtual try-on successful!', data);
+        } else {
+          console.error('❌ Virtual try-on failed:', data.error);
+          alert(data.error || 'Failed to create virtual try-on');
         }
-        console.log('✅ Virtual try-on successful!', data);
-      } else {
-        console.error('❌ Virtual try-on failed:', data.error);
-        alert(data.error || 'Failed to create virtual try-on');
-      }
     } catch (error) {
       console.error('❌ Network error:', error);
       alert('Network error. Please try again.');
@@ -301,7 +315,7 @@ const VirtualTryOnPage: React.FC = () => {
                       </div>
                       
                       <Button 
-                        variant="outline"
+                        variant="secondary"
                         size="sm"
                         onClick={() => setResult(null)}
                         className="w-full"

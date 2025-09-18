@@ -638,7 +638,7 @@ router.post('/virtual-tryon',
       
       // Send request to image processing API
       const response = await axios.post(
-        `${config.imageProcessing.apiUrl}/api/tryon`,
+        `${config.imageProcessing.apiUrl}/api/virtual-tryon`,
         formData,
         {
           headers: {
