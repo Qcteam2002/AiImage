@@ -18,7 +18,7 @@ export class EmailService {
   
   async sendVerificationEmail(email: string, verificationToken: string): Promise<boolean> {
     try {
-      const verificationUrl = `${config.frontendUrl}/verify-email?token=${verificationToken}`;
+      const verificationUrl = `${config.urls.frontend}/verify-email?token=${verificationToken}`;
       
       await this.transporter.sendMail({
         from: config.email.from,
@@ -70,7 +70,7 @@ export class EmailService {
               </ul>
             </div>
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${config.frontendUrl}/login" 
+              <a href="${config.urls.frontend}/login" 
                  style="background-color: #28a745; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
                 Start Using the App
               </a>

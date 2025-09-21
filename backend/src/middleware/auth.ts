@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { JWTUtil } from '../utils/jwt';
-import { UserModel } from '../models/User';
+import { prisma } from '../database/client';
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -25,21 +25,16 @@ export const authenticate = async (req: AuthenticatedRequest, res: Response, nex
       return res.status(401).json({ error: 'Invalid or expired token' });
     }
     
-    const user = await UserModel.findById(payload.userId);
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId }
+    });
     
     if (!user) {
       return res.status(401).json({ error: 'User not found' });
     }
     
-    if (!user.is_verified) {
+    if (!user.isVerified) {
       return res.status(401).json({ error: 'Email not verified' });
-    }
-    
-    if (user.is_blocked) {
-      return res.status(403).json({ 
-        error: 'Account has been blocked', 
-        reason: user.block_reason || 'Contact support for more information' 
-      });
     }
     
     req.user = {

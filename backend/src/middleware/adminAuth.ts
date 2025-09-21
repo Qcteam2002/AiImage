@@ -1,12 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import db from '../config/database';
+import { prisma } from '../database/client';
+import { config } from '../config';
 
 export interface AdminRequest extends Request {
   admin?: {
     id: string;
-    username: string;
     email: string;
+    name: string;
+    role: string;
+    sessionId?: string;
   };
 }
 
@@ -18,12 +21,15 @@ export const adminAuth = async (req: AdminRequest, res: Response, next: NextFunc
       return res.status(401).json({ error: 'Access denied. No token provided.' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
+    const decoded = jwt.verify(token, config.jwt.secret) as any;
     
     // Check if admin user exists and is active
-    const admin = await db('admin_users')
-      .where({ id: decoded.adminId, is_active: true })
-      .first();
+    const admin = await prisma.admin.findUnique({
+      where: { 
+        id: decoded.adminId,
+        isActive: true
+      }
+    });
 
     if (!admin) {
       return res.status(401).json({ error: 'Invalid token or admin not found.' });
@@ -31,8 +37,10 @@ export const adminAuth = async (req: AdminRequest, res: Response, next: NextFunc
 
     req.admin = {
       id: admin.id,
-      username: admin.username,
-      email: admin.email
+      email: admin.email,
+      name: admin.name,
+      role: admin.role,
+      sessionId: decoded.sessionId
     };
 
     next();

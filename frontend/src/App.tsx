@@ -14,8 +14,7 @@ import ProductImageToolsPage from './pages/ProductImageToolsPage';
 import HistoryPage from './pages/HistoryPage';
 import ProfilePage from './pages/ProfilePage';
 import EmailVerificationPage from './pages/EmailVerificationPage';
-import AdminLogin from './pages/AdminLogin';
-import AdminDashboard from './pages/AdminDashboard';
+import AdminApp from './admin/AdminApp';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 
@@ -46,9 +45,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
   
-  if (!user.is_verified) {
-    return <Navigate to="/verify-email" replace />;
-  }
+  // Temporarily disable email verification
+  // if (!user.is_verified) {
+  //   return <Navigate to="/verify-email" replace />;
+  // }
   
   return <>{children}</>;
 };
@@ -96,8 +96,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/verify-email" element={<EmailVerificationPage />} />
         
         {/* Admin routes */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/*" element={<AdminApp />} />
         
         {/* Protected routes */}
         <Route

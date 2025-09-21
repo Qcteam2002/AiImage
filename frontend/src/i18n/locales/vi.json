@@ -12,12 +12,17 @@
     "previous": "Trước",
     "submit": "Gửi",
     "close": "Đóng",
-    "confirm": "Xác nhận"
+    "confirm": "Xác nhận",
+    "viewAll": "Xem tất cả",
+    "retry": "Thử lại",
+    "optional": "Tùy chọn"
   },
   "nav": {
     "home": "Trang chủ",
     "virtualTryOn": "Thử đồ ảo",
+    "optimizeImage": "Tối ưu ảnh",
     "productImageTools": "Công cụ hình sản phẩm",
+    "productTools": "Công cụ sản phẩm",
     "history": "Lịch sử",
     "profile": "Hồ sơ",
     "logout": "Đăng xuất",
@@ -70,14 +75,27 @@
   },
   "dashboard": {
     "welcome": "Chào mừng trở lại",
-    "credits": "Số lượt còn lại",
+    "overviewSubtitle": "Tổng quan về quá trình xử lý ảnh AI và hoạt động gần đây của bạn.",
+    "credits": "Tín dụng còn lại",
     "creditsLeft": "Còn {{count}} lượt",
-    "quickActions": "Thao tác nhanh",
+    "quickActions": "Hành động nhanh",
     "recentProcesses": "Xử lý gần đây",
+    "recentActivity": "Hoạt động gần đây",
+    "usageBreakdown": "Phân tích sử dụng",
+    "tipsTitle": "Mẹo & Đề xuất",
+    "noRecentActivity": "Chưa có hoạt động gần đây",
+    "lowCreditsWarning": "Tín dụng thấp",
+    "lowCreditsMessage": "Bạn chỉ còn {{count}} tín dụng. Hãy cân nhắc mua thêm để tiếp tục xử lý.",
+    "improveSuccessRate": "Cải thiện tỷ lệ thành công",
+    "improveSuccessRateTip": "Tỷ lệ thành công của bạn dưới 80%. Hãy thử sử dụng ảnh chất lượng cao hơn để có kết quả tốt hơn.",
+    "tryVirtualTryOn": "Thử Virtual Try-On",
+    "tryVirtualTryOnTip": "Trải nghiệm công nghệ AI mới nhất với tính năng thử đồ ảo của chúng tôi!",
     "stats": {
       "totalProcessed": "Tổng đã xử lý",
       "successful": "Thành công",
-      "failed": "Thất bại"
+      "failed": "Thất bại",
+      "successRate": "Tỷ lệ thành công",
+      "thisWeekActivity": "Tuần này"
     }
   },
   "virtualTryOn": {
@@ -85,17 +103,29 @@
     "subtitle": "Xem quần áo trông như thế nào trên bạn với AI",
     "uploadMethods": "Chọn phương thức tải lên",
     "uploadFiles": "Tải file lên",
+    "uploadFilesDesc": "Chọn ảnh từ thiết bị của bạn",
     "useUrls": "Sử dụng URL",
+    "useUrlsDesc": "Nhập link ảnh trực tiếp",
+    "uploadImages": "Tải lên ảnh của bạn",
+    "uploadImagesDesc": "Chọn ảnh mẫu và sản phẩm để thử đồ ảo",
     "modelImage": "Ảnh của bạn",
     "productImage": "Hình ảnh sản phẩm",
     "modelImageDesc": "Tải lên ảnh rõ nét của bạn",
     "productImageDesc": "Tải lên hình ảnh quần áo/sản phẩm",
     "modelImageUrl": "URL ảnh của bạn",
     "productImageUrl": "URL hình sản phẩm",
-    "customPrompt": "Mô tả tùy chỉnh (Tùy chọn)",
+    "customPrompt": "Prompt tùy chỉnh",
     "promptPlaceholder": "Mô tả cách bạn muốn thử đồ ảo trông như thế nào (ví dụ: 'mặc thường ngày', 'trong môi trường chuyên nghiệp')",
     "tryOn": "Thử đồ",
     "processing": "Đang tạo thử đồ ảo...",
+    "processingTitle": "Đang xử lý thử đồ ảo của bạn",
+    "processingDesc": "Vui lòng chờ trong khi chúng tôi tạo trải nghiệm thử đồ ảo...",
+    "steps": {
+      "preparing": "Chuẩn bị ảnh...",
+      "converting": "Chuyển đổi URL thành file...",
+      "processing": "AI đang xử lý...",
+      "finalizing": "Hoàn thiện kết quả..."
+    },
     "dragDrop": "Kéo thả hình ảnh vào đây, hoặc nhấp để chọn",
     "fileTypes": "Định dạng hỗ trợ: JPG, PNG, WebP, GIF",
     "maxSize": "Kích thước tối đa: 10MB",
@@ -104,12 +134,41 @@
     "fileRequired": "Vui lòng chọn tệp hình ảnh",
     "bothImagesRequired": "Cần cả ảnh của bạn và hình sản phẩm",
     "insufficientCredits": "Bạn không có đủ lượt để xử lý hình ảnh",
+    "lowCreditsTitle": "Tín dụng thấp",
+    "lowCreditsWarning": "Nên mua thêm tín dụng",
     "processingSuccess": "Tạo thử đồ ảo thành công!",
     "processingError": "Tạo thử đồ ảo thất bại. Vui lòng thử lại.",
+    "resultTitle": "Kết quả thử đồ ảo",
+    "resultAlt": "Kết quả thử đồ ảo",
+    "modalTitle": "Kết quả thử đồ ảo",
     "downloadResult": "Tải xuống kết quả",
     "tryAnother": "Thử ảnh khác",
     "addToCart": "Thêm vào giỏ",
-    "share": "Chia sẻ"
+    "share": "Chia sẻ",
+    "shareTitle": "Xem thử đồ ảo của tôi!",
+    "shareText": "Xem sản phẩm này trông như thế nào trên tôi với AI thử đồ ảo",
+    "linkCopied": "Đã sao chép link vào clipboard!",
+    "tipsTitle": "Mẹo để có kết quả tốt",
+    "tips": {
+      "quality": {
+        "title": "Chất lượng ảnh cao",
+        "description": "Sử dụng ảnh rõ nét, đủ ánh sáng để AI nhận diện tốt hơn"
+      },
+      "fullbody": {
+        "title": "Toàn thân tốt nhất",
+        "description": "Ảnh toàn thân sẽ cho kết quả thử đồ chính xác hơn"
+      },
+      "prompt": {
+        "title": "Prompt tùy chỉnh",
+        "description": "Mô tả phong cách bạn muốn để AI tạo ra kết quả phù hợp"
+      }
+    },
+    "featuresTitle": "Tính năng nổi bật",
+    "features": {
+      "fast": "AI xử lý nhanh chóng",
+      "accurate": "Kết quả chính xác cao",
+      "customizable": "Tùy chỉnh phong cách"
+    }
   },
   "history": {
     "title": "Lịch sử xử lý",
@@ -117,6 +176,7 @@
     "noHistory": "Không tìm thấy lịch sử xử lý",
     "status": {
       "processing": "Đang xử lý",
+      "pending": "Chờ xử lý",
       "completed": "Hoàn thành",
       "failed": "Thất bại"
     },

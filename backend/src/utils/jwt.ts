@@ -3,7 +3,8 @@ import { config } from '../config';
 
 export interface JWTPayload {
   userId: string;
-  email: string;
+  email?: string;
+  type?: string;
   iat?: number;
   exp?: number;
 }

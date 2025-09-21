@@ -78,21 +78,23 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
   return (
     <div className={cn('space-y-3', className)}>
-      <label className="label">
-        {label}
-        {optional && <span className="text-sm text-gray-500 ml-1">(Optional)</span>}
-      </label>
+      {label && (
+        <label className="block text-sm font-medium text-primary-900 mb-2">
+          {label}
+          {optional && <span className="text-sm text-neutral-500 ml-1">({t('common.optional')})</span>}
+        </label>
+      )}
       {description && (
-        <p className="text-sm text-gray-500">{description}</p>
+        <p className="text-sm text-neutral-600 mb-3">{description}</p>
       )}
       
       {/* Upload Area */}
       <div
         {...getRootProps()}
         className={cn(
-          'upload-area cursor-pointer relative overflow-hidden',
-          isDragActive && 'drag-over',
-          hasImage && 'border-solid border-green-300 bg-green-50'
+          'border-2 border-dashed border-neutral-300 rounded-xl p-6 cursor-pointer transition-all duration-200 hover:border-primary-400 hover:bg-primary-50',
+          isDragActive && 'border-primary-500 bg-primary-50',
+          hasImage && 'border-success-300 bg-success-50'
         )}
       >
         <input {...getInputProps()} />
@@ -110,7 +112,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                 e.stopPropagation();
                 clearImage();
               }}
-              className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+              className="absolute top-2 right-2 p-1 bg-error-500 text-white rounded-full hover:bg-error-600 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -121,18 +123,18 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         ) : (
           // Upload Placeholder
           <div className="text-center py-8">
-            <ImageIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-            <p className="text-sm text-gray-600 mb-2">
+            <ImageIcon className="w-12 h-12 mx-auto text-neutral-400 mb-4" />
+            <p className="text-sm text-neutral-600 mb-2">
               {isDragActive 
-                ? 'Drop your image here...' 
-                : t('optimize.dragDrop')
+                ? t('virtualTryOn.dragDrop')
+                : t('virtualTryOn.dragDrop')
               }
             </p>
-            <p className="text-xs text-gray-500 mb-4">
-              {t('optimize.fileTypes')}
+            <p className="text-xs text-neutral-500 mb-4">
+              {t('virtualTryOn.fileTypes')}
             </p>
-            <p className="text-xs text-gray-500">
-              {t('optimize.maxSize')}
+            <p className="text-xs text-neutral-500">
+              {t('virtualTryOn.maxSize')}
             </p>
           </div>
         )}
@@ -141,15 +143,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       {/* URL Input Section */}
       <div className="space-y-2">
         <div className="flex items-center space-x-2">
-          <div className="h-px bg-gray-300 flex-1" />
-          <span className="text-xs text-gray-500 px-2">OR</span>
-          <div className="h-px bg-gray-300 flex-1" />
+          <div className="h-px bg-neutral-300 flex-1" />
+          <span className="text-xs text-neutral-500 px-2">OR</span>
+          <div className="h-px bg-neutral-300 flex-1" />
         </div>
         
         <div className="flex space-x-2">
           <div className="flex-1">
             <Input
-              placeholder="Enter image URL..."
+              placeholder={t('virtualTryOn.modelImageUrl')}
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleUrlSubmit()}

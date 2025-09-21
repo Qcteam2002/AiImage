@@ -12,12 +12,17 @@
     "previous": "Previous",
     "submit": "Submit",
     "close": "Close",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "viewAll": "View All",
+    "retry": "Retry",
+    "optional": "Optional"
   },
   "nav": {
     "home": "Home",
     "virtualTryOn": "Virtual Try-On",
+    "optimizeImage": "Optimize Image",
     "productImageTools": "Product Image Tools",
+    "productTools": "Product Tools",
     "history": "History",
     "profile": "Profile",
     "logout": "Logout",
@@ -70,15 +75,28 @@
   },
   "dashboard": {
     "welcome": "Welcome back",
+    "overviewSubtitle": "Overview of your AI image processing and recent activity.",
     "credits": "Credits remaining",
     "creditsLeft": "{{count}} credit remaining",
     "creditsLeft_other": "{{count}} credits remaining",
     "quickActions": "Quick Actions",
     "recentProcesses": "Recent Processes",
+    "recentActivity": "Recent Activity",
+    "usageBreakdown": "Usage Breakdown",
+    "tipsTitle": "Tips & Recommendations",
+    "noRecentActivity": "No recent activity",
+    "lowCreditsWarning": "Low Credits",
+    "lowCreditsMessage": "You only have {{count}} credits left. Consider purchasing more to continue processing.",
+    "improveSuccessRate": "Improve Success Rate",
+    "improveSuccessRateTip": "Your success rate is below 80%. Try using higher quality images for better results.",
+    "tryVirtualTryOn": "Try Virtual Try-On",
+    "tryVirtualTryOnTip": "Experience the latest AI technology with our virtual try-on feature!",
     "stats": {
       "totalProcessed": "Total Processed",
       "successful": "Successful",
-      "failed": "Failed"
+      "failed": "Failed",
+      "successRate": "Success Rate",
+      "thisWeekActivity": "This Week"
     }
   },
   "virtualTryOn": {
@@ -86,17 +104,29 @@
     "subtitle": "See how clothes look on you with AI",
     "uploadMethods": "Choose Upload Method",
     "uploadFiles": "Upload Files",
+    "uploadFilesDesc": "Select images from your device",
     "useUrls": "Use URLs",
+    "useUrlsDesc": "Enter image links directly",
+    "uploadImages": "Upload Your Images",
+    "uploadImagesDesc": "Choose your photo and product image for virtual try-on",
     "modelImage": "Your Photo",
     "productImage": "Product Image",
     "modelImageDesc": "Upload a clear photo of yourself",
     "productImageDesc": "Upload an image of the clothing/product",
     "modelImageUrl": "Your Photo URL",
     "productImageUrl": "Product Image URL",
-    "customPrompt": "Custom Prompt (Optional)",
+    "customPrompt": "Custom Prompt",
     "promptPlaceholder": "Describe how you want the virtual try-on to look (e.g., 'wearing it casually', 'in a professional setting')",
     "tryOn": "Try On",
     "processing": "Creating your virtual try-on...",
+    "processingTitle": "Processing Your Virtual Try-On",
+    "processingDesc": "Please wait while we create your virtual try-on experience...",
+    "steps": {
+      "preparing": "Preparing images...",
+      "converting": "Converting URLs to files...",
+      "processing": "AI processing in progress...",
+      "finalizing": "Finalizing result..."
+    },
     "dragDrop": "Drag & drop your image here, or click to browse",
     "fileTypes": "Supported formats: JPG, PNG, WebP, GIF",
     "maxSize": "Maximum file size: 10MB",
@@ -105,12 +135,41 @@
     "fileRequired": "Please select an image file",
     "bothImagesRequired": "Both your photo and product image are required",
     "insufficientCredits": "You don't have enough credits to process images",
+    "lowCreditsTitle": "Low Credits",
+    "lowCreditsWarning": "Consider purchasing more credits",
     "processingSuccess": "Virtual try-on created successfully!",
     "processingError": "Failed to create virtual try-on. Please try again.",
+    "resultTitle": "Virtual Try-On Result",
+    "resultAlt": "Virtual Try-On Result",
+    "modalTitle": "Virtual Try-On Result",
     "downloadResult": "Download Result",
     "tryAnother": "Try Another Photo",
     "addToCart": "Add to Cart",
-    "share": "Share"
+    "share": "Share",
+    "shareTitle": "Check out my virtual try-on!",
+    "shareText": "See how this product looks on me with AI virtual try-on",
+    "linkCopied": "Link copied to clipboard!",
+    "tipsTitle": "Tips for Best Results",
+    "tips": {
+      "quality": {
+        "title": "High Quality Images",
+        "description": "Use clear, well-lit photos for better AI recognition"
+      },
+      "fullbody": {
+        "title": "Full Body Works Best",
+        "description": "Full body photos give more accurate try-on results"
+      },
+      "prompt": {
+        "title": "Custom Prompts",
+        "description": "Describe your desired style for personalized results"
+      }
+    },
+    "featuresTitle": "Key Features",
+    "features": {
+      "fast": "Fast AI Processing",
+      "accurate": "High Accuracy Results",
+      "customizable": "Customizable Style"
+    }
   },
   "history": {
     "title": "Processing History",
@@ -118,6 +177,7 @@
     "noHistory": "No processing history found",
     "status": {
       "processing": "Processing",
+      "pending": "Pending",
       "completed": "Completed",
       "failed": "Failed"
     },
