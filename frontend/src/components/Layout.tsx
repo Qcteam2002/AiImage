@@ -11,7 +11,8 @@ import {
   Menu, 
   X, 
   Globe,
-  Coins
+  Coins,
+  BarChart3
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/Button';
@@ -27,6 +28,7 @@ const Layout: React.FC = () => {
     { name: t('nav.home'), href: '/dashboard', icon: Home },
     { name: t('nav.virtualTryOn'), href: '/virtual-tryon', icon: Image },
     { name: t('nav.productImageTools'), href: '/product-image-tools', icon: Package },
+    { name: 'Phân tích sản phẩm', href: '/product-analysis', icon: BarChart3 },
     { name: t('nav.history'), href: '/history', icon: History },
     { name: t('nav.profile'), href: '/profile', icon: User },
   ];

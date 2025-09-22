@@ -9,6 +9,7 @@ import { prisma } from './database/client';
 import authRoutes from './routes/auth';
 import imageRoutes from './routes/images';
 import adminRoutes from './routes/admin';
+import productRoutes from './routes/products';
 
 // Validate configuration
 try {
@@ -87,6 +88,7 @@ app.use('/generated', express.static(config.upload.generatedPath));
 app.use('/api/auth', authRoutes);
 app.use('/api/images', imageRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/products', productRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -11,6 +11,8 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import VirtualTryOnPage from './pages/VirtualTryOnPage';
 import ProductImageToolsPage from './pages/ProductImageToolsPage';
+import ProductAnalysisPage from './pages/ProductAnalysisPage';
+import ProductDetailPage from './pages/ProductDetailPage';
 import HistoryPage from './pages/HistoryPage';
 import ProfilePage from './pages/ProfilePage';
 import EmailVerificationPage from './pages/EmailVerificationPage';
@@ -111,6 +113,8 @@ const AppRoutes: React.FC = () => {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="virtual-tryon" element={<VirtualTryOnPage />} />
           <Route path="product-image-tools" element={<ProductImageToolsPage />} />
+          <Route path="product-analysis" element={<ProductAnalysisPage />} />
+          <Route path="product-analysis/:id" element={<ProductDetailPage />} />
           <Route path="history" element={<HistoryPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>

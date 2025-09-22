@@ -1,0 +1,128 @@
+version: '3.8'
+
+services:
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: ai-image-backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - HOST=0.0.0.0
+      - DATABASE_URL=file:./prisma/prod.db
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=7d
+      - JWT_REFRESH_EXPIRES_IN=30d
+      - MAX_FILE_SIZE=10485760
+      - UPLOAD_PATH=/app/uploads
+      - TEMP_PATH=/app/uploads/temp
+      - GENERATED_PATH=/app/uploads/generated
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+      - CORS_ORIGINS=https://tikminer.info,https://api.tikminer.info
+      - RATE_LIMIT_WINDOW_MS=900000
+      - RATE_LIMIT_MAX=100
+      - BCRYPT_ROUNDS=12
+      - SESSION_SECRET=${SESSION_SECRET}
+      - COOKIE_SAME_SITE=lax
+      - LOG_LEVEL=info
+      - LOG_FORMAT=combined
+      - FRONTEND_URL=https://tikminer.info
+      - API_URL=https://api.tikminer.info
+      - SITE_URL=https://tikminer.info
+      - SITE_NAME=AI Image Analysis
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    ports:
+      - "3001:3001"
+    networks:
+      - ai-image-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend (Nginx)
+  frontend:
+    image: nginx:alpine
+    container_name: ai-image-frontend
+    restart: unless-stopped
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - ai-image-network
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis (for caching and sessions)
+  redis:
+    image: redis:7-alpine
+    container_name: ai-image-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - ai-image-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL (optional, replace SQLite)
+  postgres:
+    image: postgres:15-alpine
+    container_name: ai-image-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=aiimage
+      - POSTGRES_USER=aiimage
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - ai-image-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aiimage -d aiimage"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Certbot for SSL
+  certbot:
+    image: certbot/certbot
+    container_name: ai-image-certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot --email admin@tikminer.info --agree-tos --no-eff-email -d tikminer.info -d www.tikminer.info -d api.tikminer.info
+
+volumes:
+  redis_data:
+  postgres_data:
+
+networks:
+  ai-image-network:
+    driver: bridge

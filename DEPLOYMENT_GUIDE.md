@@ -1,315 +1,196 @@
-# 🚀 AIImage App - Ubuntu Server Deployment Guide
+# Hướng dẫn Deploy AI Image App lên Server Ubuntu
 
-## 📋 Overview
-Deploy AIImage application to Ubuntu server with existing app/database without conflicts.
+## 📋 Tổng quan
+Hướng dẫn deploy ứng dụng AI Image lên server Ubuntu với domain `tikminer.info` sử dụng:
+- **Frontend**: React + Vite (Port 3000)
+- **Backend**: Node.js + Express (Port 3001)
+- **Database**: SQLite (có thể nâng cấp PostgreSQL sau)
+- **Web Server**: Nginx (Reverse Proxy)
+- **Process Manager**: PM2
+- **SSL**: Let's Encrypt (Certbot)
 
-## 🎯 System Requirements
-- **OS**: Ubuntu 20.04+ (LTS recommended)
-- **Node.js**: v18+ 
-- **Docker**: For database services
-- **PM2**: For process management
-- **Nginx**: For reverse proxy (optional)
+## 🖥️ Yêu cầu Server
 
-## 📁 Project Structure
-```
-/opt/aiimage/                    # Main app directory
-├── backend/                     # Backend API (Port 3001)
-├── image-processing-api/        # Image Processing API (Port 3002)  
-├── frontend/                    # React Frontend (Port 3000)
-├── docker-compose.yml          # Database services
-├── ecosystem.config.js         # PM2 configuration
-└── nginx.conf                  # Nginx config (optional)
-```
+### Minimum Requirements
+- **OS**: Ubuntu 20.04+ (khuyến nghị 22.04 LTS)
+- **RAM**: 2GB+ (khuyến nghị 4GB)
+- **Storage**: 20GB+ SSD
+- **CPU**: 2 cores+
+- **Network**: Public IP với domain trỏ về
 
-## 🔧 Step 1: Server Preparation
+### Domain Setup
+- Domain: `tikminer.info`
+- Subdomain: `api.tikminer.info` (cho backend)
+- Subdomain: `admin.tikminer.info` (cho admin panel - tùy chọn)
 
-### 1.1 Update System
+## 🚀 Bước 1: Chuẩn bị Server
+
+### 1.1 Cập nhật hệ thống
 ```bash
 sudo apt update && sudo apt upgrade -y
 ```
 
-### 1.2 Install Node.js 18+
+### 1.2 Cài đặt các package cần thiết
 ```bash
-# Install NodeSource repository
+# Cài đặt Node.js 18+
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
-# Verify installation
-node --version  # Should be v18+
-npm --version
-```
+# Cài đặt Nginx
+sudo apt install nginx -y
 
-### 1.3 Install Docker (if not installed)
-```bash
-# Install Docker
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-sudo usermod -aG docker $USER
-
-# Install Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-
-# Verify installation
-docker --version
-docker-compose --version
-```
-
-### 1.4 Install PM2
-```bash
+# Cài đặt PM2 globally
 sudo npm install -g pm2
+
+# Cài đặt Git
+sudo apt install git -y
+
+# Cài đặt Certbot cho SSL
+sudo apt install certbot python3-certbot-nginx -y
 ```
 
-## 📦 Step 2: Code Deployment
-
-### 2.1 Create App Directory
+### 1.3 Tạo user cho ứng dụng
 ```bash
-sudo mkdir -p /opt/aiimage
-sudo chown $USER:$USER /opt/aiimage
-cd /opt/aiimage
+# Tạo user app
+sudo adduser --disabled-password --gecos "" app
+sudo usermod -aG sudo app
+
+# Chuyển sang user app
+sudo su - app
 ```
 
-### 2.2 Upload Code (Choose one method)
+## 🏗️ Bước 2: Deploy Code
 
-#### Method A: Git Clone (Recommended)
+### 2.1 Clone repository
 ```bash
-# If you have a Git repository
-git clone <your-repo-url> .
+# Tạo thư mục cho app
+mkdir -p /home/app/ai-image
+cd /home/app/ai-image
 
-# Or upload via SCP/SFTP
-# scp -r /path/to/local/aiimage/* user@server:/opt/aiimage/
+# Clone code (thay YOUR_REPO_URL bằng repo thực tế)
+git clone https://github.com/your-username/ai-image.git .
+
+# Hoặc upload code qua SCP/SFTP
+# scp -r ./AIImage/* user@server:/home/app/ai-image/
 ```
 
-#### Method B: Direct Upload
+### 2.2 Cài đặt dependencies
+
+#### Backend
 ```bash
-# Create tar archive locally
-cd /Users/vophuong/Documents/AIImage
-tar -czf aiimage.tar.gz --exclude=node_modules --exclude=.git --exclude=uploads .
-
-# Upload to server
-scp aiimage.tar.gz user@your-server:/opt/aiimage/
-
-# Extract on server
-cd /opt/aiimage
-tar -xzf aiimage.tar.gz
-rm aiimage.tar.gz
-```
-
-### 2.3 Install Dependencies
-```bash
-# Backend
-cd backend
+cd /home/app/ai-image/backend
 npm install --production
-cd ..
+```
 
-# Image Processing API  
-cd image-processing-api
-npm install --production
-cd ..
-
-# Frontend
-cd frontend
-npm install --production
+#### Frontend
+```bash
+cd /home/app/ai-image/frontend
+npm install
 npm run build
-cd ..
 ```
 
-## 🗄️ Step 3: Database Setup
+## ⚙️ Bước 3: Cấu hình Backend
 
-### 3.1 Configure Docker Compose
+### 3.1 Tạo file .env cho production
 ```bash
-# Edit docker-compose.yml to avoid port conflicts
-nano docker-compose.yml
-```
-
-**Updated docker-compose.yml:**
-```yaml
-version: '3.8'
-services:
-  postgres:
-    image: postgres:15
-    container_name: aiimage_postgres
-    environment:
-      POSTGRES_DB: aiimage
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin123
-    ports:
-      - "5442:5432"  # Changed from 5441 to avoid conflicts
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
-  redis:
-    image: redis:7-alpine
-    container_name: aiimage_redis
-    ports:
-      - "6391:6379"  # Changed from 6390 to avoid conflicts
-    volumes:
-      - redis_data:/data
-    restart: unless-stopped
-
-volumes:
-  postgres_data:
-  redis_data:
-```
-
-### 3.2 Start Database Services
-```bash
-# Start only database services
-docker-compose up -d postgres redis
-
-# Verify services are running
-docker ps
-```
-
-### 3.3 Run Database Migrations
-```bash
-cd backend
-npm run migrate
-cd ..
-```
-
-## ⚙️ Step 4: Environment Configuration
-
-### 4.1 Backend Environment
-```bash
-cd backend
-cp .env.example .env
+cd /home/app/ai-image/backend
 nano .env
 ```
 
-**Backend .env:**
+Nội dung file `.env`:
 ```env
-# Server
+# Server Configuration
 NODE_ENV=production
 PORT=3001
+HOST=0.0.0.0
 
-# Database (Updated ports)
-DB_HOST=localhost
-DB_PORT=5442
-DB_USER=admin
-DB_PASSWORD=admin123
-DB_NAME=aiimage
+# Database Configuration
+DATABASE_URL=file:./prisma/prod.db
 
-# Redis (Updated ports)
-REDIS_HOST=localhost
-REDIS_PORT=6391
-
-# JWT
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production-very-long-and-random
 JWT_EXPIRES_IN=7d
+JWT_REFRESH_EXPIRES_IN=30d
 
-# Email (Configure with your SMTP)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASSWORD=your-app-password
+# Email Configuration (tùy chọn)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+SMTP_FROM=noreply@tikminer.info
 
-# Frontend URL
-FRONTEND_URL=http://your-domain.com
-
-# Image Processing API
-IMAGE_PROCESSING_API_URL=http://localhost:3002
-```
-
-### 4.2 Image Processing API Environment
-```bash
-cd image-processing-api
-cp .env.example .env
-nano .env
-```
-
-**Image Processing API .env:**
-```env
-# Server
-NODE_ENV=production
-PORT=3002
-
-# Gemini AI
-GEMINI_API_KEY=your-gemini-api-key-here
-
-# Upload settings
-UPLOAD_PATH=./uploads
+# File Upload Configuration
 MAX_FILE_SIZE=10485760
-ALLOWED_MIME_TYPES=image/jpeg,image/png,image/webp,image/gif
+UPLOAD_PATH=/home/app/ai-image/uploads
+TEMP_PATH=/home/app/ai-image/uploads/temp
+GENERATED_PATH=/home/app/ai-image/uploads/generated
+
+# AI Services Configuration
+GEMINI_API_KEY=your-gemini-api-key
+OPENROUTER_API_KEY=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
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+
+# CORS Configuration
+CORS_ORIGINS=https://tikminer.info,https://api.tikminer.info
+
+# Rate Limiting Configuration
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=100
+
+# Security Configuration
+BCRYPT_ROUNDS=12
+SESSION_SECRET=your-session-secret-very-long-and-random
+COOKIE_SAME_SITE=lax
+
+# Logging Configuration
+LOG_LEVEL=info
+LOG_FORMAT=combined
+
+# External URLs
+FRONTEND_URL=https://tikminer.info
+API_URL=https://api.tikminer.info
+SITE_URL=https://tikminer.info
+SITE_NAME=AI Image Analysis
 ```
 
-### 4.3 Frontend Environment
+### 3.2 Tạo thư mục uploads
 ```bash
-cd frontend
-cp .env.example .env
-nano .env
+mkdir -p /home/app/ai-image/uploads/{temp,generated}
+chmod 755 /home/app/ai-image/uploads
 ```
 
-**Frontend .env:**
-```env
-VITE_API_URL=http://your-domain.com/api
-```
-
-## 🚀 Step 5: PM2 Configuration
-
-### 5.1 Create PM2 Ecosystem File
+### 3.3 Build và migrate database
 ```bash
-nano ecosystem.config.js
+cd /home/app/ai-image/backend
+npx prisma generate
+npx prisma db push
 ```
 
-**ecosystem.config.js:**
+### 3.4 Tạo PM2 ecosystem file
+```bash
+nano /home/app/ai-image/ecosystem.config.js
+```
+
+Nội dung file `ecosystem.config.js`:
 ```javascript
 module.exports = {
   apps: [
     {
-      name: 'aiimage-backend',
-      script: './backend/src/server.ts',
-      cwd: '/opt/aiimage',
-      interpreter: 'node_modules/.bin/ts-node',
+      name: 'ai-image-backend',
+      script: 'dist/server.js',
+      cwd: '/home/app/ai-image/backend',
       instances: 1,
       exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
         PORT: 3001
       },
-      error_file: './logs/backend-error.log',
-      out_file: './logs/backend-out.log',
-      log_file: './logs/backend-combined.log',
+      error_file: '/home/app/ai-image/logs/backend-error.log',
+      out_file: '/home/app/ai-image/logs/backend-out.log',
+      log_file: '/home/app/ai-image/logs/backend-combined.log',
       time: true,
-      restart_delay: 4000,
-      max_restarts: 10,
-      min_uptime: '10s'
-    },
-    {
-      name: 'aiimage-image-api',
-      script: './image-processing-api/src/server.ts',
-      cwd: '/opt/aiimage',
-      interpreter: 'node_modules/.bin/ts-node',
-      instances: 1,
-      exec_mode: 'fork',
-      env: {
-        NODE_ENV: 'production',
-        PORT: 3002
-      },
-      error_file: './logs/image-api-error.log',
-      out_file: './logs/image-api-out.log',
-      log_file: './logs/image-api-combined.log',
-      time: true,
-      restart_delay: 4000,
-      max_restarts: 10,
-      min_uptime: '10s'
-    },
-    {
-      name: 'aiimage-frontend',
-      script: 'serve',
-      args: '-s frontend/dist -l 3000',
-      cwd: '/opt/aiimage',
-      instances: 1,
-      exec_mode: 'fork',
-      env: {
-        NODE_ENV: 'production',
-        PORT: 3000
-      },
-      error_file: './logs/frontend-error.log',
-      out_file: './logs/frontend-out.log',
-      log_file: './logs/frontend-combined.log',
-      time: true,
+      max_memory_restart: '1G',
       restart_delay: 4000,
       max_restarts: 10,
       min_uptime: '10s'
@@ -318,53 +199,77 @@ module.exports = {
 };
 ```
 
-### 5.2 Install Serve for Frontend
+### 3.5 Build backend
 ```bash
-sudo npm install -g serve
+cd /home/app/ai-image/backend
+npm run build
 ```
 
-### 5.3 Create Logs Directory
+## 🌐 Bước 4: Cấu hình Frontend
+
+### 4.1 Tạo file .env cho production
 ```bash
-mkdir -p logs
+cd /home/app/ai-image/frontend
+nano .env.production
 ```
 
-### 5.4 Start Applications
-```bash
-# Start all services
-pm2 start ecosystem.config.js
-
-# Check status
-pm2 status
-
-# View logs
-pm2 logs
-
-# Save PM2 configuration
-pm2 save
-pm2 startup
+Nội dung file `.env.production`:
+```env
+VITE_API_URL=https://api.tikminer.info
+VITE_APP_NAME=AI Image Analysis
+VITE_APP_VERSION=1.0.0
 ```
 
-## 🌐 Step 6: Nginx Configuration (Optional)
-
-### 6.1 Install Nginx
+### 4.2 Build frontend
 ```bash
-sudo apt install nginx -y
+cd /home/app/ai-image/frontend
+npm run build
 ```
 
-### 6.2 Create Nginx Config
+## 🔧 Bước 5: Cấu hình Nginx
+
+### 5.1 Tạo cấu hình cho domain chính
 ```bash
-sudo nano /etc/nginx/sites-available/aiimage
+sudo nano /etc/nginx/sites-available/tikminer.info
 ```
 
-**Nginx Configuration:**
+Nội dung file:
 ```nginx
+# Frontend - tikminer.info
 server {
     listen 80;
-    server_name your-domain.com www.your-domain.com;
-
-    # Frontend
+    server_name tikminer.info www.tikminer.info;
+    
+    root /home/app/ai-image/frontend/dist;
+    index index.html;
+    
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+    
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+    
+    # Handle client-side routing
     location / {
-        proxy_pass http://localhost:3000;
+        try_files $uri $uri/ /index.html;
+    }
+    
+    # Cache static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+    
+    # API proxy
+    location /api/ {
+        proxy_pass http://localhost:3001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -374,9 +279,47 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
     }
+}
+```
 
-    # Backend API
-    location /api {
+### 5.2 Tạo cấu hình cho API subdomain
+```bash
+sudo nano /etc/nginx/sites-available/api.tikminer.info
+```
+
+Nội dung file:
+```nginx
+# Backend API - api.tikminer.info
+server {
+    listen 80;
+    server_name api.tikminer.info;
+    
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    
+    # CORS headers
+    add_header Access-Control-Allow-Origin "https://tikminer.info" always;
+    add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+    add_header Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
+    add_header Access-Control-Allow-Credentials "true" always;
+    
+    # Handle preflight requests
+    if ($request_method = 'OPTIONS') {
+        add_header Access-Control-Allow-Origin "https://tikminer.info";
+        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS";
+        add_header Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization";
+        add_header Access-Control-Allow-Credentials "true";
+        add_header Access-Control-Max-Age 1728000;
+        add_header Content-Type "text/plain; charset=utf-8";
+        add_header Content-Length 0;
+        return 204;
+    }
+    
+    # Proxy to backend
+    location / {
         proxy_pass http://localhost:3001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -387,179 +330,305 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
         
-        # Increase timeout for image processing
+        # Timeout settings
         proxy_connect_timeout 60s;
         proxy_send_timeout 60s;
         proxy_read_timeout 60s;
     }
-
-    # Image Processing API (internal)
-    location /image-api {
-        proxy_pass http://localhost:3002;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # Static files
-    location /static {
-        alias /opt/aiimage/frontend/dist;
+    
+    # Serve uploaded files
+    location /generated/ {
+        alias /home/app/ai-image/uploads/generated/;
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
 }
 ```
 
-### 6.3 Enable Site
+### 5.3 Enable sites
 ```bash
-sudo ln -s /etc/nginx/sites-available/aiimage /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/tikminer.info /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/api.tikminer.info /etc/nginx/sites-enabled/
 sudo nginx -t
-sudo systemctl restart nginx
+sudo systemctl reload nginx
 ```
 
-## 🔒 Step 7: SSL Certificate (Optional)
+## 🔒 Bước 6: Cấu hình SSL với Let's Encrypt
 
-### 7.1 Install Certbot
+### 6.1 Cài đặt SSL certificate
 ```bash
-sudo apt install certbot python3-certbot-nginx -y
+# Cài đặt cho domain chính
+sudo certbot --nginx -d tikminer.info -d www.tikminer.info
+
+# Cài đặt cho API subdomain
+sudo certbot --nginx -d api.tikminer.info
 ```
 
-### 7.2 Get SSL Certificate
+### 6.2 Cấu hình auto-renewal
 ```bash
-sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+sudo crontab -e
 ```
 
-## 📊 Step 8: Monitoring & Maintenance
+Thêm dòng:
+```cron
+0 12 * * * /usr/bin/certbot renew --quiet
+```
 
-### 8.1 PM2 Monitoring
+## 🚀 Bước 7: Khởi động ứng dụng
+
+### 7.1 Tạo thư mục logs
 ```bash
-# View real-time monitoring
-pm2 monit
-
-# Restart services
-pm2 restart all
-
-# Stop services
-pm2 stop all
-
-# Delete services
-pm2 delete all
+mkdir -p /home/app/ai-image/logs
 ```
 
-### 8.2 Log Management
+### 7.2 Khởi động backend với PM2
 ```bash
-# View logs
-pm2 logs aiimage-backend
-pm2 logs aiimage-image-api
-pm2 logs aiimage-frontend
-
-# Clear logs
-pm2 flush
+cd /home/app/ai-image
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
 ```
 
-### 8.3 Database Backup
+### 7.3 Kiểm tra trạng thái
 ```bash
-# Create backup script
-nano backup-db.sh
+pm2 status
+pm2 logs ai-image-backend
 ```
 
-**backup-db.sh:**
+## 🔧 Bước 8: Cấu hình Firewall
+
+### 8.1 Cấu hình UFW
+```bash
+sudo ufw allow ssh
+sudo ufw allow 'Nginx Full'
+sudo ufw enable
+```
+
+## 📊 Bước 9: Monitoring và Logs
+
+### 9.1 Cấu hình log rotation
+```bash
+sudo nano /etc/logrotate.d/ai-image
+```
+
+Nội dung:
+```
+/home/app/ai-image/logs/*.log {
+    daily
+    missingok
+    rotate 52
+    compress
+    delaycompress
+    notifempty
+    create 644 app app
+    postrotate
+        pm2 reloadLogs
+    endscript
+}
+```
+
+### 9.2 Cấu hình monitoring
+```bash
+# Cài đặt htop cho monitoring
+sudo apt install htop -y
+
+# Cài đặt PM2 monitoring (tùy chọn)
+pm2 install pm2-logrotate
+```
+
+## 🔄 Bước 10: Cập nhật và Backup
+
+### 10.1 Script cập nhật
+```bash
+nano /home/app/ai-image/update.sh
+```
+
+Nội dung:
 ```bash
 #!/bin/bash
-DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR="/opt/aiimage/backups"
-mkdir -p $BACKUP_DIR
+echo "Updating AI Image App..."
 
-docker exec aiimage_postgres pg_dump -U admin aiimage > $BACKUP_DIR/aiimage_$DATE.sql
-find $BACKUP_DIR -name "*.sql" -mtime +7 -delete
+# Pull latest code
+cd /home/app/ai-image
+git pull origin main
+
+# Update backend
+cd backend
+npm install --production
+npm run build
+npx prisma generate
+npx prisma db push
+
+# Update frontend
+cd ../frontend
+npm install
+npm run build
+
+# Restart services
+pm2 restart ai-image-backend
+
+echo "Update completed!"
 ```
 
 ```bash
-chmod +x backup-db.sh
+chmod +x /home/app/ai-image/update.sh
+```
 
-# Add to crontab for daily backups
-crontab -e
-# Add: 0 2 * * * /opt/aiimage/backup-db.sh
+### 10.2 Script backup
+```bash
+nano /home/app/ai-image/backup.sh
+```
+
+Nội dung:
+```bash
+#!/bin/bash
+BACKUP_DIR="/home/app/backups"
+DATE=$(date +%Y%m%d_%H%M%S)
+
+mkdir -p $BACKUP_DIR
+
+# Backup database
+cp /home/app/ai-image/backend/prisma/prod.db $BACKUP_DIR/database_$DATE.db
+
+# Backup uploads
+tar -czf $BACKUP_DIR/uploads_$DATE.tar.gz /home/app/ai-image/uploads
+
+# Keep only last 7 days of backups
+find $BACKUP_DIR -name "*.db" -mtime +7 -delete
+find $BACKUP_DIR -name "*.tar.gz" -mtime +7 -delete
+
+echo "Backup completed: $DATE"
+```
+
+```bash
+chmod +x /home/app/ai-image/backup.sh
+```
+
+## 🧪 Bước 11: Testing
+
+### 11.1 Kiểm tra các endpoint
+```bash
+# Frontend
+curl -I https://tikminer.info
+
+# API Health
+curl https://api.tikminer.info/health
+
+# API Products (cần token)
+curl -H "Authorization: Bearer YOUR_TOKEN" https://api.tikminer.info/api/products
+```
+
+### 11.2 Kiểm tra SSL
+```bash
+# Kiểm tra SSL certificate
+openssl s_client -connect tikminer.info:443 -servername tikminer.info
 ```
 
 ## 🚨 Troubleshooting
 
-### Common Issues:
+### Lỗi thường gặp:
 
-1. **Port Conflicts**
+1. **502 Bad Gateway**
    ```bash
-   # Check what's using ports
-   sudo netstat -tulpn | grep :3001
-   sudo netstat -tulpn | grep :3002
-   sudo netstat -tulpn | grep :5442
-   ```
-
-2. **Permission Issues**
-   ```bash
-   # Fix file permissions
-   sudo chown -R $USER:$USER /opt/aiimage
-   chmod +x ecosystem.config.js
-   ```
-
-3. **Database Connection Issues**
-   ```bash
-   # Check database status
-   docker ps
-   docker logs aiimage_postgres
-   ```
-
-4. **PM2 Issues**
-   ```bash
-   # Reset PM2
-   pm2 kill
-   pm2 start ecosystem.config.js
-   ```
-
-## 📋 Deployment Checklist
-
-- [ ] Server prepared (Node.js, Docker, PM2)
-- [ ] Code uploaded to `/opt/aiimage`
-- [ ] Dependencies installed
-- [ ] Database services running (ports 5442, 6391)
-- [ ] Environment files configured
-- [ ] Database migrations run
-- [ ] PM2 services started
-- [ ] Nginx configured (optional)
-- [ ] SSL certificate installed (optional)
-- [ ] Monitoring setup
-- [ ] Backup script configured
-
-## 🎯 Final Verification
-
-1. **Check Services:**
-   ```bash
+   # Kiểm tra PM2 status
    pm2 status
-   docker ps
+   pm2 logs ai-image-backend
+   
+   # Kiểm tra Nginx config
+   sudo nginx -t
    ```
 
-2. **Test Endpoints:**
-   - Frontend: `http://your-domain.com`
-   - Backend API: `http://your-domain.com/api/auth/profile`
-   - Image Processing: Internal only
+2. **Database connection error**
+   ```bash
+   # Kiểm tra database file
+   ls -la /home/app/ai-image/backend/prisma/
+   
+   # Reset database nếu cần
+   cd /home/app/ai-image/backend
+   npx prisma db push
+   ```
 
-3. **Test Features:**
-   - User registration/login
-   - Image upload & processing
-   - Product Image Tools
-   - Download functionality
+3. **Permission denied**
+   ```bash
+   # Fix permissions
+   sudo chown -R app:app /home/app/ai-image
+   chmod -R 755 /home/app/ai-image/uploads
+   ```
+
+4. **SSL certificate issues**
+   ```bash
+   # Renew certificate
+   sudo certbot renew --dry-run
+   sudo certbot renew
+   ```
+
+## 📈 Performance Optimization
+
+### 1. Nginx optimization
+```bash
+sudo nano /etc/nginx/nginx.conf
+```
+
+Thêm vào `http` block:
+```nginx
+# Gzip compression
+gzip on;
+gzip_vary on;
+gzip_min_length 1024;
+gzip_proxied any;
+gzip_comp_level 6;
+gzip_types
+    text/plain
+    text/css
+    text/xml
+    text/javascript
+    application/json
+    application/javascript
+    application/xml+rss
+    application/atom+xml
+    image/svg+xml;
+
+# Rate limiting
+limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
+```
+
+### 2. PM2 cluster mode (cho production lớn)
+```javascript
+// ecosystem.config.js
+module.exports = {
+  apps: [{
+    name: 'ai-image-backend',
+    script: 'dist/server.js',
+    instances: 'max', // Sử dụng tất cả CPU cores
+    exec_mode: 'cluster',
+    // ... other configs
+  }]
+};
+```
+
+## 🔐 Security Checklist
+
+- [ ] Firewall configured (UFW)
+- [ ] SSL certificates installed
+- [ ] Strong JWT secrets
+- [ ] Database permissions set
+- [ ] File upload restrictions
+- [ ] Rate limiting enabled
+- [ ] Security headers configured
+- [ ] Regular backups scheduled
+- [ ] Log monitoring setup
+- [ ] Updates automated
 
 ## 📞 Support
 
-If you encounter issues:
-1. Check PM2 logs: `pm2 logs`
-2. Check Docker logs: `docker logs aiimage_postgres`
-3. Check Nginx logs: `sudo tail -f /var/log/nginx/error.log`
-4. Verify environment variables
-5. Check port conflicts
+Nếu gặp vấn đề, kiểm tra:
+1. PM2 logs: `pm2 logs ai-image-backend`
+2. Nginx logs: `sudo tail -f /var/log/nginx/error.log`
+3. System logs: `sudo journalctl -u nginx`
+4. Disk space: `df -h`
+5. Memory usage: `free -h`
 
 ---
 
-**🎉 Deployment Complete!** Your AIImage app is now running on Ubuntu server with Product Image Tools feature!
-
+**Lưu ý**: Thay thế tất cả placeholder values (API keys, secrets, etc.) bằng giá trị thực tế trước khi deploy production!

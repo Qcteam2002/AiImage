@@ -23,6 +23,7 @@ model User {
 
   // Relations
   imageProcesses ImageProcess[]
+  products      Product[]
 
   @@map("users")
 }
@@ -72,6 +73,26 @@ model AdminSession {
   admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
   @@map("admin_sessions")
+}
+
+model Product {
+  id              String   @id @default(uuid())
+  user_id         String
+  name            String
+  description     String?
+  image_url       String?
+  product_url     String?
+  status          String   @default("waiting") // waiting, processing, done, error
+  analysis_result String?  // JSON as string for SQLite
+  error_message   String?
+  created_at      DateTime @default(now())
+  analyzed_at     DateTime?
+  updated_at      DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("products")
 }
 
 model SystemConfig {
