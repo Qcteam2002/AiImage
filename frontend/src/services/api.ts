@@ -43,6 +43,9 @@ export interface User {
   email: string;
   first_name?: string;
   last_name?: string;
+  name?: string;
+  avatar?: string;
+  provider?: string;
   credits: number;
   is_verified: boolean;
   created_at: string;
@@ -136,6 +139,28 @@ export const authAPI = {
 
   refreshToken: async (): Promise<AxiosResponse<{ token: string }>> => {
     return api.post('/auth/refresh');
+  },
+
+  // Google OAuth
+  getGoogleAuthUrl: (): string => {
+    const baseUrl = (import.meta as any).env?.VITE_API_URL || '/api';
+    return `${baseUrl}/auth/google`;
+  },
+};
+
+export const videoAPI = {
+  createVideo: async (formData: FormData): Promise<AxiosResponse<{
+    success: boolean;
+    message: string;
+    videoUrl?: string;
+    error?: string;
+  }>> => {
+    return api.post('/video/create', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 300000, // 5 minutes for video processing
+    });
   },
 };
 

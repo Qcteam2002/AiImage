@@ -39,14 +39,29 @@ const ProfilePage: React.FC = () => {
                 </h2>
               </CardHeader>
               <CardBody className="space-y-4">
+                {/* Avatar */}
+                {user?.avatar && (
+                  <div className="flex items-center space-x-4">
+                    <img
+                      src={user.avatar}
+                      alt="Profile"
+                      className="w-16 h-16 rounded-full object-cover"
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Profile Picture</p>
+                      <p className="text-xs text-gray-500">From {user.provider === 'google' ? 'Google' : 'Local'}</p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-4">
                   <Input
                     label={t('auth.register.firstName')}
-                    defaultValue={user?.first_name || ''}
+                    defaultValue={user?.first_name || user?.name?.split(' ')[0] || ''}
                   />
                   <Input
                     label={t('auth.register.lastName')}
-                    defaultValue={user?.last_name || ''}
+                    defaultValue={user?.last_name || user?.name?.split(' ').slice(1).join(' ') || ''}
                   />
                 </div>
                 <Input

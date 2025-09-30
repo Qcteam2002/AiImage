@@ -43,7 +43,8 @@
       "emailInvalid": "Please enter a valid email",
       "passwordRequired": "Password is required",
       "loginError": "Failed to sign in. Please check your credentials.",
-      "emailNotVerified": "Please verify your email before signing in."
+      "emailNotVerified": "Please verify your email before signing in.",
+      "continueWithGoogle": "Continue with Google"
     },
     "register": {
       "title": "Create Your Account",
@@ -64,7 +65,8 @@
       "passwordMatch": "Passwords must match",
       "registerSuccess": "Account created successfully! Please check your email to verify your account.",
       "registerError": "Failed to create account. Please try again.",
-      "emailExists": "An account with this email already exists."
+      "emailExists": "An account with this email already exists.",
+      "continueWithGoogle": "Continue with Google"
     },
     "verification": {
       "title": "Email Verification",

@@ -367,7 +367,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onAd
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
               <Button
                 type="button"
-                variant="outline"
+                variant="primary"
                 onClick={handleClose}
                 disabled={isAnalyzing}
               >

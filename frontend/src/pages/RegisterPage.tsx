@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardBody } from '../components/ui/Card';
+import GoogleOAuthButton from '../components/ui/GoogleOAuthButton';
 
 interface RegisterForm {
   firstName?: string;
@@ -213,6 +214,22 @@ const RegisterPage: React.FC = () => {
                 {t('auth.register.signUp')}
               </Button>
             </form>
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+              </div>
+            </div>
+
+            {/* Google OAuth Button */}
+            <GoogleOAuthButton
+              text={t('auth.register.continueWithGoogle')}
+              disabled={loading}
+            />
 
             <div className="text-center">
               <div className="text-sm text-gray-600">

@@ -183,7 +183,7 @@ const AdminChangePassword: React.FC = () => {
                 
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="primary"
                   onClick={() => window.history.back()}
                   className="flex-1"
                   size="lg"

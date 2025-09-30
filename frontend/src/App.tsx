@@ -13,9 +13,17 @@ import VirtualTryOnPage from './pages/VirtualTryOnPage';
 import ProductImageToolsPage from './pages/ProductImageToolsPage';
 import ProductAnalysisPage from './pages/ProductAnalysisPage';
 import ProductDetailPage from './pages/ProductDetailPage';
+import ProductAnalysisAffPage from './pages/ProductAnalysisAffPage';
+import ProductAnalysisAffDetailPage from './pages/ProductAnalysisAffDetailPage';
+import ProductImageGeneratorPage from './pages/ProductImageGeneratorPage';
+import ProductImageGeneratorDetailPage from './pages/ProductImageGeneratorDetailPage';
+import ProductAIFlowPage from './pages/ProductAIFlowPage';
+import ProductAIFlowDetailPage from './pages/ProductAIFlowDetailPage';
 import HistoryPage from './pages/HistoryPage';
 import ProfilePage from './pages/ProfilePage';
+import VideoTestPage from './pages/VideoTestPage';
 import EmailVerificationPage from './pages/EmailVerificationPage';
+import OAuthCallbackPage from './pages/OAuthCallbackPage';
 import AdminApp from './admin/AdminApp';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/ui/LoadingSpinner';
@@ -96,6 +104,7 @@ const AppRoutes: React.FC = () => {
           }
         />
         <Route path="/verify-email" element={<EmailVerificationPage />} />
+        <Route path="/auth/callback" element={<OAuthCallbackPage />} />
         
         {/* Admin routes */}
         <Route path="/admin/*" element={<AdminApp />} />
@@ -113,8 +122,15 @@ const AppRoutes: React.FC = () => {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="virtual-tryon" element={<VirtualTryOnPage />} />
           <Route path="product-image-tools" element={<ProductImageToolsPage />} />
-          <Route path="product-analysis" element={<ProductAnalysisPage />} />
-          <Route path="product-analysis/:id" element={<ProductDetailPage />} />
+            <Route path="product-analysis" element={<ProductAnalysisPage />} />
+            <Route path="product-analysis/:id" element={<ProductDetailPage />} />
+            <Route path="product-analysis-aff" element={<ProductAnalysisAffPage />} />
+            <Route path="product-analysis-aff/:id" element={<ProductAnalysisAffDetailPage />} />
+            <Route path="product-image-generator" element={<ProductImageGeneratorPage />} />
+            <Route path="product-image-generator/:id" element={<ProductImageGeneratorDetailPage />} />
+            <Route path="product-ai-flow" element={<ProductAIFlowPage />} />
+            <Route path="product-ai-flow/:id" element={<ProductAIFlowDetailPage />} />
+          <Route path="video-test" element={<VideoTestPage />} />
           <Route path="history" element={<HistoryPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>

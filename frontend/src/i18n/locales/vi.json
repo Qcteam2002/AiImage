@@ -43,7 +43,8 @@
       "emailInvalid": "Vui lòng nhập email hợp lệ",
       "passwordRequired": "Mật khẩu là bắt buộc",
       "loginError": "Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.",
-      "emailNotVerified": "Vui lòng xác thực email trước khi đăng nhập."
+      "emailNotVerified": "Vui lòng xác thực email trước khi đăng nhập.",
+      "continueWithGoogle": "Tiếp tục với Google"
     },
     "register": {
       "title": "Tạo tài khoản mới",
@@ -64,7 +65,8 @@
       "passwordMatch": "Mật khẩu phải trùng khớp",
       "registerSuccess": "Tạo tài khoản thành công! Vui lòng kiểm tra email để xác thực tài khoản.",
       "registerError": "Tạo tài khoản thất bại. Vui lòng thử lại.",
-      "emailExists": "Đã tồn tại tài khoản với email này."
+      "emailExists": "Đã tồn tại tài khoản với email này.",
+      "continueWithGoogle": "Tiếp tục với Google"
     },
     "verification": {
       "title": "Xác thực Email",
