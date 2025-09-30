@@ -10,6 +10,7 @@ import authRoutes from './routes/auth';
 import imageRoutes from './routes/images';
 import adminRoutes from './routes/admin';
 import productRoutes from './routes/products';
+import productAffFlowRoutes from './routes/productAffFlow';
 
 // Validate configuration
 try {
@@ -89,6 +90,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/images', imageRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/product-aff', productAffFlowRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
