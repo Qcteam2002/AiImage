@@ -70,6 +70,10 @@ router.post('/login', validateRequest(loginSchema), async (req: Request, res: Re
     }
     
     // Check password
+    if (!user.password) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -141,10 +145,11 @@ router.post('/verify-email', async (req: Request, res: Response) => {
 });
 
 // Get current user profile
-router.get('/profile', authenticate, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/profile', authenticate, async (req: Request, res: Response) => {
   try {
+    const authenticatedReq = req as AuthenticatedRequest;
     const user = await prisma.user.findUnique({
-      where: { id: req.user!.id },
+      where: { id: authenticatedReq.user!.id },
       select: {
         id: true,
         email: true,
@@ -168,12 +173,13 @@ router.get('/profile', authenticate, async (req: AuthenticatedRequest, res: Resp
 });
 
 // Update profile
-router.put('/profile', authenticate, async (req: AuthenticatedRequest, res: Response) => {
+router.put('/profile', authenticate, async (req: Request, res: Response) => {
   try {
+    const authenticatedReq = req as AuthenticatedRequest;
     const { name } = req.body;
     
     const user = await prisma.user.update({
-      where: { id: req.user!.id },
+      where: { id: authenticatedReq.user!.id },
       data: { name },
       select: {
         id: true,

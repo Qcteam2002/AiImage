@@ -10,7 +10,12 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
-export const authenticate = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+// Type guard to check if request is authenticated
+export const isAuthenticatedRequest = (req: Request): req is AuthenticatedRequest => {
+  return 'user' in req;
+}
+
+export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
     
@@ -37,7 +42,8 @@ export const authenticate = async (req: AuthenticatedRequest, res: Response, nex
       return res.status(401).json({ error: 'Email not verified' });
     }
     
-    req.user = {
+    // Cast req to AuthenticatedRequest and add user property
+    (req as AuthenticatedRequest).user = {
       id: user.id,
       email: user.email,
       credits: user.credits
@@ -50,12 +56,13 @@ export const authenticate = async (req: AuthenticatedRequest, res: Response, nex
   }
 };
 
-export const requireCredits = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  if (!req.user) {
+export const requireCredits = (req: Request, res: Response, next: NextFunction) => {
+  const authenticatedReq = req as AuthenticatedRequest;
+  if (!authenticatedReq.user) {
     return res.status(401).json({ error: 'Authentication required' });
   }
   
-  if (req.user.credits <= 0) {
+  if (authenticatedReq.user.credits <= 0) {
     return res.status(403).json({ error: 'Insufficient credits' });
   }
   

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Try-On API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 10px 0;
+        }
+        .generated-image {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Virtual Try-On API Test</h1>
+    
+    <form id="tryonForm">
+        <div class="form-group">
+            <label for="userImage">User Image (Required):</label>
+            <input type="file" id="userImage" accept="image/*" required>
+            <div id="userPreview"></div>
+        </div>
+        
+        <div class="form-group">
+            <label for="productImage">Product Image (File):</label>
+            <input type="file" id="productImage" accept="image/*">
+            <div id="productPreview"></div>
+        </div>
+        
+        <div class="form-group">
+            <label for="productImageUrl">OR Product Image URL:</label>
+            <input type="url" id="productImageUrl" placeholder="https://example.com/product.jpg">
+        </div>
+        
+        <div class="form-group">
+            <label for="productTitle">Product Title (Optional):</label>
+            <input type="text" id="productTitle" placeholder="e.g., Red T-Shirt">
+        </div>
+        
+        <div class="form-group">
+            <label for="customPrompt">Custom Prompt (Optional):</label>
+            <textarea id="customPrompt" rows="3" placeholder="e.g., Make it look casual and stylish"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="authToken">Auth Token (Optional):</label>
+            <input type="text" id="authToken" placeholder="Bearer token for authentication">
+        </div>
+        
+        <button type="submit" id="submitBtn">Generate Virtual Try-On</button>
+    </form>
+    
+    <div id="result" class="result" style="display: none;">
+        <h3>Result:</h3>
+        <div id="resultContent"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('tryonForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const result = document.getElementById('result');
+        const resultContent = document.getElementById('resultContent');
+        const userPreview = document.getElementById('userPreview');
+        const productPreview = document.getElementById('productPreview');
+
+        // Preview images
+        document.getElementById('userImage').addEventListener('change', function(e) {
+            previewImage(e.target.files[0], userPreview);
+        });
+
+        document.getElementById('productImage').addEventListener('change', function(e) {
+            previewImage(e.target.files[0], productPreview);
+        });
+
+        function previewImage(file, container) {
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    container.innerHTML = `<img src="${e.target.result}" class="image-preview" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userImage = document.getElementById('userImage').files[0];
+            const productImage = document.getElementById('productImage').files[0];
+            const productImageUrl = document.getElementById('productImageUrl').value;
+            const productTitle = document.getElementById('productTitle').value;
+            const customPrompt = document.getElementById('customPrompt').value;
+            const authToken = document.getElementById('authToken').value;
+
+            // Validation
+            if (!userImage) {
+                showError('Please select a user image');
+                return;
+            }
+
+            if (!productImage && !productImageUrl) {
+                showError('Please provide either a product image file or URL');
+                return;
+            }
+
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('userImage', userImage);
+            
+            if (productImage) {
+                formData.append('productImage', productImage);
+            }
+            if (productImageUrl) {
+                formData.append('productImageUrl', productImageUrl);
+            }
+            if (productTitle) {
+                formData.append('productTitle', productTitle);
+            }
+            if (customPrompt) {
+                formData.append('customPrompt', customPrompt);
+            }
+
+            // Prepare headers
+            const headers = {};
+            if (authToken) {
+                headers['Authorization'] = authToken.startsWith('Bearer ') ? authToken : `Bearer ${authToken}`;
+            }
+
+            // Submit
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Generating...';
+            result.style.display = 'none';
+
+            try {
+                const response = await fetch('http://localhost:3001/api/images/tryon', {
+                    method: 'POST',
+                    headers: headers,
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess(data);
+                } else {
+                    showError(data.error || 'Unknown error occurred');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Generate Virtual Try-On';
+            }
+        });
+
+        function showSuccess(data) {
+            result.className = 'result success';
+            result.style.display = 'block';
+            
+            let content = `
+                <p><strong>Status:</strong> Success</p>
+                <p><strong>Message:</strong> ${data.message}</p>
+            `;
+            
+            if (data.creditsRemaining !== null) {
+                content += `<p><strong>Credits Remaining:</strong> ${data.creditsRemaining}</p>`;
+            }
+            
+            if (data.generatedImageUrl) {
+                content += `
+                    <p><strong>Generated Image:</strong></p>
+                    <img src="${data.generatedImageUrl}" class="generated-image" alt="Generated Virtual Try-On">
+                    <br>
+                    <a href="${data.generatedImageUrl}" download="virtual-tryon.jpg" target="_blank">Download Image</a>
+                `;
+            }
+            
+            resultContent.innerHTML = content;
+        }
+
+        function showError(message) {
+            result.className = 'result error';
+            result.style.display = 'block';
+            resultContent.innerHTML = `<p><strong>Error:</strong> ${message}</p>`;
+        }
+    </script>
+</body>
+</html>
+

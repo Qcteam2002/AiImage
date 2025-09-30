@@ -1,0 +1,205 @@
+{
+  "info": {
+    "name": "Virtual Try-On API",
+    "description": "API collection for Virtual Try-On service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Virtual Try-On with Files",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "userImage",
+              "type": "file",
+              "src": [],
+              "description": "User image file (JPG, PNG, WebP, GIF)"
+            },
+            {
+              "key": "productImage",
+              "type": "file",
+              "src": [],
+              "description": "Product image file (optional if productImageUrl provided)"
+            },
+            {
+              "key": "productTitle",
+              "value": "Red T-Shirt",
+              "type": "text",
+              "description": "Product title (optional)"
+            },
+            {
+              "key": "customPrompt",
+              "value": "Make it look casual and stylish",
+              "type": "text",
+              "description": "Custom prompt (optional)"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/images/tryon",
+          "host": ["{{base_url}}"],
+          "path": ["api", "images", "tryon"]
+        },
+        "description": "Create virtual try-on using uploaded files"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "userImage",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "productImage",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/images/tryon",
+              "host": ["{{base_url}}"],
+              "path": ["api", "images", "tryon"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"generatedImageUrl\": \"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...\",\n  \"message\": \"Virtual try-on generated successfully!\",\n  \"creditsRemaining\": 9\n}"
+        }
+      ]
+    },
+    {
+      "name": "Virtual Try-On with Product URL",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "userImage",
+              "type": "file",
+              "src": [],
+              "description": "User image file"
+            },
+            {
+              "key": "productImageUrl",
+              "value": "https://example.com/product.jpg",
+              "type": "text",
+              "description": "Product image URL"
+            },
+            {
+              "key": "productTitle",
+              "value": "Blue Jeans",
+              "type": "text",
+              "description": "Product title"
+            },
+            {
+              "key": "customPrompt",
+              "value": "Make it look professional",
+              "type": "text",
+              "description": "Custom styling prompt"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/images/tryon",
+          "host": ["{{base_url}}"],
+          "path": ["api", "images", "tryon"]
+        },
+        "description": "Create virtual try-on using product image URL"
+      }
+    },
+    {
+      "name": "Virtual Try-On with Authentication",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}",
+            "description": "JWT token for authentication"
+          },
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "userImage",
+              "type": "file",
+              "src": [],
+              "description": "User image file"
+            },
+            {
+              "key": "productImageUrl",
+              "value": "https://example.com/product.jpg",
+              "type": "text",
+              "description": "Product image URL"
+            },
+            {
+              "key": "productTitle",
+              "value": "Fashion T-Shirt",
+              "type": "text",
+              "description": "Product title"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/images/tryon",
+          "host": ["{{base_url}}"],
+          "path": ["api", "images", "tryon"]
+        },
+        "description": "Create virtual try-on with authentication (deducts credits)"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001",
+      "description": "Base URL for the API"
+    },
+    {
+      "key": "jwt_token",
+      "value": "your-jwt-token-here",
+      "description": "JWT token for authentication"
+    }
+  ]
+}
+

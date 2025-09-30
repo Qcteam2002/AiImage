@@ -24,6 +24,10 @@ model User {
   // Relations
   imageProcesses ImageProcess[]
   products      Product[]
+  productAffs   ProductAff[]
+  productAIFlows ProductAIFlow[]
+  productImageGenerators ProductImageGenerator[]
+  videoProcesses VideoProcess[]
 
   @@map("users")
 }
@@ -104,4 +108,74 @@ model SystemConfig {
   updatedAt DateTime @updatedAt
 
   @@map("system_configs")
+}
+
+model ProductAff {
+  id            String   @id @default(cuid())
+  target_market String
+  image1        String
+  image2        String?
+  title         String?
+  description   String?
+  status        String   @default("waiting") // waiting, processing, done, error
+  analysis_result String?
+  analyzed_at   DateTime?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("product_aff")
+}
+
+model ProductAIFlow {
+  id            String   @id @default(cuid())
+  target_market String
+  image1        String
+  image2        String?
+  title         String?
+  description   String?
+  status        String   @default("waiting") // waiting, processing, done, error
+  analysis_result String?
+  image_url     String?
+  ai_result     String?
+  error_message String?
+  generated_at  DateTime?
+  analyzed_at   DateTime?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  user_id       String
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("product_ai_flow")
+}
+
+model ProductImageGenerator {
+  id            String   @id @default(cuid())
+  prompt        String
+  title         String?
+  image_url     String?
+  status        String   @default("waiting") // waiting, processing, done, error
+  error_message String?
+  generation_result String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  user_id       String
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("product_image_generator")
+}
+
+model VideoProcess {
+  id            String   @id @default(cuid())
+  video_url     String
+  result_url    String?
+  status        String   @default("waiting") // waiting, processing, done, error
+  error_message String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user_id       String
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("video_process")
 }

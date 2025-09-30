@@ -111,8 +111,9 @@ router.post('/process-files',
   authenticate, 
   requireCredits, 
   upload.array('images', 2), 
-  async (req: AuthenticatedRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
+      const authenticatedReq = req as AuthenticatedRequest;
       const files = req.files as Express.Multer.File[];
       
       if (!files || files.length !== 2) {
@@ -126,7 +127,7 @@ router.post('/process-files',
       // Create image process record
       const process = await prisma.imageProcess.create({
         data: {
-        userId: req.user!.id,
+        userId: authenticatedReq.user!.id,
         modelImageUrl: 'file_upload',
         productImageUrl: 'file_upload',
           metadata: JSON.stringify({ prompt, uploadType: 'files' })
@@ -159,13 +160,13 @@ router.post('/process-files',
         
         // Deduct credit
         await prisma.user.update({
-          where: { id: req.user!.id },
+          where: { id: authenticatedReq.user!.id },
           data: { credits: { decrement: 1 } }
         });
         
         // Get updated user credits
         const updatedUser = await prisma.user.findUnique({
-          where: { id: req.user!.id },
+          where: { id: authenticatedReq.user!.id },
           select: { credits: true }
         });
         
@@ -221,8 +222,9 @@ router.post('/process-files',
 router.post('/process-urls',
   authenticate,
   requireCredits,
-  async (req: AuthenticatedRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
+      const authenticatedReq = req as AuthenticatedRequest;
       const { error } = processUrlsSchema.validate(req.body);
       if (error) {
         return res.status(400).json({
@@ -236,7 +238,7 @@ router.post('/process-urls',
       // Create image process record
       const process = await prisma.imageProcess.create({
         data: {
-        userId: req.user!.id,
+        userId: authenticatedReq.user!.id,
         modelImageUrl,
         productImageUrl,
         metadata: JSON.stringify({ prompt, uploadType: 'urls' })
@@ -280,13 +282,13 @@ router.post('/process-urls',
         
         // Deduct credit
         await prisma.user.update({
-          where: { id: req.user!.id },
+          where: { id: authenticatedReq.user!.id },
           data: { credits: { decrement: 1 } }
         });
         
         // Get updated user credits
         const updatedUser = await prisma.user.findUnique({
-          where: { id: req.user!.id },
+          where: { id: authenticatedReq.user!.id },
           select: { credits: true }
         });
         
@@ -336,8 +338,9 @@ router.post('/process-product-files',
     { name: 'productImage', maxCount: 1 },
     { name: 'backgroundImage', maxCount: 1 }
   ]), 
-  async (req: AuthenticatedRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
+      const authenticatedReq = req as AuthenticatedRequest;
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       
       if (!files || !files.productImage || files.productImage.length === 0) {
@@ -353,7 +356,7 @@ router.post('/process-product-files',
       // Create image process record
       const process = await prisma.imageProcess.create({
         data: {
-        userId: req.user!.id,
+        userId: authenticatedReq.user!.id,
         modelImageUrl: 'product_file_upload',
         productImageUrl: backgroundFile ? 'background_file_upload' : 'product_only',
         metadata: JSON.stringify({ prompt, uploadType: 'product-files', hasBackground: !!backgroundFile })
@@ -387,13 +390,13 @@ router.post('/process-product-files',
         
         // Deduct credit
         await prisma.user.update({
-          where: { id: req.user!.id },
+          where: { id: authenticatedReq.user!.id },
           data: { credits: { decrement: 1 } }
         });
         
         // Get updated user credits
         const updatedUser = await prisma.user.findUnique({
-          where: { id: req.user!.id },
+          where: { id: authenticatedReq.user!.id },
           select: { credits: true }
         });
         
@@ -448,8 +451,9 @@ router.post('/process-product-files',
 );
 
 // Process product images with URLs
-router.post('/process-product-urls', authenticate, requireCredits, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/process-product-urls', authenticate, requireCredits, async (req: Request, res: Response) => {
   try {
+    const authenticatedReq = req as AuthenticatedRequest;
     const { error, value } = processProductUrlsSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ 
@@ -463,7 +467,7 @@ router.post('/process-product-urls', authenticate, requireCredits, async (req: A
     // Create image process record
     const process = await prisma.imageProcess.create({
       data: {
-      userId: req.user!.id,
+      userId: authenticatedReq.user!.id,
       modelImageUrl: productImageUrl,
       productImageUrl: backgroundImageUrl || 'product_only',
       metadata: JSON.stringify({ prompt, uploadType: 'product-urls', hasBackground: !!backgroundImageUrl })
@@ -504,13 +508,13 @@ router.post('/process-product-urls', authenticate, requireCredits, async (req: A
       
       // Deduct credit
       await prisma.user.update({
-        where: { id: req.user!.id },
+        where: { id: authenticatedReq.user!.id },
         data: { credits: { decrement: 1 } }
       });
       
       // Get updated user credits
       const updatedUser = await prisma.user.findUnique({
-        where: { id: req.user!.id },
+        where: { id: authenticatedReq.user!.id },
         select: { credits: true }
       });
       
@@ -559,8 +563,9 @@ router.post('/virtual-tryon',
     { name: 'userImage', maxCount: 1 },
     { name: 'productImage', maxCount: 1 }
   ]), 
-  async (req: AuthenticatedRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
+      const authenticatedReq = req as AuthenticatedRequest;
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       
       if (!files || !files.userImage || files.userImage.length === 0) {
@@ -582,7 +587,7 @@ router.post('/virtual-tryon',
       // Create image process record
       const process = await prisma.imageProcess.create({
         data: {
-        userId: req.user!.id,
+        userId: authenticatedReq.user!.id,
         modelImageUrl: 'user_file_upload',
         productImageUrl: 'product_file_upload',
           metadata: JSON.stringify({ customPrompt, productTitle, uploadType: 'virtual-tryon-files' })
@@ -617,13 +622,13 @@ router.post('/virtual-tryon',
         
         // Deduct credit
         await prisma.user.update({
-          where: { id: req.user!.id },
+          where: { id: authenticatedReq.user!.id },
           data: { credits: { decrement: 1 } }
         });
         
         // Get updated user credits
         const updatedUser = await prisma.user.findUnique({
-          where: { id: req.user!.id },
+          where: { id: authenticatedReq.user!.id },
           select: { credits: true }
         });
         
@@ -675,8 +680,9 @@ router.post('/virtual-tryon',
 );
 
 // Process virtual try-on with URLs
-router.post('/virtual-tryon-urls', authenticate, requireCredits, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/virtual-tryon-urls', authenticate, requireCredits, async (req: Request, res: Response) => {
   try {
+    const authenticatedReq = req as AuthenticatedRequest;
     const { error, value } = virtualTryOnUrlsSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ 
@@ -690,7 +696,7 @@ router.post('/virtual-tryon-urls', authenticate, requireCredits, async (req: Aut
     // Create image process record
     const process = await prisma.imageProcess.create({
       data: {
-      userId: req.user!.id,
+      userId: authenticatedReq.user!.id,
       modelImageUrl: userImageUrl,
       productImageUrl: productImageUrl,
         metadata: JSON.stringify({ customPrompt, productTitle, uploadType: 'virtual-tryon-urls' })
@@ -728,13 +734,13 @@ router.post('/virtual-tryon-urls', authenticate, requireCredits, async (req: Aut
       
       // Deduct credit
       await prisma.user.update({
-        where: { id: req.user!.id },
+        where: { id: authenticatedReq.user!.id },
         data: { credits: { decrement: 1 } }
       });
       
       // Get updated user credits
       const updatedUser = await prisma.user.findUnique({
-        where: { id: req.user!.id },
+        where: { id: authenticatedReq.user!.id },
         select: { credits: true }
       });
       
@@ -773,11 +779,12 @@ router.post('/virtual-tryon-urls', authenticate, requireCredits, async (req: Aut
 });
 
 // Get user's image processing history
-router.get('/history', authenticate, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/history', authenticate, async (req: Request, res: Response) => {
   try {
+    const authenticatedReq = req as AuthenticatedRequest;
     const limit = parseInt(req.query.limit as string) || 20;
     const processes = await prisma.imageProcess.findMany({
-      where: { userId: req.user!.id },
+      where: { userId: authenticatedReq.user!.id },
       orderBy: { createdAt: 'desc' },
       take: limit
     });
@@ -801,16 +808,17 @@ router.get('/history', authenticate, async (req: AuthenticatedRequest, res: Resp
 });
 
 // Get processing statistics
-router.get('/stats', authenticate, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/stats', authenticate, async (req: Request, res: Response) => {
   try {
+    const authenticatedReq = req as AuthenticatedRequest;
     const stats = await prisma.imageProcess.groupBy({
       by: ['status'],
-      where: { userId: req.user!.id },
+      where: { userId: authenticatedReq.user!.id },
       _count: { status: true }
     });
     
     const user = await prisma.user.findUnique({
-      where: { id: req.user!.id },
+      where: { id: authenticatedReq.user!.id },
       select: { credits: true }
     });
     
@@ -832,9 +840,10 @@ router.get('/stats', authenticate, async (req: AuthenticatedRequest, res: Respon
 });
 
 // Get comprehensive dashboard statistics
-router.get('/dashboard-stats', authenticate, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/dashboard-stats', authenticate, async (req: Request, res: Response) => {
   try {
-    const userId = req.user!.id;
+    const authenticatedReq = req as AuthenticatedRequest;
+    const userId = authenticatedReq.user!.id;
 
     // Get user info
     const user = await prisma.user.findUnique({
@@ -983,6 +992,7 @@ router.post('/tryon',
   ]), 
   async (req: Request, res: Response) => {
     try {
+      const authenticatedReq = req as AuthenticatedRequest;
       const { productImageUrl, productTitle, customPrompt } = req.body;
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       const userImageFile = files?.['userImage']?.[0];

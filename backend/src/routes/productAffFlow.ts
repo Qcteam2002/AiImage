@@ -1,17 +1,17 @@
-import express from 'express';
-import { PrismaClient } from '@prisma/client';
+import express, { Request, Response } from 'express';
+import { prisma } from '../database/client';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth';
 import axios from 'axios';
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // Get all products
-router.get('/', authenticate, async (req: AuthenticatedRequest, res) => {
-  try {
+router.get('/', authenticate,   async (req: Request, res: Response) => {
+    try {
+      const authenticatedReq = req as AuthenticatedRequest;
     console.log('🔍 [ProductAff] GET / - Fetching products');
     const { search, status, limit = 50, offset = 0 } = req.query;
-    const userId = req.user?.id;
+    const userId = authenticatedReq.user?.id;
 
     if (!userId) {
       console.log('❌ [ProductAff] GET / - Unauthorized: No userId');
@@ -57,10 +57,11 @@ router.get('/', authenticate, async (req: AuthenticatedRequest, res) => {
 });
 
 // Get single product
-router.get('/:id', authenticate, async (req: AuthenticatedRequest, res) => {
-  try {
+router.get('/:id', authenticate,   async (req: Request, res: Response) => {
+    try {
+      const authenticatedReq = req as AuthenticatedRequest;
     const { id } = req.params;
-    const userId = req.user?.id;
+    const userId = authenticatedReq.user?.id;
 
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -85,11 +86,12 @@ router.get('/:id', authenticate, async (req: AuthenticatedRequest, res) => {
 });
 
 // Create new product
-router.post('/', authenticate, async (req: AuthenticatedRequest, res) => {
-  try {
+router.post('/', authenticate,   async (req: Request, res: Response) => {
+    try {
+      const authenticatedReq = req as AuthenticatedRequest;
     console.log('➕ [ProductAff] POST / - Creating new product');
     const { target_market, image1, image2, title, description } = req.body;
-    const userId = req.user?.id;
+    const userId = authenticatedReq.user?.id;
 
     if (!userId) {
       console.log('❌ [ProductAff] POST / - Unauthorized: No userId');
@@ -120,11 +122,12 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res) => {
 });
 
 // Analyze product
-router.post('/:id/analyze', authenticate, async (req: AuthenticatedRequest, res) => {
-  try {
+router.post('/:id/analyze', authenticate,   async (req: Request, res: Response) => {
+    try {
+      const authenticatedReq = req as AuthenticatedRequest;
     console.log('🤖 [ProductAff] POST /:id/analyze - Starting analysis');
     const { id } = req.params;
-    const userId = req.user?.id;
+    const userId = authenticatedReq.user?.id;
 
     if (!userId) {
       console.log('❌ [ProductAff] POST /:id/analyze - Unauthorized: No userId');
@@ -191,10 +194,11 @@ router.post('/:id/analyze', authenticate, async (req: AuthenticatedRequest, res)
 });
 
 // Delete product
-router.delete('/:id', authenticate, async (req: AuthenticatedRequest, res) => {
-  try {
+router.delete('/:id', authenticate,   async (req: Request, res: Response) => {
+    try {
+      const authenticatedReq = req as AuthenticatedRequest;
     const { id } = req.params;
-    const userId = req.user?.id;
+    const userId = authenticatedReq.user?.id;
 
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
