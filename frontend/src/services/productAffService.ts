@@ -22,6 +22,14 @@ export interface CreateProductAffRequest {
   description?: string;
 }
 
+export interface UpdateProductAffRequest {
+  target_market?: string;
+  image1?: string;
+  image2?: string;
+  title?: string;
+  description?: string;
+}
+
 export interface GetProductsAffParams {
   search?: string;
   status?: string;
@@ -85,6 +93,13 @@ class ProductAffService {
   async createProduct(data: CreateProductAffRequest): Promise<ProductAff> {
     return this.request<ProductAff>('/api/product-aff', {
       method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateProduct(id: string, data: UpdateProductAffRequest): Promise<ProductAff> {
+    return this.request<ProductAff>(`/api/product-aff/${id}`, {
+      method: 'PUT',
       body: JSON.stringify(data),
     });
   }

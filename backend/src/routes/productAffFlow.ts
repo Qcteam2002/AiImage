@@ -121,6 +121,58 @@ router.post('/', authenticate,   async (req: Request, res: Response) => {
   }
 });
 
+// Update product
+router.put('/:id', authenticate, async (req: Request, res: Response) => {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+    console.log('✏️ [ProductAff] PUT /:id - Updating product');
+    const { id } = req.params;
+    const { target_market, image1, image2, title, description } = req.body;
+    const userId = authenticatedReq.user?.id;
+
+    if (!userId) {
+      console.log('❌ [ProductAff] PUT /:id - Unauthorized: No userId');
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    // Check if product exists and belongs to user
+    const existingProduct = await prisma.productAff.findFirst({
+      where: {
+        id: id,
+        userId: userId,
+      },
+    });
+
+    if (!existingProduct) {
+      console.log('❌ [ProductAff] PUT /:id - Product not found:', id);
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Only allow updating if status is not processing
+    if (existingProduct.status === 'processing') {
+      return res.status(400).json({ message: 'Cannot update product while analysis is in progress' });
+    }
+
+    const updateData: any = {};
+    if (target_market !== undefined) updateData.target_market = target_market;
+    if (image1 !== undefined) updateData.image1 = image1;
+    if (image2 !== undefined) updateData.image2 = image2;
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+
+    const updatedProduct = await prisma.productAff.update({
+      where: { id: id },
+      data: updateData,
+    });
+
+    console.log('✅ [ProductAff] PUT /:id - Product updated successfully');
+    res.json(updatedProduct);
+  } catch (error) {
+    console.error('Error updating product:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 // Analyze product
 router.post('/:id/analyze', authenticate,   async (req: Request, res: Response) => {
     try {
@@ -146,11 +198,31 @@ router.post('/:id/analyze', authenticate,   async (req: Request, res: Response) 
       return res.status(404).json({ message: 'Product not found' });
     }
 
+    // Check if user has enough credits
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { credits: true }
+    });
+
+    if (!user) {
+      console.log('❌ [ProductAff] POST /:id/analyze - User not found:', userId);
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.credits < 1) {
+      console.log('❌ [ProductAff] POST /:id/analyze - Insufficient credits:', user.credits);
+      return res.status(400).json({ 
+        message: 'Insufficient credits. You need at least 1 credit to analyze a product.',
+        credits: user.credits
+      });
+    }
+
     console.log('📝 [ProductAff] POST /:id/analyze - Product found:', {
       id: product.id,
       target_market: product.target_market,
       title: product.title
     });
+    console.log('💰 [ProductAff] POST /:id/analyze - User credits:', user.credits);
 
     // Update status to processing
     await prisma.productAff.update({
@@ -165,14 +237,36 @@ router.post('/:id/analyze', authenticate,   async (req: Request, res: Response) 
       const analysisResult = await analyzeProductWithAI(product);
       console.log('✅ [ProductAff] POST /:id/analyze - AI analysis completed');
       
-      // Update product with analysis result
-      const updatedProduct = await prisma.productAff.update({
-        where: { id: id },
-        data: {
-          status: 'done',
-          analysis_result: JSON.stringify(analysisResult),
-          analyzed_at: new Date(),
-        },
+      // Update product with analysis result and deduct credit
+      const updatedProduct = await prisma.$transaction(async (tx) => {
+        // Update product status
+        const updatedProduct = await tx.productAff.update({
+          where: { id: id },
+          data: {
+            status: 'done',
+            analysis_result: JSON.stringify(analysisResult),
+            analyzed_at: new Date(),
+          },
+        });
+
+        // Deduct 1 credit from user
+        const updatedUser = await tx.user.update({
+          where: { id: userId },
+          data: {
+            credits: {
+              decrement: 1
+            }
+          },
+          select: {
+            id: true,
+            email: true,
+            credits: true
+          }
+        });
+
+        console.log(`💰 [ProductAff] POST /:id/analyze - Credit deducted. User ${userId} now has ${updatedUser.credits} credits`);
+        
+        return updatedProduct;
       });
 
       res.json(updatedProduct);
@@ -301,7 +395,7 @@ Mỗi nhóm 4-8 từ khóa, liệt kê từ cao → thấp.
     - Liệt kê kèm % khách hàng chưa được serve tốt ở những vấn đề này hoặc nhu cầu chưa đáp ứng
     - Trích dẫn feedback thực tế từ review (Amazon/Etsy/Reddit…) nếu có.
 
-### **3. Phân Tích 3 Nhóm Khách Hàng Mục Tiêu (BẢN MỞ RỘNG)**
+### **3. Phân Tích 5 Nhóm Khách Hàng Mục Tiêu (BẢN MỞ RỘNG)**
 
 ### Mỗi nhóm cần phân tích đầy đủ bảng sau:
 
@@ -565,6 +659,124 @@ Trả về đúng cấu trúc JSON sau (bằng tiếng việt):
   },
   {
     "name": "Tên nhóm khách hàng 3",
+    "market_share_percent": 0,
+    "gender_ratio": { "male": 0, "female": 0 },
+    "age_range": "xx–yy",
+    "occupations": [],
+    "locations": ["Urban", "Suburban", "Rural"],
+    "purchase_frequency": "Theo mùa / Thường xuyên / Dịp lễ",
+    "average_budget_usd": 0,
+    "buying_behavior": "Tìm gì? Mua ở đâu? Quyết định dựa vào?",
+    "usage_context": "Dùng ở đâu, với ai, mục đích gì?",
+    "emotional_motivations": "Cảm giác mong muốn",
+    "common_painpoints": [
+      "Vấn đề 1",
+      "Vấn đề 2"
+    ],
+    "main_channels": ["TikTok", "Facebook", "Pinterest", "Google"],
+    "repurchase_or_upsell": {
+      "exists": true,
+      "estimated_percent": 0
+    },
+    "painpoint_levels": {
+      "high": {
+        "percent": 0,
+        "description": "Mô tả vấn đề mức độ cao"
+      },
+      "medium": {
+        "percent": 0,
+        "description": "Mô tả vấn đề mức độ trung bình"
+      },
+      "low": {
+        "percent": 0,
+        "description": "Mô tả vấn đề mức độ thấp"
+      }
+    },
+    "solutions_and_content": [
+      {
+        "pain_point": "Tên vấn đề 1",
+        "percent_of_customers": 0,
+        "usp": "Giải pháp chính",
+        "content_hook": "Hook content dùng cho video/caption",
+        "ad_visual_idea": "Kịch bản hình/video ngắn"
+      },
+      {
+        "pain_point": "Tên vấn đề 2",
+        "percent_of_customers": 0,
+        "usp": "Giải pháp chính",
+        "content_hook": "Hook content dùng cho video/caption",
+        "ad_visual_idea": "Kịch bản hình/video ngắn"
+      },
+      {
+        "pain_point": "Tên vấn đề 3",
+        "percent_of_customers": 0,
+        "usp": "Giải pháp chính",
+        "content_hook": "Hook content dùng cho video/caption",
+        "ad_visual_idea": "Kịch bản hình/video ngắn"
+      }
+    ]
+  },
+  {
+    "name": "Tên nhóm khách hàng 4",
+    "market_share_percent": 0,
+    "gender_ratio": { "male": 0, "female": 0 },
+    "age_range": "xx–yy",
+    "occupations": [],
+    "locations": ["Urban", "Suburban", "Rural"],
+    "purchase_frequency": "Theo mùa / Thường xuyên / Dịp lễ",
+    "average_budget_usd": 0,
+    "buying_behavior": "Tìm gì? Mua ở đâu? Quyết định dựa vào?",
+    "usage_context": "Dùng ở đâu, với ai, mục đích gì?",
+    "emotional_motivations": "Cảm giác mong muốn",
+    "common_painpoints": [
+      "Vấn đề 1",
+      "Vấn đề 2"
+    ],
+    "main_channels": ["TikTok", "Facebook", "Pinterest", "Google"],
+    "repurchase_or_upsell": {
+      "exists": true,
+      "estimated_percent": 0
+    },
+    "painpoint_levels": {
+      "high": {
+        "percent": 0,
+        "description": "Mô tả vấn đề mức độ cao"
+      },
+      "medium": {
+        "percent": 0,
+        "description": "Mô tả vấn đề mức độ trung bình"
+      },
+      "low": {
+        "percent": 0,
+        "description": "Mô tả vấn đề mức độ thấp"
+      }
+    },
+    "solutions_and_content": [
+      {
+        "pain_point": "Tên vấn đề 1",
+        "percent_of_customers": 0,
+        "usp": "Giải pháp chính",
+        "content_hook": "Hook content dùng cho video/caption",
+        "ad_visual_idea": "Kịch bản hình/video ngắn"
+      },
+      {
+        "pain_point": "Tên vấn đề 2",
+        "percent_of_customers": 0,
+        "usp": "Giải pháp chính",
+        "content_hook": "Hook content dùng cho video/caption",
+        "ad_visual_idea": "Kịch bản hình/video ngắn"
+      },
+      {
+        "pain_point": "Tên vấn đề 3",
+        "percent_of_customers": 0,
+        "usp": "Giải pháp chính",
+        "content_hook": "Hook content dùng cho video/caption",
+        "ad_visual_idea": "Kịch bản hình/video ngắn"
+      }
+    ]
+  },
+  {
+    "name": "Tên nhóm khách hàng 5",
     "market_share_percent": 0,
     "gender_ratio": { "male": 0, "female": 0 },
     "age_range": "xx–yy",

@@ -6,6 +6,7 @@ import { Card } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import AddProductAffModal from '../components/AddProductAffModal';
+import RetryAnalysisModal from '../components/RetryAnalysisModal';
 import { productAffService, ProductAff } from '../services/productAffService';
 import toast from 'react-hot-toast';
 
@@ -14,8 +15,11 @@ const ProductAnalysisAffPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showRetryModal, setShowRetryModal] = useState(false);
+  const [retryProduct, setRetryProduct] = useState<ProductAff | null>(null);
+  const [retryLoading, setRetryLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState<'all' | 'waiting' | 'processing' | 'done' | 'error'>('all');
-  const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
+  const [viewMode, setViewMode] = useState<'card' | 'table'>('table');
   const navigate = useNavigate();
 
   // Load products from API
@@ -103,6 +107,15 @@ const ProductAnalysisAffPage: React.FC = () => {
     
     // Start analysis immediately
     try {
+      // Update UI immediately to show processing status
+      setProducts(prevProducts => 
+        prevProducts.map(product => 
+          product.id === productId 
+            ? { ...product, status: 'processing' as const }
+            : product
+        )
+      );
+
       await productAffService.analyzeProduct(productId);
       toast.success('Đã bắt đầu phân tích sản phẩm');
       // Reload products to get updated status
@@ -110,17 +123,69 @@ const ProductAnalysisAffPage: React.FC = () => {
     } catch (analysisError) {
       console.error('Error starting analysis:', analysisError);
       toast.error('Không thể bắt đầu phân tích sản phẩm');
+      
+      // Revert status on error
+      setProducts(prevProducts => 
+        prevProducts.map(product => 
+          product.id === productId 
+            ? { ...product, status: 'error' as const }
+            : product
+        )
+      );
     }
   };
 
-  const handleRetryAnalysis = async (productId: string) => {
+  const handleRetryAnalysis = (product: ProductAff) => {
+    setRetryProduct(product);
+    setShowRetryModal(true);
+  };
+
+  const handleRetryConfirm = async (targetMarket: string) => {
+    if (!retryProduct) return;
+
     try {
-      await productAffService.analyzeProduct(productId);
+      setRetryLoading(true);
+      
+      // Update target market if changed
+      if (targetMarket !== retryProduct.target_market) {
+        await productAffService.updateProduct(retryProduct.id, {
+          target_market: targetMarket
+        });
+        toast.success('Target market đã được cập nhật');
+      }
+
+      // Update UI immediately to show processing status
+      setProducts(prevProducts => 
+        prevProducts.map(product => 
+          product.id === retryProduct.id 
+            ? { ...product, status: 'processing' as const }
+            : product
+        )
+      );
+
+      // Start analysis
+      await productAffService.analyzeProduct(retryProduct.id);
       toast.success('Đã bắt đầu phân tích lại sản phẩm');
+      
+      setShowRetryModal(false);
+      setRetryProduct(null);
+      
+      // Reload products to get the latest status
       loadProducts();
     } catch (error) {
       console.error('Error retrying analysis:', error);
       toast.error('Không thể phân tích lại sản phẩm');
+      
+      // Revert status on error
+      setProducts(prevProducts => 
+        prevProducts.map(product => 
+          product.id === retryProduct.id 
+            ? { ...product, status: 'error' as const }
+            : product
+        )
+      );
+    } finally {
+      setRetryLoading(false);
     }
   };
 
@@ -218,7 +283,7 @@ const ProductAnalysisAffPage: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleRetryAnalysis(product.id)}
+                      onClick={() => handleRetryAnalysis(product)}
                       className="text-blue-600 hover:text-blue-700"
                     >
                       <RotateCcw className="w-4 h-4" />
@@ -404,7 +469,7 @@ const ProductAnalysisAffPage: React.FC = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleRetryAnalysis(product.id)}
+                    onClick={() => handleRetryAnalysis(product)}
                     className="text-blue-600 hover:text-blue-700"
                   >
                     <RotateCcw className="w-4 h-4" />
@@ -428,6 +493,20 @@ const ProductAnalysisAffPage: React.FC = () => {
           <AddProductAffModal
             onClose={() => setShowAddModal(false)}
             onSuccess={handleProductAdded}
+          />
+        )}
+
+        {/* Retry Analysis Modal */}
+        {showRetryModal && retryProduct && (
+          <RetryAnalysisModal
+            isOpen={showRetryModal}
+            onClose={() => {
+              setShowRetryModal(false);
+              setRetryProduct(null);
+            }}
+            onRetry={handleRetryConfirm}
+            currentTargetMarket={retryProduct.target_market}
+            loading={retryLoading}
           />
         )}
       </div>

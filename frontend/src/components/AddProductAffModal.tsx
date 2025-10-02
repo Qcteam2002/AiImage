@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Upload, Link, Image as ImageIcon, Globe, FileText, Type } from 'lucide-react';
+import { X, Upload, Link, Image as ImageIcon, Globe, FileText, Type, Plus, Trash2 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Textarea } from './ui/Textarea';
@@ -12,8 +12,32 @@ interface AddProductAffModalProps {
 }
 
 const TARGET_MARKETS = [
-  'US', 'UK', 'CA', 'AU', 'DE', 'FR', 'IT', 'ES', 'NL', 'SE', 'NO', 'DK', 'FI',
-  'JP', 'KR', 'SG', 'MY', 'TH', 'PH', 'ID', 'VN', 'IN', 'BR', 'MX', 'AR', 'CL'
+  { code: 'US', name: 'United States', flag: '🇺🇸' },
+  { code: 'UK', name: 'United Kingdom', flag: '🇬🇧' },
+  { code: 'CA', name: 'Canada', flag: '🇨🇦' },
+  { code: 'AU', name: 'Australia', flag: '🇦🇺' },
+  { code: 'DE', name: 'Germany', flag: '🇩🇪' },
+  { code: 'FR', name: 'France', flag: '🇫🇷' },
+  { code: 'IT', name: 'Italy', flag: '🇮🇹' },
+  { code: 'ES', name: 'Spain', flag: '🇪🇸' },
+  { code: 'NL', name: 'Netherlands', flag: '🇳🇱' },
+  { code: 'SE', name: 'Sweden', flag: '🇸🇪' },
+  { code: 'NO', name: 'Norway', flag: '🇳🇴' },
+  { code: 'DK', name: 'Denmark', flag: '🇩🇰' },
+  { code: 'FI', name: 'Finland', flag: '🇫🇮' },
+  { code: 'JP', name: 'Japan', flag: '🇯🇵' },
+  { code: 'KR', name: 'South Korea', flag: '🇰🇷' },
+  { code: 'SG', name: 'Singapore', flag: '🇸🇬' },
+  { code: 'MY', name: 'Malaysia', flag: '🇲🇾' },
+  { code: 'TH', name: 'Thailand', flag: '🇹🇭' },
+  { code: 'PH', name: 'Philippines', flag: '🇵🇭' },
+  { code: 'ID', name: 'Indonesia', flag: '🇮🇩' },
+  { code: 'VN', name: 'Vietnam', flag: '🇻🇳' },
+  { code: 'IN', name: 'India', flag: '🇮🇳' },
+  { code: 'BR', name: 'Brazil', flag: '🇧🇷' },
+  { code: 'MX', name: 'Mexico', flag: '🇲🇽' },
+  { code: 'AR', name: 'Argentina', flag: '🇦🇷' },
+  { code: 'CL', name: 'Chile', flag: '🇨🇱' }
 ];
 
 const AddProductAffModal: React.FC<AddProductAffModalProps> = ({ onClose, onSuccess }) => {
@@ -25,27 +49,27 @@ const AddProductAffModal: React.FC<AddProductAffModalProps> = ({ onClose, onSucc
     description: ''
   });
   const [loading, setLoading] = useState(false);
-  const [image1Method, setImage1Method] = useState<'upload' | 'url' | 'paste'>('upload');
-  const [image2Method, setImage2Method] = useState<'upload' | 'url' | 'paste'>('upload');
+  const [images, setImages] = useState<string[]>([]);
+  const [imageMethod, setImageMethod] = useState<'upload' | 'url' | 'paste'>('upload');
+  const [urlInput, setUrlInput] = useState('');
 
   const handleInputChange = (field: keyof CreateProductAffRequest, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleFileUpload = (file: File, imageNumber: 1 | 2) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      if (imageNumber === 1) {
-        setFormData(prev => ({ ...prev, image1: result }));
-      } else {
-        setFormData(prev => ({ ...prev, image2: result }));
-      }
-    };
-    reader.readAsDataURL(file);
+  const handleFileUpload = (files: FileList | File[]) => {
+    const fileArray = Array.isArray(files) ? files : Array.from(files);
+    fileArray.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setImages(prev => [...prev, result]);
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
-  const handlePasteImage = (imageNumber: 1 | 2) => {
+  const handlePasteImage = () => {
     navigator.clipboard.read().then(clipboardItems => {
       for (const clipboardItem of clipboardItems) {
         for (const type of clipboardItem.types) {
@@ -54,11 +78,7 @@ const AddProductAffModal: React.FC<AddProductAffModalProps> = ({ onClose, onSucc
               const reader = new FileReader();
               reader.onload = (e) => {
                 const result = e.target?.result as string;
-                if (imageNumber === 1) {
-                  setFormData(prev => ({ ...prev, image1: result }));
-                } else {
-                  setFormData(prev => ({ ...prev, image2: result }));
-                }
+                setImages(prev => [...prev, result]);
               };
               reader.readAsDataURL(blob);
             });
@@ -71,17 +91,33 @@ const AddProductAffModal: React.FC<AddProductAffModalProps> = ({ onClose, onSucc
     });
   };
 
+  const handleAddUrl = () => {
+    if (urlInput.trim()) {
+      setImages(prev => [...prev, urlInput.trim()]);
+      setUrlInput('');
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.target_market || !formData.image1) {
+    if (!formData.target_market || images.length === 0) {
       toast.error('Vui lòng chọn target market và upload ít nhất 1 hình ảnh');
       return;
     }
 
     try {
       setLoading(true);
-      const newProduct = await productAffService.createProduct(formData);
+      const submitData = {
+        ...formData,
+        image1: images[0] || '',
+        image2: images[1] || undefined
+      };
+      const newProduct = await productAffService.createProduct(submitData);
       toast.success('Sản phẩm đã được thêm thành công!');
       onSuccess(newProduct.id);
     } catch (error) {
@@ -92,116 +128,115 @@ const AddProductAffModal: React.FC<AddProductAffModalProps> = ({ onClose, onSucc
     }
   };
 
-  const ImageUploadSection = ({ 
-    imageNumber, 
-    method, 
-    setMethod, 
-    value, 
-    onChange 
-  }: {
-    imageNumber: 1 | 2;
-    method: 'upload' | 'url' | 'paste';
-    setMethod: (method: 'upload' | 'url' | 'paste') => void;
-    value: string;
-    onChange: (value: string) => void;
-  }) => (
+  // Shopify Polaris-style image upload component
+  const ImageUploadSection = () => (
     <div className="space-y-3">
       <label className="block text-sm font-medium text-gray-700">
-        Product Image {imageNumber} {imageNumber === 1 ? '*' : ''}
+        Media
       </label>
       
-      {/* Method Selection */}
-      <div className="flex space-x-2">
-        <button
-          type="button"
-          onClick={() => setMethod('upload')}
-          className={`px-3 py-1 text-xs rounded-full ${
-            method === 'upload' 
-              ? 'bg-blue-100 text-blue-700' 
-              : 'bg-gray-100 text-gray-600'
-          }`}
-        >
-          <Upload className="w-3 h-3 inline mr-1" />
-          Upload
-        </button>
-        <button
-          type="button"
-          onClick={() => setMethod('url')}
-          className={`px-3 py-1 text-xs rounded-full ${
-            method === 'url' 
-              ? 'bg-blue-100 text-blue-700' 
-              : 'bg-gray-100 text-gray-600'
-          }`}
-        >
-          <Link className="w-3 h-3 inline mr-1" />
-          URL
-        </button>
-        <button
-          type="button"
-          onClick={() => setMethod('paste')}
-          className={`px-3 py-1 text-xs rounded-full ${
-            method === 'paste' 
-              ? 'bg-blue-100 text-blue-700' 
-              : 'bg-gray-100 text-gray-600'
-          }`}
-        >
-          <ImageIcon className="w-3 h-3 inline mr-1" />
-          Paste
-        </button>
+      {/* Main upload area */}
+      <div 
+        className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center hover:border-gray-400 transition-colors"
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.currentTarget.classList.add('border-blue-400', 'bg-blue-50');
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          e.currentTarget.classList.remove('border-blue-400', 'bg-blue-50');
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.currentTarget.classList.remove('border-blue-400', 'bg-blue-50');
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            handleFileUpload(files);
+          }
+        }}
+      >
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={(e) => {
+            if (e.target.files) handleFileUpload(e.target.files);
+          }}
+          className="hidden"
+          id="file-upload"
+        />
+        
+        <div className="space-y-3">
+          <div className="flex flex-col items-center">
+            <p className="text-xs text-gray-600">
+              Drag and drop images here, or click to select
+            </p>
+          </div>
+          
+          <div className="flex items-center justify-center space-x-2">
+            <label
+              htmlFor="file-upload"
+              className="px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded hover:bg-gray-800 cursor-pointer transition-colors"
+            >
+              Upload new
+            </label>
+            <button
+              type="button"
+              onClick={handlePasteImage}
+              className="px-3 py-1.5 bg-white text-gray-700 text-xs font-medium border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+            >
+              Paste
+            </button>
+          </div>
+          
+          <div className="flex items-center justify-center space-x-2">
+            <Input
+              type="url"
+              placeholder="Paste image URL..."
+              value={urlInput}
+              onChange={(e) => setUrlInput(e.target.value)}
+              className="max-w-48 text-xs"
+            />
+            <Button
+              type="button"
+              onClick={handleAddUrl}
+              disabled={!urlInput.trim()}
+              className="px-3 py-1.5 text-xs"
+            >
+              Add
+            </Button>
+          </div>
+        </div>
       </div>
 
-      {/* Input based on method */}
-      {method === 'upload' && (
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleFileUpload(file, imageNumber);
-            }}
-            className="hidden"
-            id={`file-upload-${imageNumber}`}
-          />
-          <label
-            htmlFor={`file-upload-${imageNumber}`}
-            className="cursor-pointer flex flex-col items-center"
-          >
-            <Upload className="w-8 h-8 text-gray-400 mb-2" />
-            <span className="text-sm text-gray-600">Click để upload hoặc kéo thả file</span>
-          </label>
-        </div>
-      )}
-
-      {method === 'url' && (
-        <Input
-          type="url"
-          placeholder="Nhập URL hình ảnh"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      )}
-
-      {method === 'paste' && (
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => handlePasteImage(imageNumber)}
-          className="w-full"
-        >
-          <ImageIcon className="w-4 h-4 mr-2" />
-          Paste từ clipboard
-        </Button>
-      )}
-
-      {/* Preview */}
-      {value && (
-        <div className="mt-2">
-          <img
-            src={value}
-            alt={`Preview ${imageNumber}`}
-            className="w-20 h-20 object-cover rounded-lg border"
-          />
+      {/* Image Gallery */}
+      {images.length > 0 && (
+        <div className="mt-4">
+          <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+            {images.map((image, index) => (
+              <div key={index} className="relative group">
+                <div className="aspect-square bg-gray-100 rounded overflow-hidden">
+                  <img
+                    src={image}
+                    alt={`Product ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(index)}
+                  className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="w-2.5 h-2.5" />
+                </button>
+                {index === 0 && (
+                  <div className="absolute bottom-1 left-1 bg-blue-500 text-white text-xs px-1 py-0.5 rounded text-[10px]">
+                    Main
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -209,17 +244,18 @@ const AddProductAffModal: React.FC<AddProductAffModalProps> = ({ onClose, onSucc
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
         <div className="p-6">
+          {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
-              Thêm sản phẩm phân tích Affiliate
+              Add product
             </h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600 transition-colors"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5" />
             </button>
           </div>
 
@@ -227,49 +263,31 @@ const AddProductAffModal: React.FC<AddProductAffModalProps> = ({ onClose, onSucc
             {/* Target Market */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Target Market *
+                Target market
               </label>
-              <div className="flex items-center space-x-2">
-                <Globe className="w-4 h-4 text-gray-400" />
-                <select
-                  value={formData.target_market}
-                  onChange={(e) => handleInputChange('target_market', e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                >
-                  <option value="">Chọn thị trường mục tiêu</option>
-                  {TARGET_MARKETS.map(market => (
-                    <option key={market} value={market}>{market}</option>
-                  ))}
-                </select>
-                <Input
-                  type="text"
-                  placeholder="Hoặc nhập tùy chỉnh"
-                  value={formData.target_market}
-                  onChange={(e) => handleInputChange('target_market', e.target.value)}
-                  className="flex-1"
-                />
-              </div>
+              <select
+                value={formData.target_market}
+                onChange={(e) => handleInputChange('target_market', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                required
+              >
+                <option value="">Select country...</option>
+                {TARGET_MARKETS.map(market => (
+                  <option key={market.code} value={market.code}>
+                    {market.flag} {market.name} ({market.code})
+                  </option>
+                ))}
+              </select>
             </div>
-
-            {/* Product Image 1 */}
-            <ImageUploadSection
-              imageNumber={1}
-              method={image1Method}
-              setMethod={setImage1Method}
-              value={formData.image1}
-              onChange={(value) => handleInputChange('image1', value)}
-            />
 
             {/* Product Title */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Type className="w-4 h-4 inline mr-1" />
-                Product Title (Optional - AI sẽ tự extract từ hình ảnh)
+                Title
               </label>
               <Input
                 type="text"
-                placeholder="Để trống để AI tự extract từ hình ảnh"
+                placeholder="Enter product title (optional - AI will extract from images)"
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
               />
@@ -278,48 +296,40 @@ const AddProductAffModal: React.FC<AddProductAffModalProps> = ({ onClose, onSucc
             {/* Product Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                <FileText className="w-4 h-4 inline mr-1" />
-                Product Description (Optional - AI sẽ tự extract từ hình ảnh)
+                Description
               </label>
               <Textarea
-                placeholder="Để trống để AI tự extract từ hình ảnh"
+                placeholder="Enter product description (optional - AI will extract from images)"
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
-                rows={3}
+                rows={4}
               />
             </div>
 
-            {/* Product Image 2 */}
-            <ImageUploadSection
-              imageNumber={2}
-              method={image2Method}
-              setMethod={setImage2Method}
-              value={formData.image2 || ''}
-              onChange={(value) => handleInputChange('image2', value)}
-            />
+            {/* Image Upload */}
+            <ImageUploadSection />
 
             {/* Submit Buttons */}
-            <div className="flex justify-end space-x-3 pt-4 border-t">
+            <div className="flex justify-end space-x-3 pt-6 border-t">
               <Button
                 type="button"
                 variant="secondary"
                 onClick={onClose}
                 disabled={loading}
               >
-                Hủy
+                Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={loading}
-                className="flex items-center"
+                disabled={loading || images.length === 0}
               >
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Đang thêm...
+                    Adding...
                   </>
                 ) : (
-                  'Thêm sản phẩm'
+                  'Add product'
                 )}
               </Button>
             </div>
