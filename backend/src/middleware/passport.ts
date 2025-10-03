@@ -1,10 +1,12 @@
-import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+// Temporarily disabled to fix production issues
+// import passport from 'passport';
+// import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { prisma } from '../database/client';
 import { config } from '../config';
 import { JWTUtil } from '../utils/jwt';
 
-// Configure Google OAuth Strategy
+// Temporarily disabled Google OAuth Strategy
+/*
 passport.use('google', new GoogleStrategy({
   clientID: config.oauth.google.clientId || 'dummy-client-id',
   clientSecret: config.oauth.google.clientSecret || 'dummy-client-secret',
@@ -79,22 +81,30 @@ passport.use('google', new GoogleStrategy({
       return done(error, undefined);
     }
   }));
+*/
+
+// Temporarily disabled passport functions
+const passport = {
+  use: () => {},
+  serializeUser: () => {},
+  deserializeUser: () => {}
+};
 
 // Serialize user for session
-passport.serializeUser((user: any, done: any) => {
-  done(null, user.id);
-});
+// passport.serializeUser((user: any, done: any) => {
+//   done(null, user.id);
+// });
 
 // Deserialize user from session
-passport.deserializeUser(async (id: string, done: any) => {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id }
-    });
-    done(null, user);
-  } catch (error) {
-    done(error, null);
-  }
-});
+// passport.deserializeUser(async (id: string, done: any) => {
+//   try {
+//     const user = await prisma.user.findUnique({
+//       where: { id }
+//     });
+//     done(null, user);
+//   } catch (error) {
+//     done(error, null);
+//   }
+// });
 
 export default passport;
