@@ -82,12 +82,6 @@ const ProductOverview: React.FC<ProductOverviewProps> = ({ product, analysisResu
               </div>
             </div>
             
-            {product.description && (
-              <div className="mt-8">
-                <Typography.Label className="mb-3 block">Description</Typography.Label>
-                <Typography.BodyMedium>{product.description}</Typography.BodyMedium>
-              </div>
-            )}
           </div>
         </div>
       </div>

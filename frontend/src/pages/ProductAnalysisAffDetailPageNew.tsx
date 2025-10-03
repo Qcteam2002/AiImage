@@ -190,9 +190,7 @@ const ProductAnalysisAffDetailPageNew: React.FC = () => {
         {/* Header */}
         <ProductHeader
           product={product}
-          user={product.user}
           onBack={handleBack}
-          onDownload={handleDownload}
         />
 
         {/* Analysis Content */}
