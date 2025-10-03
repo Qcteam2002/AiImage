@@ -87,12 +87,12 @@ const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ analysisResult }) => {
         <div className="mb-10">
           <Typography.H3 className="mb-6">Marketplace Performance</Typography.H3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {Object.entries(analysisResult.market_and_keywords.marketplace_data).map(([platform, data]) => (
+            {Object.entries(analysisResult.market_and_keywords?.marketplace_data || {}).map(([platform, data]) => (
               <div key={platform} className="border border-gray-200 p-6 rounded-lg">
                 <Typography.H6 className="mb-4 capitalize">{platform}</Typography.H6>
-                <Typography.MetricMedium className="mb-2 block">{data.listings.toLocaleString()}</Typography.MetricMedium>
+                <Typography.MetricMedium className="mb-2 block">{(data as any)?.listings?.toLocaleString() || 'N/A'}</Typography.MetricMedium>
                 <Typography.BodySmall className="block mb-1">Listings</Typography.BodySmall>
-                <Typography.BodySmall className="block">{data.sales_per_month} sales/month</Typography.BodySmall>
+                <Typography.BodySmall className="block">{(data as any)?.sales_per_month || 'N/A'} sales/month</Typography.BodySmall>
               </div>
             ))}
           </div>
