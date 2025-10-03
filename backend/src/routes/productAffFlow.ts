@@ -925,16 +925,35 @@ Hãy phân tích sản phẩm này và trả về kết quả theo đúng cấu 
   const content = response.data.choices[0].message.content;
   
   try {
-    // Try to parse JSON from the response
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
-    } else {
-      // If no JSON found, return the raw content
+    // Try to find complete JSON object
+    let jsonStart = content.indexOf('{');
+    if (jsonStart === -1) {
       return { raw_analysis: content };
     }
+    
+    // Find matching closing brace
+    let braceCount = 0;
+    let jsonEnd = -1;
+    for (let i = jsonStart; i < content.length; i++) {
+      if (content[i] === '{') braceCount++;
+      if (content[i] === '}') braceCount--;
+      if (braceCount === 0) {
+        jsonEnd = i;
+        break;
+      }
+    }
+    
+    if (jsonEnd === -1) {
+      console.warn('Incomplete JSON found, using raw content');
+      return { raw_analysis: content };
+    }
+    
+    const jsonString = content.substring(jsonStart, jsonEnd + 1);
+    return JSON.parse(jsonString);
   } catch (parseError) {
     console.error('Error parsing AI response:', parseError);
+    console.error('Content length:', content.length);
+    console.error('Content preview:', content.substring(0, 500));
     return { raw_analysis: content };
   }
 }
