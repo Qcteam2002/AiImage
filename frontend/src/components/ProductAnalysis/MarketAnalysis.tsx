@@ -32,10 +32,10 @@ interface MarketAnalysisProps {
 const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ analysisResult }) => {
   // Flatten all keyword categories into one array
   const allKeywords = [
-    ...(analysisResult.market_and_keywords.keywords?.informational || []),
-    ...(analysisResult.market_and_keywords.keywords?.transactional || []),
-    ...(analysisResult.market_and_keywords.keywords?.comparative || []),
-    ...(analysisResult.market_and_keywords.keywords?.painpoint_related || [])
+    ...(analysisResult.market_and_keywords?.keywords?.informational || []),
+    ...(analysisResult.market_and_keywords?.keywords?.transactional || []),
+    ...(analysisResult.market_and_keywords?.keywords?.comparative || []),
+    ...(analysisResult.market_and_keywords?.keywords?.painpoint_related || [])
   ];
   
   const keywordData = allKeywords.slice(0, 10).map(kw => ({

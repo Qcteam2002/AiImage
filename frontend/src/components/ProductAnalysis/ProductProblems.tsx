@@ -23,8 +23,8 @@ interface ProductProblemsProps {
 
 const ProductProblems: React.FC<ProductProblemsProps> = ({ analysisResult }) => {
   const chartData = [
-    { name: 'Resolved', count: analysisResult.product_problems.resolved.length },
-    { name: 'Unresolved', count: analysisResult.product_problems.unresolved.length }
+    { name: 'Resolved', count: analysisResult.product_problems?.resolved?.length || 0 },
+    { name: 'Unresolved', count: analysisResult.product_problems?.unresolved?.length || 0 }
   ];
 
   return (

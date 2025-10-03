@@ -39,8 +39,8 @@ const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => 
   const [selectedSegment, setSelectedSegment] = useState<any>(null);
   const [showSegmentModal, setShowSegmentModal] = useState(false);
 
-  const targetCustomersData = analysisResult.target_customers.map(customer => ({
-    name: `Nhóm ${analysisResult.target_customers.indexOf(customer) + 1}`,
+  const targetCustomersData = (analysisResult.target_customers || []).map(customer => ({
+    name: `Nhóm ${(analysisResult.target_customers || []).indexOf(customer) + 1}`,
     value: customer.market_share_percent
   }));
 

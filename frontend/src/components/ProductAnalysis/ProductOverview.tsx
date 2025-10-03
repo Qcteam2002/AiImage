@@ -51,19 +51,19 @@ const ProductOverview: React.FC<ProductOverviewProps> = ({ product, analysisResu
               <div className="text-center">
                 <Typography.Label className="mb-3 block">Market Size</Typography.Label>
                 <Typography.Metric className="block">
-                  ${analysisResult.market_and_keywords.market_size_usd.toLocaleString()}
+                  ${analysisResult.market_and_keywords?.market_size_usd?.toLocaleString() || 'N/A'}
                 </Typography.Metric>
               </div>
               <div className="text-center">
                 <Typography.Label className="mb-3 block">Growth Rate</Typography.Label>
                 <Typography.Metric className="block">
-                  {analysisResult.market_and_keywords.cagr_percent}%
+                  {analysisResult.market_and_keywords?.cagr_percent || 'N/A'}%
                 </Typography.Metric>
               </div>
               <div className="text-center">
                 <Typography.Label className="mb-3 block">Trend Change</Typography.Label>
                 <Typography.Metric className="block">
-                  {analysisResult.market_and_keywords.google_trends_change_percent}%
+                  {analysisResult.market_and_keywords?.google_trends_change_percent || 'N/A'}%
                 </Typography.Metric>
               </div>
             </div>
