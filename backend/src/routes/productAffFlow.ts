@@ -356,12 +356,47 @@ Bạn không cần làm sản phẩm, chỉ cần giúp tôi *bán sản phẩm 
 
 ---
 
-### **0. Executive Summary (Tóm tắt lãnh đạo)**
+### **0. Executive Summary**
 
-- **Đề xuất:** Hãy đề xuất có nên kinh doanh sản phẩm này hay không và tại sao, càng chi tiết càng tốt**
-- **3–4 luận điểm then chốt, sau đó xuống dòng mô tả chi tiết từng luận điểm và số liệu kèm theo để cũng cố**
-- **Cơ hội lớn nhất chi tiết tại sao đây là cơ hội lớn, có khả năng win bao nhiêu % dựa trên số liệu search web**
-- **Rủi ro lớn nhất chi tiết tại sao đây là rủi ro lớn, data nào dữ liệu nào để đúc kết được vấn đề này**
+Đề xuất: [Nên / Không nên / Nên nhưng có điều kiện] — tóm tắt 1–2 câu vì sao.
+
+Điều kiện triển khai (nếu có): kênh ưu tiên, nhóm khách hàng, ngân sách test.
+
+KPI tối thiểu: Gross margin ≥ __%, CPA/CAC ≤ __, BEP ≤ __ đơn/tháng.
+
+Mức tự tin: __%.
+
+3–4 luận điểm then chốt, sau đó xuống dòng mô tả chi tiết từng luận điểm và số liệu kèm theo để cũng cố
+
+Nhu cầu & Xu hướng: Google Trends 12m = __%, SV = __; Nguồn: __. → Tác động: __.
+
+Cạnh tranh & Giá: #listing = __, price range = __, top-3 share = __%; Nguồn: __. → Tác động: __.
+
+Chi phí tiếp cận: CPC/CPA benchmark = /; CR = __%; Nguồn: __. → Tác động: __.
+
+Biên lợi nhuận & vận hành: Giá vốn = __, phí sàn/ship = __, margin gộp = __%; Nguồn: __. → Tác động: __.
+
+Cơ hội lớn nhất chi tiết tại sao đây là cơ hội lớn, có khả năng win bao nhiêu % dựa trên số liệu search web
+
+Mô tả: __ (đòn bẩy: kênh/angle/USP).
+
+Win-rate ước tính: __%.
+
+Chỉ số kiểm chứng: SV = __, CTR = __%, CR = __%, CPC = __; Nguồn: __.
+
+Kế hoạch tận dụng nhanh: bước 1 __ → bước 2 __ → bước 3 __.
+
+Rủi ro lớn nhất chi tiết tại sao đây là rủi ro lớn, data nào dữ liệu nào để đúc kết được vấn đề này
+
+Mô tả: __ (pháp lý/trend/logistics/copycat…).
+
+Xác suất xảy ra: __% & Mức tác động: __ (doanh thu/margin).
+
+Dấu hiệu cảnh báo sớm: __ (ví dụ CPC tăng >__%, report DMCA __%).
+
+Bằng chứng dữ liệu: metric = __, giá trị = __; Nguồn: __.
+
+Biện pháp giảm thiểu: __ (phương án B/C, thay angle, đổi kênh, đa dạng mẫu…).
 
 ---
 

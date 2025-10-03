@@ -41,6 +41,27 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
   
   if (!isOpen || !segment) return null;
 
+  // Add safety checks for segment data
+  if (!segment.name || typeof segment.market_share_percent !== 'number') {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl max-w-md w-full p-6">
+          <div className="text-center">
+            <div className="text-red-500 text-4xl mb-4">⚠️</div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Invalid Data</h3>
+            <p className="text-gray-600 mb-4">Customer segment data is corrupted or incomplete.</p>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const toggleProblem = (index: number) => {
     setExpandedProblems(prev => 
       prev.includes(index) 
@@ -80,10 +101,10 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
         {/* Content - Single Column Flow */}
         <div className="p-6 space-y-6">
           {/* Quick Stats Row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white border border-gray-200 p-4 rounded-lg text-center">
               <Typography.LabelSmall className="mb-1 text-gray-500">Age Range</Typography.LabelSmall>
-              <Typography.BodyMedium className="font-semibold text-gray-900">{segment.age_range}</Typography.BodyMedium>
+              <Typography.BodyMedium className="font-semibold text-gray-900">{segment.age_range || 'N/A'}</Typography.BodyMedium>
             </div>
             <div className="bg-white border border-gray-200 p-4 rounded-lg text-center">
               <Typography.LabelSmall className="mb-1 text-gray-500">Gender</Typography.LabelSmall>
@@ -93,7 +114,7 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
             </div>
             <div className="bg-white border border-gray-200 p-4 rounded-lg text-center">
               <Typography.LabelSmall className="mb-1 text-gray-500">Frequency</Typography.LabelSmall>
-              <Typography.BodySmall className="font-medium text-gray-900">{segment.purchase_frequency}</Typography.BodySmall>
+              <Typography.BodySmall className="font-medium text-gray-900">{segment.purchase_frequency || 'N/A'}</Typography.BodySmall>
             </div>
             <div className="bg-white border border-gray-200 p-4 rounded-lg text-center">
               <Typography.LabelSmall className="mb-1 text-gray-500">Channels</Typography.LabelSmall>
@@ -112,15 +133,15 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="border-l-2 border-gray-200 pl-4">
                   <Typography.LabelSmall className="mb-2 text-gray-500">Buying Behavior</Typography.LabelSmall>
-                  <Typography.BodySmall className="text-gray-700">{segment.buying_behavior}</Typography.BodySmall>
+                  <Typography.BodySmall className="text-gray-700">{segment.buying_behavior || 'N/A'}</Typography.BodySmall>
                 </div>
                 <div className="border-l-2 border-gray-200 pl-4">
                   <Typography.LabelSmall className="mb-2 text-gray-500">Emotional Motivations</Typography.LabelSmall>
-                  <Typography.BodySmall className="text-gray-700">{segment.emotional_motivations}</Typography.BodySmall>
+                  <Typography.BodySmall className="text-gray-700">{segment.emotional_motivations || 'N/A'}</Typography.BodySmall>
                 </div>
                 <div className="md:col-span-2 border-l-2 border-gray-200 pl-4">
                   <Typography.LabelSmall className="mb-2 text-gray-500">Usage Context</Typography.LabelSmall>
-                  <Typography.BodySmall className="text-gray-700">{segment.usage_context}</Typography.BodySmall>
+                  <Typography.BodySmall className="text-gray-700">{segment.usage_context || 'N/A'}</Typography.BodySmall>
                 </div>
               </div>
             </div>
@@ -135,21 +156,21 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
                 <div>
                   <Typography.LabelSmall className="mb-3 text-gray-500">Locations</Typography.LabelSmall>
                   <div className="flex flex-wrap gap-2">
-                    {segment.locations?.map((location, index) => (
+                    {Array.isArray(segment.locations) ? segment.locations.map((location, index) => (
                       <span key={index} className="px-3 py-1 bg-gray-100 border border-gray-200 text-gray-700 rounded text-sm">
                         {location}
                       </span>
-                    )) || <Typography.BodySmall className="text-gray-500">N/A</Typography.BodySmall>}
+                    )) : <Typography.BodySmall className="text-gray-500">N/A</Typography.BodySmall>}
                   </div>
                 </div>
                 <div>
                   <Typography.LabelSmall className="mb-3 text-gray-500">Occupations</Typography.LabelSmall>
                   <div className="flex flex-wrap gap-2">
-                    {segment.occupations?.map((occupation, index) => (
+                    {Array.isArray(segment.occupations) ? segment.occupations.map((occupation, index) => (
                       <span key={index} className="px-3 py-1 bg-gray-100 border border-gray-200 text-gray-700 rounded text-sm">
                         {occupation}
                       </span>
-                    )) || <Typography.BodySmall className="text-gray-500">N/A</Typography.BodySmall>}
+                    )) : <Typography.BodySmall className="text-gray-500">N/A</Typography.BodySmall>}
                   </div>
                 </div>
               </div>
@@ -162,11 +183,11 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
                 How to Reach Them
               </Typography.H4>
               <div className="flex flex-wrap gap-2">
-                {segment.main_channels?.map((channel, index) => (
+                {Array.isArray(segment.main_channels) ? segment.main_channels.map((channel, index) => (
                   <span key={index} className="px-3 py-1 bg-gray-100 border border-gray-200 text-gray-700 rounded text-sm">
                     {channel}
                   </span>
-                )) || <Typography.BodySmall className="text-gray-500">N/A</Typography.BodySmall>}
+                )) : <Typography.BodySmall className="text-gray-500">N/A</Typography.BodySmall>}
               </div>
             </div>
 
@@ -177,7 +198,13 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
                 Pain Points & Solutions
               </Typography.H4>
               <div className="space-y-3">
-                {(segment.solutions_and_content || []).map((solution, index) => (
+                {Array.isArray(segment.solutions_and_content) ? segment.solutions_and_content.map((solution, index) => {
+                  // Add safety checks for solution data
+                  if (!solution || !solution.pain_point) {
+                    return null;
+                  }
+                  
+                  return (
                   <div key={index} className="border border-gray-200 rounded-lg bg-white overflow-hidden">
                     {/* Problem Header - Always Visible */}
                     <div 
@@ -193,9 +220,29 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
                         <div className="flex items-center space-x-2">
                           <span className="px-3 py-1 bg-gray-100 border border-gray-200 text-gray-700 rounded text-sm font-medium">
                             {(() => {
+                              // Debug: Log the solution data
+                              console.log('Solution data:', solution);
+                              
                               // Try to extract percentage from pain_point if percent_of_customers is not available
-                              const match = solution.pain_point.match(/\((\d+)% khách hàng.*?\)/);
+                              // Try multiple patterns to match different formats
+                              const patterns = [
+                                /\((\d+)% khách hàng.*?\)/,  // (35% khách hàng bị)
+                                /\((\d+)% khách hàng\)/,     // (35% khách hàng)
+                                /\((\d+)%\)/,                // (35%)
+                                /(\d+)% khách hàng/,         // 35% khách hàng
+                                /(\d+)%/                     // 35%
+                              ];
+                              
+                              let match = null;
+                              for (const pattern of patterns) {
+                                match = solution.pain_point.match(pattern);
+                                if (match) break;
+                              }
+                              console.log('Regex match:', match);
+                              
                               const percentage = solution.percent_of_customers || (match ? match[1] : null);
+                              console.log('Final percentage:', percentage);
+                              
                               return percentage ? `${percentage}% affected` : 'N/A% affected';
                             })()}
                           </span>
@@ -218,7 +265,7 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
                             <Typography.LabelSmall className="mb-2 text-gray-500 flex items-center">
                               💡 USP (Unique Selling Point)
                             </Typography.LabelSmall>
-                            <Typography.BodySmall className="text-gray-700">{solution.usp}</Typography.BodySmall>
+                            <Typography.BodySmall className="text-gray-700">{solution.usp || 'N/A'}</Typography.BodySmall>
                           </div>
                           
                           <div className="bg-white border border-gray-200 rounded p-4">
@@ -226,7 +273,7 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
                               📝 Content Hook (for social media)
                             </Typography.LabelSmall>
                             <Typography.BodySmall className="text-gray-700 bg-gray-50 p-3 rounded border-l-2 border-gray-300">
-                              {solution.content_hook}
+                              {solution.content_hook || 'N/A'}
                             </Typography.BodySmall>
                           </div>
                           
@@ -235,14 +282,15 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
                               🎬 Visual Idea (for ads)
                             </Typography.LabelSmall>
                             <Typography.BodySmall className="text-gray-700 bg-gray-50 p-3 rounded border-l-2 border-gray-300">
-                              {solution.ad_visual_idea}
+                              {solution.ad_visual_idea || 'N/A'}
                             </Typography.BodySmall>
                           </div>
                         </div>
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                }) : <Typography.BodySmall className="text-gray-500">No solutions data available</Typography.BodySmall>}
               </div>
             </div>
           </div>
