@@ -32,7 +32,7 @@ const Layout: React.FC = () => {
     { name: t('nav.virtualTryOn'), href: '/virtual-tryon', icon: Image },
     // { name: t('nav.productImageTools'), href: '/product-image-tools', icon: Package },
     // { name: 'Phân tích sản phẩm', href: '/product-analysis', icon: BarChart3 },
-    { name: 'Product Analysis Aff', href: '/product-analysis-aff', icon: Coins },
+    { name: t('productAnalysis'), href: '/product-analysis-aff', icon: Coins },
     // { name: 'Product Image Generator', href: '/product-image-generator', icon: Sparkles },
     // { name: 'Product AI Flow', href: '/product-ai-flow', icon: Zap },
     // { name: 'Video Test', href: '/video-test', icon: Video },

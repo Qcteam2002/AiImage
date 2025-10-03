@@ -4,7 +4,6 @@ import { Card } from '../ui/Card';
 import Typography from '../design-system/Typography';
 import Spacing from '../design-system/Spacing';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { useTranslation } from 'react-i18next';
 
 interface MarketAnalysisProps {
   analysisResult: {
@@ -31,8 +30,6 @@ interface MarketAnalysisProps {
 }
 
 const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ analysisResult }) => {
-  const { t } = useTranslation();
-
   // Add safety checks for analysisResult structure
   if (!analysisResult?.market_and_keywords) {
     return (
@@ -40,7 +37,7 @@ const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ analysisResult }) => {
         <div className={Spacing.cardPadding}>
           <Typography.H2 className="mb-8 flex items-center">
             <TrendingUp className="w-7 h-7 mr-4 text-blue-600" />
-            {t('productAnalysisAff.marketAnalysis')}
+            Market Analysis
           </Typography.H2>
           <div className="text-center text-gray-500">
             <p>Market analysis data not available</p>
@@ -68,17 +65,17 @@ const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ analysisResult }) => {
   return (
     <Card className={Spacing.section}>
       <div className={Spacing.cardPadding}>
-        <Typography.H2 className="mb-6 sm:mb-8 flex items-center text-lg sm:text-2xl">
-          <TrendingUp className="w-5 h-5 sm:w-7 sm:h-7 mr-3 sm:mr-4 text-blue-600" />
-          {t('productAnalysisAff.marketAnalysis')}
+        <Typography.H2 className="mb-8 flex items-center">
+          <TrendingUp className="w-7 h-7 mr-4 text-blue-600" />
+          Market Analysis
         </Typography.H2>
         
         {/* Key Metrics */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
           <div className="border border-gray-200 p-8 rounded-lg">
-            <Typography.Label className="mb-4 block">{t('productAnalysisAff.salesPotential')}</Typography.Label>
+            <Typography.Label className="mb-4 block">Sales Potential</Typography.Label>
             <Typography.Metric className="mb-4 block">{analysisResult.market_and_keywords.sales_potential}</Typography.Metric>
-            <Typography.BodySmall className="block mb-1">{t('productAnalysisAff.marketSize')}: ${analysisResult.market_and_keywords.market_size_usd.toLocaleString()}</Typography.BodySmall>
+            <Typography.BodySmall className="block mb-1">Market Size: ${analysisResult.market_and_keywords.market_size_usd.toLocaleString()}</Typography.BodySmall>
             <Typography.BodySmall className="block">CAGR: {analysisResult.market_and_keywords.cagr_percent}%</Typography.BodySmall>
           </div>
           
@@ -92,7 +89,7 @@ const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ analysisResult }) => {
           </div>
           
           <div className="border border-gray-200 p-8 rounded-lg">
-            <Typography.Label className="mb-4 block">{t('productAnalysisAff.sources')}</Typography.Label>
+            <Typography.Label className="mb-4 block">Sources</Typography.Label>
             <div className="flex flex-wrap gap-2">
               {analysisResult.market_and_keywords.sources.map((source, index) => (
                 <Typography.Badge key={index} variant="default">
@@ -105,14 +102,14 @@ const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ analysisResult }) => {
 
         {/* Marketplace Data */}
         <div className="mb-10">
-          <Typography.H3 className="mb-6">{t('productAnalysisAff.marketplaceData')}</Typography.H3>
+          <Typography.H3 className="mb-6">Marketplace Performance</Typography.H3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Object.entries(analysisResult.market_and_keywords.marketplace_data).map(([platform, data]) => (
               <div key={platform} className="border border-gray-200 p-6 rounded-lg">
                 <Typography.H6 className="mb-4 capitalize">{platform}</Typography.H6>
                 <Typography.MetricMedium className="mb-2 block">{data.listings.toLocaleString()}</Typography.MetricMedium>
-                <Typography.BodySmall className="block mb-1">{t('productAnalysisAff.listings')}</Typography.BodySmall>
-                <Typography.BodySmall className="block">{data.sales_per_month} {t('productAnalysisAff.salesPerMonth')}</Typography.BodySmall>
+                <Typography.BodySmall className="block mb-1">Listings</Typography.BodySmall>
+                <Typography.BodySmall className="block">{data.sales_per_month} sales/month</Typography.BodySmall>
               </div>
             ))}
           </div>
@@ -120,7 +117,7 @@ const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ analysisResult }) => {
 
         {/* Keywords Chart */}
         <div>
-          <Typography.H3 className="mb-6">{t('productAnalysisAff.keywords')}</Typography.H3>
+          <Typography.H3 className="mb-6">Từ khóa hiệu quả</Typography.H3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={keywordData}>
@@ -145,22 +142,22 @@ const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ analysisResult }) => {
           
           {/* Keywords Table */}
           <div className="mt-8">
-            <Typography.H4 className="mb-4">{t('productAnalysisAff.keywords')} Details</Typography.H4>
+            <Typography.H4 className="mb-4">Chi tiết từ khóa</Typography.H4>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('productAnalysisAff.keyword')}
+                      Keyword
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('productAnalysisAff.volume')}
+                      Search Volume
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('productAnalysisAff.cpc')} ($)
+                      CPC ($)
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('productAnalysisAff.competition')}
+                      Competition
                     </th>
                   </tr>
                 </thead>

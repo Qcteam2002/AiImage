@@ -5,7 +5,6 @@ import Typography from '../design-system/Typography';
 import Spacing from '../design-system/Spacing';
 import SegmentDetailModal from './SegmentDetailModal';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useTranslation } from 'react-i18next';
 
 interface TargetCustomersProps {
   analysisResult: {
@@ -35,7 +34,6 @@ interface TargetCustomersProps {
 }
 
 const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => {
-  const { t } = useTranslation();
   const [selectedSolution, setSelectedSolution] = useState<any>(null);
   const [showIdeaModal, setShowIdeaModal] = useState(false);
   const [selectedSegment, setSelectedSegment] = useState<any>(null);
@@ -48,7 +46,7 @@ const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => 
         <div className={Spacing.cardPadding}>
           <Typography.H2 className="mb-6 flex items-center">
             <Users className="w-6 h-6 mr-3 text-blue-600" />
-            {t('productAnalysisAff.targetCustomers')}
+            Target Customers Analysis
           </Typography.H2>
           <div className="text-center text-gray-500">
             <p>Target customers data not available</p>
@@ -59,7 +57,7 @@ const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => 
   }
 
   const targetCustomersData = analysisResult.target_customers.map(customer => ({
-    name: `${t('productAnalysisAff.customerGroups')} ${analysisResult.target_customers.indexOf(customer) + 1}`,
+    name: `Nhóm ${analysisResult.target_customers.indexOf(customer) + 1}`,
     value: customer.market_share_percent
   }));
 
@@ -71,7 +69,7 @@ const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => 
         <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
           <div className="p-6">
             <div className="flex justify-between items-start mb-4">
-              <Typography.H3>{t('productAnalysisAff.contentHooks')}</Typography.H3>
+              <Typography.H3>Content Ideas</Typography.H3>
               <button
                 onClick={onClose}
                 className="text-gray-400 hover:text-gray-600"
@@ -84,11 +82,11 @@ const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => 
             
             <div className={Spacing.stack}>
               <div>
-                <Typography.H5 className="mb-2">{t('productAnalysisAff.contentHooks')}</Typography.H5>
+                <Typography.H5 className="mb-2">Content Hook</Typography.H5>
                 <Typography.BodySmall>{solution.content_hook}</Typography.BodySmall>
               </div>
               <div>
-                <Typography.H5 className="mb-2">{t('productAnalysisAff.visualIdeas')}</Typography.H5>
+                <Typography.H5 className="mb-2">Visual Idea</Typography.H5>
                 <Typography.BodySmall>{solution.ad_visual_idea}</Typography.BodySmall>
               </div>
             </div>
@@ -98,7 +96,7 @@ const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => 
                 onClick={onClose}
                 className="px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors"
               >
-                {t('productAnalysisAff.close')}
+                Close
               </button>
             </div>
           </div>
@@ -112,12 +110,12 @@ const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => 
       <div className={Spacing.cardPadding}>
         <Typography.H2 className="mb-6 flex items-center">
           <Users className="w-6 h-6 mr-3 text-blue-600" />
-          {t('productAnalysisAff.targetCustomersAnalysis')}
+          Target Customers Analysis
         </Typography.H2>
         
         {/* Market Share Distribution Chart */}
         <div className="mb-8">
-          <Typography.H3 className="mb-4">{t('productAnalysisAff.marketShare')} Distribution</Typography.H3>
+          <Typography.H3 className="mb-4">Market Share Distribution</Typography.H3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={targetCustomersData}>
@@ -133,7 +131,7 @@ const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => 
 
         {/* Customer Groups */}
         <div>
-          <Typography.H3 className="mb-4">{t('productAnalysisAff.customerGroups')}</Typography.H3>
+          <Typography.H3 className="mb-4">Customer Groups</Typography.H3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {analysisResult.target_customers.map((customer, index) => (
               <div key={index} className="border border-gray-200 p-4 rounded-lg flex flex-col h-full">
@@ -149,15 +147,15 @@ const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => 
                 </div>
                 
                 <div className={`${Spacing.elementSmall} text-sm flex-grow`}>
-                  <Typography.BodySmall><span className="font-medium">{t('productAnalysisAff.ageRange')}:</span> {customer.age_range}</Typography.BodySmall>
-                  <Typography.BodySmall><span className="font-medium">{t('productAnalysisAff.budget')}:</span> ${customer.average_budget_usd}</Typography.BodySmall>
-                  <Typography.BodySmall><span className="font-medium">{t('productAnalysisAff.frequency')}:</span> {customer.purchase_frequency}</Typography.BodySmall>
-                  <Typography.BodySmall><span className="font-medium">{t('productAnalysisAff.behavior')}:</span> {customer.buying_behavior}</Typography.BodySmall>
-                  <Typography.BodySmall><span className="font-medium">{t('productAnalysisAff.genderRatio')}:</span> {customer.gender_ratio?.male || 0}%/{customer.gender_ratio?.female || 0}%</Typography.BodySmall>
+                  <Typography.BodySmall><span className="font-medium">Độ tuổi:</span> {customer.age_range}</Typography.BodySmall>
+                  <Typography.BodySmall><span className="font-medium">Ngân sách:</span> ${customer.average_budget_usd}</Typography.BodySmall>
+                  <Typography.BodySmall><span className="font-medium">Tần suất:</span> {customer.purchase_frequency}</Typography.BodySmall>
+                  <Typography.BodySmall><span className="font-medium">Hành vi:</span> {customer.buying_behavior}</Typography.BodySmall>
+                  <Typography.BodySmall><span className="font-medium">Nam/Nữ:</span> {customer.gender_ratio?.male || 0}%/{customer.gender_ratio?.female || 0}%</Typography.BodySmall>
                 </div>
                 
                 <div className="mt-3 mb-4">
-                  <Typography.H6 className="mb-1">{t('productAnalysisAff.mainChannels')}</Typography.H6>
+                  <Typography.H6 className="mb-1">Kênh chính</Typography.H6>
                   <div className="flex flex-wrap gap-1">
                     {customer.main_channels?.slice(0, 3).map((channel, channelIndex) => (
                       <Typography.Badge key={channelIndex} variant="default" className="text-xs">
@@ -175,7 +173,7 @@ const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => 
                     }}
                     className="w-full text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-300 hover:border-gray-400 px-3 py-2 rounded-md transition-colors"
                   >
-                    {t('productAnalysisAff.viewDetail')}
+                    View Detail
                   </button>
                 </div>
               </div>

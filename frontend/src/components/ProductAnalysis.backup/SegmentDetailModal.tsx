@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { X, Users, TrendingUp, Target, MapPin, Clock, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
 import Typography from '../design-system/Typography';
 import Spacing from '../design-system/Spacing';
-import { useTranslation } from 'react-i18next';
 
 interface SegmentDetailModalProps {
   isOpen: boolean;
@@ -38,7 +37,6 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
   segment, 
   segmentIndex 
 }) => {
-  const { t } = useTranslation();
   const [expandedProblems, setExpandedProblems] = useState<number[]>([]);
   
   if (!isOpen || !segment) return null;
@@ -56,7 +54,7 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors"
             >
-              {t('productAnalysisAff.close')}
+              Close
             </button>
           </div>
         </div>
@@ -84,10 +82,10 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
               </Typography.H3>
               <div className="flex items-center space-x-3">
                 <div className="px-3 py-1 bg-gray-100 border border-gray-200 text-gray-700 rounded text-sm font-medium">
-                  {segment.market_share_percent}% {t('productAnalysisAff.marketShare')}
+                  {segment.market_share_percent}% Market Share
                 </div>
                 <div className="px-3 py-1 bg-gray-100 border border-gray-200 text-gray-700 rounded text-sm font-medium">
-                  ${segment.average_budget_usd} {t('productAnalysisAff.budget')}
+                  ${segment.average_budget_usd} Budget
                 </div>
               </div>
             </div>
@@ -105,21 +103,21 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
           {/* Quick Stats Row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white border border-gray-200 p-4 rounded-lg text-center">
-              <Typography.LabelSmall className="mb-1 text-gray-500">{t('productAnalysisAff.ageRange')}</Typography.LabelSmall>
+              <Typography.LabelSmall className="mb-1 text-gray-500">Age Range</Typography.LabelSmall>
               <Typography.BodyMedium className="font-semibold text-gray-900">{segment.age_range || 'N/A'}</Typography.BodyMedium>
             </div>
             <div className="bg-white border border-gray-200 p-4 rounded-lg text-center">
-              <Typography.LabelSmall className="mb-1 text-gray-500">{t('productAnalysisAff.genderRatio')}</Typography.LabelSmall>
+              <Typography.LabelSmall className="mb-1 text-gray-500">Gender</Typography.LabelSmall>
               <Typography.BodyMedium className="font-semibold text-gray-900">
                 {segment.gender_ratio?.male || 0}%M / {segment.gender_ratio?.female || 0}%F
               </Typography.BodyMedium>
             </div>
             <div className="bg-white border border-gray-200 p-4 rounded-lg text-center">
-              <Typography.LabelSmall className="mb-1 text-gray-500">{t('productAnalysisAff.frequency')}</Typography.LabelSmall>
+              <Typography.LabelSmall className="mb-1 text-gray-500">Frequency</Typography.LabelSmall>
               <Typography.BodySmall className="font-medium text-gray-900">{segment.purchase_frequency || 'N/A'}</Typography.BodySmall>
             </div>
             <div className="bg-white border border-gray-200 p-4 rounded-lg text-center">
-              <Typography.LabelSmall className="mb-1 text-gray-500">{t('productAnalysisAff.mainChannels')}</Typography.LabelSmall>
+              <Typography.LabelSmall className="mb-1 text-gray-500">Channels</Typography.LabelSmall>
               <Typography.BodyMedium className="font-semibold text-gray-900">{segment.main_channels?.length || 0}</Typography.BodyMedium>
             </div>
           </div>
@@ -130,15 +128,15 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <Typography.H4 className="mb-4 flex items-center text-gray-900">
                 <Users className="w-5 h-5 mr-2 text-gray-600" />
-                {t('productAnalysisAff.whoTheyAre')}
+                Who They Are
               </Typography.H4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="border-l-2 border-gray-200 pl-4">
-                  <Typography.LabelSmall className="mb-2 text-gray-500">{t('productAnalysisAff.buyingBehavior')}</Typography.LabelSmall>
+                  <Typography.LabelSmall className="mb-2 text-gray-500">Buying Behavior</Typography.LabelSmall>
                   <Typography.BodySmall className="text-gray-700">{segment.buying_behavior || 'N/A'}</Typography.BodySmall>
                 </div>
                 <div className="border-l-2 border-gray-200 pl-4">
-                  <Typography.LabelSmall className="mb-2 text-gray-500">{t('productAnalysisAff.emotionalMotivations')}</Typography.LabelSmall>
+                  <Typography.LabelSmall className="mb-2 text-gray-500">Emotional Motivations</Typography.LabelSmall>
                   <Typography.BodySmall className="text-gray-700">{segment.emotional_motivations || 'N/A'}</Typography.BodySmall>
                 </div>
                 <div className="md:col-span-2 border-l-2 border-gray-200 pl-4">
@@ -152,11 +150,11 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <Typography.H4 className="mb-4 flex items-center text-gray-900">
                 <MapPin className="w-5 h-5 mr-2 text-gray-600" />
-                {t('productAnalysisAff.whereTheyAre')}
+                Where They Are
               </Typography.H4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Typography.LabelSmall className="mb-3 text-gray-500">{t('productAnalysisAff.locations')}</Typography.LabelSmall>
+                  <Typography.LabelSmall className="mb-3 text-gray-500">Locations</Typography.LabelSmall>
                   <div className="flex flex-wrap gap-2">
                     {Array.isArray(segment.locations) ? segment.locations.map((location, index) => (
                       <span key={index} className="px-3 py-1 bg-gray-100 border border-gray-200 text-gray-700 rounded text-sm">
@@ -166,7 +164,7 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
                   </div>
                 </div>
                 <div>
-                  <Typography.LabelSmall className="mb-3 text-gray-500">{t('productAnalysisAff.occupations')}</Typography.LabelSmall>
+                  <Typography.LabelSmall className="mb-3 text-gray-500">Occupations</Typography.LabelSmall>
                   <div className="flex flex-wrap gap-2">
                     {Array.isArray(segment.occupations) ? segment.occupations.map((occupation, index) => (
                       <span key={index} className="px-3 py-1 bg-gray-100 border border-gray-200 text-gray-700 rounded text-sm">
@@ -182,7 +180,7 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <Typography.H4 className="mb-4 flex items-center text-gray-900">
                 <Clock className="w-5 h-5 mr-2 text-gray-600" />
-                {t('productAnalysisAff.howToReachThem')}
+                How to Reach Them
               </Typography.H4>
               <div className="flex flex-wrap gap-2">
                 {Array.isArray(segment.main_channels) ? segment.main_channels.map((channel, index) => (
@@ -197,7 +195,7 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <Typography.H4 className="mb-4 flex items-center text-gray-900">
                 <Target className="w-5 h-5 mr-2 text-gray-600" />
-                {t('productAnalysisAff.painPointsAndSolutions')}
+                Pain Points & Solutions
               </Typography.H4>
               <div className="space-y-3">
                 {Array.isArray(segment.solutions_and_content) ? segment.solutions_and_content.map((solution, index) => {
@@ -265,14 +263,14 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
                         <div className="space-y-4">
                           <div className="bg-white border border-gray-200 rounded p-4">
                             <Typography.LabelSmall className="mb-2 text-gray-500 flex items-center">
-                              💡 {t('productAnalysisAff.usps')}
+                              💡 USP (Unique Selling Point)
                             </Typography.LabelSmall>
                             <Typography.BodySmall className="text-gray-700">{solution.usp || 'N/A'}</Typography.BodySmall>
                           </div>
                           
                           <div className="bg-white border border-gray-200 rounded p-4">
                             <Typography.LabelSmall className="mb-2 text-gray-500 flex items-center">
-                              📝 {t('productAnalysisAff.contentHooks')}
+                              📝 Content Hook (for social media)
                             </Typography.LabelSmall>
                             <Typography.BodySmall className="text-gray-700 bg-gray-50 p-3 rounded border-l-2 border-gray-300">
                               {solution.content_hook || 'N/A'}
@@ -281,7 +279,7 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
                           
                           <div className="bg-white border border-gray-200 rounded p-4">
                             <Typography.LabelSmall className="mb-2 text-gray-500 flex items-center">
-                              🎬 {t('productAnalysisAff.visualIdeas')}
+                              🎬 Visual Idea (for ads)
                             </Typography.LabelSmall>
                             <Typography.BodySmall className="text-gray-700 bg-gray-50 p-3 rounded border-l-2 border-gray-300">
                               {solution.ad_visual_idea || 'N/A'}
@@ -301,13 +299,13 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
           <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 -mx-6 -mb-6 rounded-b-xl">
             <div className="flex justify-between items-center">
               <Typography.BodySmall className="text-gray-500">
-                💡 {t('productAnalysisAff.useThisInformation')}
+                💡 Use this information to create targeted marketing campaigns
               </Typography.BodySmall>
               <button
                 onClick={onClose}
                 className="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
               >
-                {t('productAnalysisAff.gotIt')}, {t('productAnalysisAff.close')}
+                Got it, Close
               </button>
             </div>
           </div>

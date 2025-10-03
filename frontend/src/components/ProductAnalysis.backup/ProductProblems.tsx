@@ -4,7 +4,6 @@ import { Card } from '../ui/Card';
 import Typography from '../design-system/Typography';
 import Spacing from '../design-system/Spacing';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useTranslation } from 'react-i18next';
 
 interface ProductProblemsProps {
   analysisResult: {
@@ -23,8 +22,6 @@ interface ProductProblemsProps {
 }
 
 const ProductProblems: React.FC<ProductProblemsProps> = ({ analysisResult }) => {
-  const { t } = useTranslation();
-
   // Add safety checks for analysisResult structure
   if (!analysisResult?.product_problems) {
     return (
@@ -32,7 +29,7 @@ const ProductProblems: React.FC<ProductProblemsProps> = ({ analysisResult }) => 
         <div className={Spacing.cardPadding}>
           <Typography.H2 className="mb-6 flex items-center">
             <Target className="w-6 h-6 mr-3 text-blue-600" />
-            {t('productAnalysisAff.productProblems')}
+            Product Problems Analysis
           </Typography.H2>
           <div className="text-center text-gray-500">
             <p>Product problems data not available</p>
@@ -52,13 +49,13 @@ const ProductProblems: React.FC<ProductProblemsProps> = ({ analysisResult }) => 
       <div className={Spacing.cardPadding}>
         <Typography.H2 className="mb-6 flex items-center">
           <Target className="w-6 h-6 mr-3 text-blue-600" />
-          {t('productAnalysisAff.productProblems')}
+          Product Problems Analysis
         </Typography.H2>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Chart Section */}
           <div className="lg:col-span-1">
-            <Typography.H3 className="mb-4">{t('productAnalysisAff.problemResolutionOverview')}</Typography.H3>
+            <Typography.H3 className="mb-4">Problem Resolution Overview</Typography.H3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
@@ -76,7 +73,7 @@ const ProductProblems: React.FC<ProductProblemsProps> = ({ analysisResult }) => 
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Resolved Problems */}
             <div>
-              <Typography.Label className="mb-3">{t('productAnalysisAff.resolvedProblems')}</Typography.Label>
+              <Typography.Label className="mb-3">Resolved Problems</Typography.Label>
               <div className={Spacing.elementSmall}>
                 {analysisResult.product_problems.resolved.map((problem, index) => (
                   <div key={index} className="border border-gray-200 p-4 rounded-lg">
@@ -93,7 +90,7 @@ const ProductProblems: React.FC<ProductProblemsProps> = ({ analysisResult }) => 
             
             {/* Unresolved Problems */}
             <div>
-              <Typography.Label className="mb-3">{t('productAnalysisAff.unresolvedProblems')}</Typography.Label>
+              <Typography.Label className="mb-3">Unresolved Problems</Typography.Label>
               <div className={Spacing.elementSmall}>
                 {analysisResult.product_problems.unresolved.map((problem, index) => (
                   <div key={index} className="border border-gray-200 p-4 rounded-lg">

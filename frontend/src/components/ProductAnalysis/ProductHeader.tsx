@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowLeft, Globe, Calendar } from 'lucide-react';
 import { Button } from '../ui/Button';
 import Typography from '../design-system/Typography';
+import { useTranslation } from 'react-i18next';
 
 interface ProductHeaderProps {
   product: {
@@ -16,34 +17,36 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
   product,
   onBack
 }) => {
+  const { t } = useTranslation();
+
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+    <div className="mb-6 sm:mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+        <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
           <Button
             variant="secondary"
             onClick={onBack}
-            className="flex items-center"
+            className="flex items-center self-start"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            {t('productAnalysisAff.back')}
           </Button>
           <div className="max-w-2xl">
-            <Typography.H1 className="leading-tight truncate">
-              {product.title || 'Untitled Product'}
+            <Typography.H1 className="leading-tight text-lg sm:text-2xl lg:text-3xl">
+              {product.title || t('productAnalysisAff.noTitle')}
             </Typography.H1>
-            <div className="flex items-center space-x-6 mt-3">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-6 mt-3">
               <div className="flex items-center">
-                <Globe className="w-5 h-5 mr-2 text-gray-500" />
-                <Typography.BodyMedium className="text-gray-600">
-                  {product.target_market}
-                </Typography.BodyMedium>
+                <Globe className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-gray-500" />
+                <Typography.BodySmall className="text-gray-600 sm:text-base">
+                  {product.target_market || t('productAnalysisAff.noTargetMarket')}
+                </Typography.BodySmall>
               </div>
               <div className="flex items-center">
-                <Calendar className="w-5 h-5 mr-2 text-gray-500" />
-                <Typography.BodyMedium className="text-gray-600">
-                  {product.analyzed_at ? new Date(product.analyzed_at).toLocaleDateString('en-US') : 'Not analyzed'}
-                </Typography.BodyMedium>
+                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-gray-500" />
+                <Typography.BodySmall className="text-gray-600 sm:text-base">
+                  {product.analyzed_at ? new Date(product.analyzed_at).toLocaleDateString() : t('productAnalysisAff.status.waiting')}
+                </Typography.BodySmall>
               </div>
             </div>
           </div>

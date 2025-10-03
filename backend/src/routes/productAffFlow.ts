@@ -871,24 +871,29 @@ Trả về đúng cấu trúc JSON sau (bằng tiếng việt):
   }
 ]
 ,
-  "conclusion": {
-    "focus_group_priority": "Tên nhóm khách hàng nên chạy đầu tiên",
-    "best_content_angle": "Angle tiềm năng nhất",
-    "upsell_combo_suggestions": "Ý tưởng upsell hoặc combo",
-    "risks_to_consider": "Pháp lý, mùa vụ, logistics, etc."
-  },
-    "conclusion": {
-    "focus_group_priority": "Tên nhóm khách hàng nên chạy đầu tiên",
-    "best_content_angle": "Angle tiềm năng nhất",
-    "upsell_combo_suggestions": "Ý tưởng upsell hoặc combo",
-    "risks_to_consider": "Pháp lý, mùa vụ, logistics, etc."
-  },
-    "conclusion": {
-    "focus_group_priority": "Tên nhóm khách hàng nên chạy đầu tiên",
-    "best_content_angle": "Angle tiềm năng nhất",
-    "upsell_combo_suggestions": "Ý tưởng upsell hoặc combo",
-    "risks_to_consider": "Pháp lý, mùa vụ, logistics, etc."
-  }
+  "conclusions": [
+    {
+      "title": "Chiến lược 1: Tập trung vào nhóm khách hàng chính",
+      "focus_group_priority": "Tên nhóm khách hàng nên chạy đầu tiên",
+      "best_content_angle": "Angle tiềm năng nhất",
+      "upsell_combo_suggestions": "Ý tưởng upsell hoặc combo",
+      "risks_to_consider": "Pháp lý, mùa vụ, logistics, etc."
+    },
+    {
+      "title": "Chiến lược 2: Mở rộng thị trường mới",
+      "focus_group_priority": "Tên nhóm khách hàng nên chạy đầu tiên",
+      "best_content_angle": "Angle tiềm năng nhất",
+      "upsell_combo_suggestions": "Ý tưởng upsell hoặc combo",
+      "risks_to_consider": "Pháp lý, mùa vụ, logistics, etc."
+    },
+    {
+      "title": "Chiến lược 3: Tối ưu hóa nội dung hiện tại",
+      "focus_group_priority": "Tên nhóm khách hàng nên chạy đầu tiên",
+      "best_content_angle": "Angle tiềm năng nhất",
+      "upsell_combo_suggestions": "Ý tưởng upsell hoặc combo",
+      "risks_to_consider": "Pháp lý, mùa vụ, logistics, etc."
+    }
+  ]
 }
 }
 \`\`\`

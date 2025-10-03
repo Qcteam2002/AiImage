@@ -1,0 +1,112 @@
+/* Mobile Optimizations for Product Analysis Detail Page */
+
+/* Ensure proper spacing on mobile */
+@media (max-width: 640px) {
+  .mobile-padding {
+    padding: 0.75rem;
+  }
+  
+  .mobile-text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  .mobile-text-xs {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  
+  /* Make charts responsive */
+  .recharts-wrapper {
+    width: 100% !important;
+    height: 250px !important;
+  }
+  
+  /* Optimize table for mobile */
+  .mobile-table {
+    font-size: 0.75rem;
+  }
+  
+  .mobile-table th,
+  .mobile-table td {
+    padding: 0.5rem 0.25rem;
+  }
+  
+  /* Stack elements vertically on mobile */
+  .mobile-stack {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  /* Reduce margins on mobile */
+  .mobile-margin {
+    margin-bottom: 1rem;
+  }
+  
+  /* Make buttons touch-friendly */
+  .mobile-button {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Optimize card spacing */
+  .mobile-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Hide less important elements on mobile */
+  .mobile-hide {
+    display: none;
+  }
+  
+  /* Show only essential info on mobile */
+  .mobile-essential {
+    display: block;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .tablet-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .tablet-text {
+    font-size: 0.875rem;
+  }
+}
+
+/* Ensure proper touch targets */
+@media (max-width: 1024px) {
+  button, 
+  [role="button"], 
+  input[type="button"], 
+  input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Make links easier to tap */
+  a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* Optimize for very small screens */
+@media (max-width: 375px) {
+  .xs-text {
+    font-size: 0.75rem;
+  }
+  
+  .xs-padding {
+    padding: 0.5rem;
+  }
+  
+  .xs-margin {
+    margin: 0.5rem;
+  }
+}

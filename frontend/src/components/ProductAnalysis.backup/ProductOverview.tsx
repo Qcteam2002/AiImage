@@ -2,7 +2,6 @@ import React from 'react';
 import { Card } from '../ui/Card';
 import Typography from '../design-system/Typography';
 import Spacing from '../design-system/Spacing';
-import { useTranslation } from 'react-i18next';
 
 interface ProductOverviewProps {
   product: {
@@ -20,14 +19,12 @@ interface ProductOverviewProps {
 }
 
 const ProductOverview: React.FC<ProductOverviewProps> = ({ product, analysisResult }) => {
-  const { t } = useTranslation();
-
   // Add safety checks for analysisResult structure
   if (!analysisResult?.market_and_keywords) {
     return (
       <Card className={Spacing.section}>
         <div className={Spacing.cardPadding}>
-          <Typography.H2 className="mb-6">{t('productAnalysisAff.productOverview')}</Typography.H2>
+          <Typography.H2 className="mb-6">Product Overview</Typography.H2>
           <div className="text-center text-gray-500">
             <p>Market analysis data not available</p>
           </div>
@@ -39,11 +36,11 @@ const ProductOverview: React.FC<ProductOverviewProps> = ({ product, analysisResu
   return (
     <Card className={Spacing.section}>
       <div className={Spacing.cardPadding}>
-        <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-6">
+        <div className="flex items-start space-x-6">
           {/* Product Images */}
-          <div className="flex-shrink-0 w-full sm:w-auto">
-            <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto sm:mx-0">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gray-100 rounded-lg overflow-hidden">
+          <div className="flex-shrink-0">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="w-32 h-32 bg-gray-100 rounded-lg overflow-hidden">
                 <img 
                   src={product.image1} 
                   alt="Product" 
@@ -51,7 +48,7 @@ const ProductOverview: React.FC<ProductOverviewProps> = ({ product, analysisResu
                 />
               </div>
               {product.image2 && (
-                <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gray-100 rounded-lg overflow-hidden">
+                <div className="w-32 h-32 bg-gray-100 rounded-lg overflow-hidden">
                   <img 
                     src={product.image2} 
                     alt="Product" 
@@ -63,27 +60,28 @@ const ProductOverview: React.FC<ProductOverviewProps> = ({ product, analysisResu
           </div>
           
           {/* Product Info */}
-          <div className="flex-1 min-w-0 w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          <div className="flex-1 min-w-0 flex items-center">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
               <div className="text-center">
-                <Typography.Label className="mb-2 sm:mb-3 block text-xs sm:text-sm">{t('productAnalysisAff.marketSize')}</Typography.Label>
-                <Typography.Metric className="block text-lg sm:text-xl lg:text-2xl">
+                <Typography.Label className="mb-3 block">Market Size</Typography.Label>
+                <Typography.Metric className="block">
                   ${analysisResult.market_and_keywords.market_size_usd.toLocaleString()}
                 </Typography.Metric>
               </div>
               <div className="text-center">
-                <Typography.Label className="mb-2 sm:mb-3 block text-xs sm:text-sm">{t('productAnalysisAff.growthRate')}</Typography.Label>
-                <Typography.Metric className="block text-lg sm:text-xl lg:text-2xl">
+                <Typography.Label className="mb-3 block">Growth Rate</Typography.Label>
+                <Typography.Metric className="block">
                   {analysisResult.market_and_keywords.cagr_percent}%
                 </Typography.Metric>
               </div>
               <div className="text-center">
-                <Typography.Label className="mb-2 sm:mb-3 block text-xs sm:text-sm">{t('productAnalysisAff.trendChange')}</Typography.Label>
-                <Typography.Metric className="block text-lg sm:text-xl lg:text-2xl">
+                <Typography.Label className="mb-3 block">Trend Change</Typography.Label>
+                <Typography.Metric className="block">
                   {analysisResult.market_and_keywords.google_trends_change_percent}%
                 </Typography.Metric>
               </div>
             </div>
+            
           </div>
         </div>
       </div>

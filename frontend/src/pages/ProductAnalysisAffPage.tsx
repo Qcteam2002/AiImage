@@ -9,8 +9,10 @@ import AddProductAffModal from '../components/AddProductAffModal';
 import RetryAnalysisModal from '../components/RetryAnalysisModal';
 import { productAffService, ProductAff } from '../services/productAffService';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 const ProductAnalysisAffPage: React.FC = () => {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<ProductAff[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -315,10 +317,10 @@ const ProductAnalysisAffPage: React.FC = () => {
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center">
                 <Coins className="w-8 h-8 mr-3 text-yellow-600" />
-                Product Analysis Aff
+                {t('productAnalysis')}
               </h1>
               <p className="mt-2 text-gray-600">
-                Phân tích sản phẩm cho affiliate marketing với AI
+                {t('productAnalysisAff.subtitle')}
               </p>
             </div>
             <Button onClick={handleAddProduct} className="flex items-center">
