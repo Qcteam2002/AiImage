@@ -22,9 +22,26 @@ interface ProductProblemsProps {
 }
 
 const ProductProblems: React.FC<ProductProblemsProps> = ({ analysisResult }) => {
+  // Add safety checks for analysisResult structure
+  if (!analysisResult?.product_problems) {
+    return (
+      <Card className={Spacing.section}>
+        <div className={Spacing.cardPadding}>
+          <Typography.H2 className="mb-6 flex items-center">
+            <Target className="w-6 h-6 mr-3 text-blue-600" />
+            Product Problems Analysis
+          </Typography.H2>
+          <div className="text-center text-gray-500">
+            <p>Product problems data not available</p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
   const chartData = [
-    { name: 'Resolved', count: analysisResult.product_problems?.resolved?.length || 0 },
-    { name: 'Unresolved', count: analysisResult.product_problems?.unresolved?.length || 0 }
+    { name: 'Resolved', count: analysisResult.product_problems.resolved.length },
+    { name: 'Unresolved', count: analysisResult.product_problems.unresolved.length }
   ];
 
   return (
@@ -58,7 +75,7 @@ const ProductProblems: React.FC<ProductProblemsProps> = ({ analysisResult }) => 
             <div>
               <Typography.Label className="mb-3">Resolved Problems</Typography.Label>
               <div className={Spacing.elementSmall}>
-                {(analysisResult.product_problems?.resolved || []).map((problem, index) => (
+                {analysisResult.product_problems.resolved.map((problem, index) => (
                   <div key={index} className="border border-gray-200 p-4 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <Typography.H6>{problem.problem}</Typography.H6>
@@ -75,7 +92,7 @@ const ProductProblems: React.FC<ProductProblemsProps> = ({ analysisResult }) => 
             <div>
               <Typography.Label className="mb-3">Unresolved Problems</Typography.Label>
               <div className={Spacing.elementSmall}>
-                {(analysisResult.product_problems?.unresolved || []).map((problem, index) => (
+                {analysisResult.product_problems.unresolved.map((problem, index) => (
                   <div key={index} className="border border-gray-200 p-4 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <Typography.H6>{problem.problem}</Typography.H6>

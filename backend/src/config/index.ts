@@ -106,11 +106,6 @@ export const config = {
     cookieSameSite: process.env.COOKIE_SAME_SITE as 'strict' | 'lax' | 'none' || 'lax'
   },
   
-  // Session
-  session: {
-    secret: process.env.SESSION_SECRET || process.env.JWT_SECRET!
-  },
-  
   // Logging
   logging: {
     level: process.env.LOG_LEVEL || 'info',

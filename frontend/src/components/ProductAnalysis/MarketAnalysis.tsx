@@ -30,12 +30,29 @@ interface MarketAnalysisProps {
 }
 
 const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ analysisResult }) => {
+  // Add safety checks for analysisResult structure
+  if (!analysisResult?.market_and_keywords) {
+    return (
+      <Card className={Spacing.section}>
+        <div className={Spacing.cardPadding}>
+          <Typography.H2 className="mb-8 flex items-center">
+            <TrendingUp className="w-7 h-7 mr-4 text-blue-600" />
+            Market Analysis
+          </Typography.H2>
+          <div className="text-center text-gray-500">
+            <p>Market analysis data not available</p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
   // Flatten all keyword categories into one array
   const allKeywords = [
-    ...(analysisResult.market_and_keywords?.keywords?.informational || []),
-    ...(analysisResult.market_and_keywords?.keywords?.transactional || []),
-    ...(analysisResult.market_and_keywords?.keywords?.comparative || []),
-    ...(analysisResult.market_and_keywords?.keywords?.painpoint_related || [])
+    ...(analysisResult.market_and_keywords.keywords?.informational || []),
+    ...(analysisResult.market_and_keywords.keywords?.transactional || []),
+    ...(analysisResult.market_and_keywords.keywords?.comparative || []),
+    ...(analysisResult.market_and_keywords.keywords?.painpoint_related || [])
   ];
   
   const keywordData = allKeywords.slice(0, 10).map(kw => ({
@@ -57,16 +74,16 @@ const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ analysisResult }) => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
           <div className="border border-gray-200 p-8 rounded-lg">
             <Typography.Label className="mb-4 block">Sales Potential</Typography.Label>
-            <Typography.Metric className="mb-4 block">{analysisResult.market_and_keywords?.sales_potential || 'N/A'}</Typography.Metric>
-            <Typography.BodySmall className="block mb-1">Market Size: ${analysisResult.market_and_keywords?.market_size_usd?.toLocaleString() || 'N/A'}</Typography.BodySmall>
-            <Typography.BodySmall className="block">CAGR: {analysisResult.market_and_keywords?.cagr_percent || 'N/A'}%</Typography.BodySmall>
+            <Typography.Metric className="mb-4 block">{analysisResult.market_and_keywords.sales_potential}</Typography.Metric>
+            <Typography.BodySmall className="block mb-1">Market Size: ${analysisResult.market_and_keywords.market_size_usd.toLocaleString()}</Typography.BodySmall>
+            <Typography.BodySmall className="block">CAGR: {analysisResult.market_and_keywords.cagr_percent}%</Typography.BodySmall>
           </div>
           
           <div className="border border-gray-200 p-8 rounded-lg">
             <Typography.Label className="mb-4 block">Google Trends</Typography.Label>
             <Typography.Metric className="mb-4 block">
-              {(analysisResult.market_and_keywords?.google_trends_change_percent || 0) > 0 ? '+' : ''}
-              {analysisResult.market_and_keywords?.google_trends_change_percent || 0}%
+              {analysisResult.market_and_keywords.google_trends_change_percent > 0 ? '+' : ''}
+              {analysisResult.market_and_keywords.google_trends_change_percent}%
             </Typography.Metric>
             <Typography.BodySmall className="block">12-month change</Typography.BodySmall>
           </div>
@@ -74,7 +91,7 @@ const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ analysisResult }) => {
           <div className="border border-gray-200 p-8 rounded-lg">
             <Typography.Label className="mb-4 block">Sources</Typography.Label>
             <div className="flex flex-wrap gap-2">
-              {(analysisResult.market_and_keywords?.sources || []).map((source, index) => (
+              {analysisResult.market_and_keywords.sources.map((source, index) => (
                 <Typography.Badge key={index} variant="default">
                   {source}
                 </Typography.Badge>
@@ -87,12 +104,12 @@ const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ analysisResult }) => {
         <div className="mb-10">
           <Typography.H3 className="mb-6">Marketplace Performance</Typography.H3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {Object.entries(analysisResult.market_and_keywords?.marketplace_data || {}).map(([platform, data]) => (
+            {Object.entries(analysisResult.market_and_keywords.marketplace_data).map(([platform, data]) => (
               <div key={platform} className="border border-gray-200 p-6 rounded-lg">
                 <Typography.H6 className="mb-4 capitalize">{platform}</Typography.H6>
-                <Typography.MetricMedium className="mb-2 block">{(data as any)?.listings?.toLocaleString() || 'N/A'}</Typography.MetricMedium>
+                <Typography.MetricMedium className="mb-2 block">{data.listings.toLocaleString()}</Typography.MetricMedium>
                 <Typography.BodySmall className="block mb-1">Listings</Typography.BodySmall>
-                <Typography.BodySmall className="block">{(data as any)?.sales_per_month || 'N/A'} sales/month</Typography.BodySmall>
+                <Typography.BodySmall className="block">{data.sales_per_month} sales/month</Typography.BodySmall>
               </div>
             ))}
           </div>

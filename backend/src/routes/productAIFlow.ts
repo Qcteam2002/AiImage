@@ -399,8 +399,6 @@ router.post('/', authenticate, requireCredits,   async (req: Request, res: Respo
         user_id: authenticatedReq.user!.id,
         title,
         image_url: image_url || '',
-        target_market: '',
-        image1: image_url || '',
         status: 'waiting'
       }
     });
@@ -452,7 +450,7 @@ router.post('/:id/generate', authenticate, requireCredits,   async (req: Request
     try {
       // Download and process image
       let imagePath: string;
-      if (aiFlow.image_url && aiFlow.image_url.startsWith('http')) {
+      if (aiFlow.image_url.startsWith('http')) {
         imagePath = await downloadImage(aiFlow.image_url, `ai_flow_${uuidv4()}.jpg`);
       } else {
         return res.status(400).json({ error: 'Invalid image URL' });
@@ -462,7 +460,7 @@ router.post('/:id/generate', authenticate, requireCredits,   async (req: Request
       const resizedImage = await resizeImageForAPI(imagePath);
 
       // Call OpenRouter API
-      const aiResult = await callOpenRouterAIFlowAPI(resizedImage, aiFlow.title || '');
+      const aiResult = await callOpenRouterAIFlowAPI(resizedImage, aiFlow.title);
 
       // Clean up temporary file
       if (fs.existsSync(imagePath)) {
@@ -556,8 +554,6 @@ router.post('/upload', authenticate, requireCredits, upload.single('image'),   a
         user_id: authenticatedReq.user!.id,
         title,
         image_url: imageUrl,
-        target_market: '',
-        image1: imageUrl,
         status: 'waiting'
       }
     });

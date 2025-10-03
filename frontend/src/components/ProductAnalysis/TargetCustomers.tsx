@@ -39,8 +39,25 @@ const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => 
   const [selectedSegment, setSelectedSegment] = useState<any>(null);
   const [showSegmentModal, setShowSegmentModal] = useState(false);
 
-  const targetCustomersData = (analysisResult.target_customers || []).map(customer => ({
-    name: `Nhóm ${(analysisResult.target_customers || []).indexOf(customer) + 1}`,
+  // Add safety checks for analysisResult structure
+  if (!analysisResult?.target_customers) {
+    return (
+      <Card className={Spacing.section}>
+        <div className={Spacing.cardPadding}>
+          <Typography.H2 className="mb-6 flex items-center">
+            <Users className="w-6 h-6 mr-3 text-blue-600" />
+            Target Customers Analysis
+          </Typography.H2>
+          <div className="text-center text-gray-500">
+            <p>Target customers data not available</p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  const targetCustomersData = analysisResult.target_customers.map(customer => ({
+    name: `Nhóm ${analysisResult.target_customers.indexOf(customer) + 1}`,
     value: customer.market_share_percent
   }));
 
@@ -116,7 +133,7 @@ const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => 
         <div>
           <Typography.H3 className="mb-4">Customer Groups</Typography.H3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(analysisResult.target_customers || []).map((customer, index) => (
+            {analysisResult.target_customers.map((customer, index) => (
               <div key={index} className="border border-gray-200 p-4 rounded-lg flex flex-col h-full">
                 <div className="flex items-center justify-between mb-3">
                   <Typography.H4>Nhóm {index + 1}</Typography.H4>

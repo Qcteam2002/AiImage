@@ -19,6 +19,20 @@ interface ProductOverviewProps {
 }
 
 const ProductOverview: React.FC<ProductOverviewProps> = ({ product, analysisResult }) => {
+  // Add safety checks for analysisResult structure
+  if (!analysisResult?.market_and_keywords) {
+    return (
+      <Card className={Spacing.section}>
+        <div className={Spacing.cardPadding}>
+          <Typography.H2 className="mb-6">Product Overview</Typography.H2>
+          <div className="text-center text-gray-500">
+            <p>Market analysis data not available</p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card className={Spacing.section}>
       <div className={Spacing.cardPadding}>
@@ -51,19 +65,19 @@ const ProductOverview: React.FC<ProductOverviewProps> = ({ product, analysisResu
               <div className="text-center">
                 <Typography.Label className="mb-3 block">Market Size</Typography.Label>
                 <Typography.Metric className="block">
-                  ${analysisResult.market_and_keywords?.market_size_usd?.toLocaleString() || 'N/A'}
+                  ${analysisResult.market_and_keywords.market_size_usd.toLocaleString()}
                 </Typography.Metric>
               </div>
               <div className="text-center">
                 <Typography.Label className="mb-3 block">Growth Rate</Typography.Label>
                 <Typography.Metric className="block">
-                  {analysisResult.market_and_keywords?.cagr_percent || 'N/A'}%
+                  {analysisResult.market_and_keywords.cagr_percent}%
                 </Typography.Metric>
               </div>
               <div className="text-center">
                 <Typography.Label className="mb-3 block">Trend Change</Typography.Label>
                 <Typography.Metric className="block">
-                  {analysisResult.market_and_keywords?.google_trends_change_percent || 'N/A'}%
+                  {analysisResult.market_and_keywords.google_trends_change_percent}%
                 </Typography.Metric>
               </div>
             </div>

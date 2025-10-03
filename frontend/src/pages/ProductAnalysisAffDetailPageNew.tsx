@@ -8,7 +8,6 @@ import html2canvas from 'html2canvas';
 import ProductHeader from '../components/ProductAnalysis/ProductHeader';
 import ProductOverview from '../components/ProductAnalysis/ProductOverview';
 import ExecutiveSummary from '../components/ProductAnalysis/ExecutiveSummary';
-// import TestSummary from '../components/ProductAnalysis/TestSummary';
 import MarketAnalysis from '../components/ProductAnalysis/MarketAnalysis';
 import ProductProblems from '../components/ProductAnalysis/ProductProblems';
 import TargetCustomers from '../components/ProductAnalysis/TargetCustomers';
@@ -212,11 +211,6 @@ const ProductAnalysisAffDetailPageNew: React.FC = () => {
                   <ExecutiveSummary
                     analysisResult={product.analysis_result}
                   />
-
-                  {/* Test Summary */}
-                  {/* <TestSummary
-                    analysisResult={product.analysis_result}
-                  /> */}
 
                   {/* Market Analysis */}
                   <MarketAnalysis

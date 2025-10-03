@@ -135,21 +135,21 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
                 <div>
                   <Typography.LabelSmall className="mb-3 text-gray-500">Locations</Typography.LabelSmall>
                   <div className="flex flex-wrap gap-2">
-                    {Array.isArray(segment.locations) ? segment.locations.map((location, index) => (
+                    {segment.locations?.map((location, index) => (
                       <span key={index} className="px-3 py-1 bg-gray-100 border border-gray-200 text-gray-700 rounded text-sm">
                         {location}
                       </span>
-                    )) : <Typography.BodySmall className="text-gray-500">N/A</Typography.BodySmall>}
+                    )) || <Typography.BodySmall className="text-gray-500">N/A</Typography.BodySmall>}
                   </div>
                 </div>
                 <div>
                   <Typography.LabelSmall className="mb-3 text-gray-500">Occupations</Typography.LabelSmall>
                   <div className="flex flex-wrap gap-2">
-                    {Array.isArray(segment.occupations) ? segment.occupations.map((occupation, index) => (
+                    {segment.occupations?.map((occupation, index) => (
                       <span key={index} className="px-3 py-1 bg-gray-100 border border-gray-200 text-gray-700 rounded text-sm">
                         {occupation}
                       </span>
-                    )) : <Typography.BodySmall className="text-gray-500">N/A</Typography.BodySmall>}
+                    )) || <Typography.BodySmall className="text-gray-500">N/A</Typography.BodySmall>}
                   </div>
                 </div>
               </div>
@@ -162,11 +162,11 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
                 How to Reach Them
               </Typography.H4>
               <div className="flex flex-wrap gap-2">
-                {Array.isArray(segment.main_channels) ? segment.main_channels.map((channel, index) => (
+                {segment.main_channels?.map((channel, index) => (
                   <span key={index} className="px-3 py-1 bg-gray-100 border border-gray-200 text-gray-700 rounded text-sm">
                     {channel}
                   </span>
-                )) : <Typography.BodySmall className="text-gray-500">N/A</Typography.BodySmall>}
+                )) || <Typography.BodySmall className="text-gray-500">N/A</Typography.BodySmall>}
               </div>
             </div>
 
@@ -177,7 +177,7 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
                 Pain Points & Solutions
               </Typography.H4>
               <div className="space-y-3">
-                {Array.isArray(segment.solutions_and_content) ? segment.solutions_and_content.map((solution, index) => (
+                {(segment.solutions_and_content || []).map((solution, index) => (
                   <div key={index} className="border border-gray-200 rounded-lg bg-white overflow-hidden">
                     {/* Problem Header - Always Visible */}
                     <div 
@@ -242,7 +242,7 @@ const SegmentDetailModal: React.FC<SegmentDetailModalProps> = ({
                       </div>
                     )}
                   </div>
-                )) : <Typography.BodySmall className="text-gray-500">No pain points available</Typography.BodySmall>}
+                ))}
               </div>
             </div>
           </div>

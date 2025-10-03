@@ -16,6 +16,23 @@ interface ExecutiveSummaryProps {
 }
 
 const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({ analysisResult }) => {
+  // Add safety checks for analysisResult structure
+  if (!analysisResult?.executive_summary) {
+    return (
+      <Card className={Spacing.section}>
+        <div className={Spacing.cardPadding}>
+          <Typography.H2 className="mb-8 flex items-center">
+            <BarChart3 className="w-7 h-7 mr-4 text-blue-600" />
+            Executive Summary
+          </Typography.H2>
+          <div className="text-center text-gray-500">
+            <p>Executive summary data not available</p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card className={Spacing.section}>
       <div className={Spacing.cardPadding}>
@@ -27,42 +44,27 @@ const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({ analysisResult }) =
         <div className={Spacing.stack}>
           <div>
             <Typography.Label className="mb-4 block">Recommendation</Typography.Label>
-            <Typography.Body>
-              {analysisResult.executive_summary?.recommendation && typeof analysisResult.executive_summary.recommendation === 'object' 
-                ? (analysisResult.executive_summary.recommendation as any)?.reason || 'N/A'
-                : analysisResult.executive_summary?.recommendation || 'N/A'
-              }
-            </Typography.Body>
+            <Typography.Body>{analysisResult.executive_summary.recommendation}</Typography.Body>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
               <Typography.Label className="mb-4 block">Biggest Opportunity</Typography.Label>
-              <Typography.BodyMedium>
-                {analysisResult.executive_summary?.biggest_opportunity && typeof analysisResult.executive_summary.biggest_opportunity === 'object'
-                  ? (analysisResult.executive_summary.biggest_opportunity as any)?.description || 'N/A'
-                  : analysisResult.executive_summary?.biggest_opportunity || 'N/A'
-                }
-              </Typography.BodyMedium>
+              <Typography.BodyMedium>{analysisResult.executive_summary.biggest_opportunity}</Typography.BodyMedium>
             </div>
             <div>
               <Typography.Label className="mb-4 block">Biggest Risk</Typography.Label>
-              <Typography.BodyMedium>
-                {analysisResult.executive_summary?.biggest_risk && typeof analysisResult.executive_summary.biggest_risk === 'object'
-                  ? (analysisResult.executive_summary.biggest_risk as any)?.description || 'N/A'
-                  : analysisResult.executive_summary?.biggest_risk || 'N/A'
-                }
-              </Typography.BodyMedium>
+              <Typography.BodyMedium>{analysisResult.executive_summary.biggest_risk}</Typography.BodyMedium>
             </div>
           </div>
           
           <div>
             <Typography.Label className="mb-4 block">Key Points</Typography.Label>
             <ul className={Spacing.elementSmall}>
-              {(analysisResult.executive_summary?.key_points || []).map((point, index) => (
+              {analysisResult.executive_summary.key_points.map((point, index) => (
                 <li key={index} className="flex items-start">
                   <div className="flex-shrink-0 w-3 h-3 bg-blue-600 rounded-full mt-2 mr-4"></div>
-                  <Typography.BodyMedium>{typeof point === 'string' ? point : (point as any)?.title || 'N/A'}</Typography.BodyMedium>
+                  <Typography.BodyMedium>{point}</Typography.BodyMedium>
                 </li>
               ))}
             </ul>

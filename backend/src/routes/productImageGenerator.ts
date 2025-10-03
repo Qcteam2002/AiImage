@@ -91,10 +91,6 @@ router.post('/',
           title,
           image_url,
           user_id: req.user.id,
-          prompt: '',
-          user: {
-            connect: { id: req.user.id }
-          },
           status: 'waiting'
         }
       });
@@ -253,7 +249,8 @@ Hãy phân tích và tạo 5 painpoints với prompts tương ứng cho thị tr
           where: { id },
           data: {
             status: 'done',
-            generation_result: JSON.stringify(parsedResult)
+            generation_result: JSON.stringify(parsedResult),
+            generated_at: new Date()
           }
         });
         
