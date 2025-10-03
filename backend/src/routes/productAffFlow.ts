@@ -565,7 +565,7 @@ Trả về đúng cấu trúc JSON sau (bằng tiếng việt):
       "evidence": {
         "metric": "__",
         "value": "__",
-        "source": "__"ßß
+        "source": "__"
       },
       "mitigations": ["Phương án B", "Thay angle", "Đa kênh fulfillment"]
     }
