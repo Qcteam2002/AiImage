@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, RotateCcw } from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
+import { Button } from './ui/Button';
+import { Input } from './ui/Input';
 import toast from 'react-hot-toast';
 
 interface RetryAnalysisModalProps {

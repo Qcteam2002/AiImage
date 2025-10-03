@@ -356,12 +356,47 @@ Bạn không cần làm sản phẩm, chỉ cần giúp tôi *bán sản phẩm 
 
 ---
 
-### **0. Executive Summary (Tóm tắt lãnh đạo)**
+### **0. Executive Summary**
 
-- **Đề xuất:** Hãy đề xuất có nên kinh doanh sản phẩm này hay không và tại sao, càng chi tiết càng tốt**
-- **3–4 luận điểm then chốt, sau đó xuống dòng mô tả chi tiết từng luận điểm và số liệu kèm theo để cũng cố**
-- **Cơ hội lớn nhất chi tiết tại sao đây là cơ hội lớn, có khả năng win bao nhiêu % dựa trên số liệu search web**
-- **Rủi ro lớn nhất chi tiết tại sao đây là rủi ro lớn, data nào dữ liệu nào để đúc kết được vấn đề này**
+Đề xuất: [Nên / Không nên / Nên nhưng có điều kiện] — tóm tắt 1–2 câu vì sao.
+
+Điều kiện triển khai (nếu có): kênh ưu tiên, nhóm khách hàng, ngân sách test.
+
+KPI tối thiểu: Gross margin ≥ __%, CPA/CAC ≤ __, BEP ≤ __ đơn/tháng.
+
+Mức tự tin: __%.
+
+3–4 luận điểm then chốt, sau đó xuống dòng mô tả chi tiết từng luận điểm và số liệu kèm theo để củng cố:
+
+Nhu cầu & Xu hướng: Google Trends 12m = __%, SV = __; Nguồn: __. → Tác động: __.
+
+Cạnh tranh & Giá: #listing = __, price range = __, top-3 share = __%; Nguồn: __. → Tác động: __.
+
+Chi phí tiếp cận: CPC/CPA benchmark = __, CR = __%; Nguồn: __. → Tác động: __.
+
+Biên lợi nhuận & vận hành: Giá vốn = __, phí sàn/ship = __, margin gộp = __%; Nguồn: __. → Tác động: __.
+
+Cơ hội lớn nhất - chi tiết tại sao đây là cơ hội lớn, có khả năng win bao nhiêu % dựa trên số liệu search web:
+
+Mô tả: __ (đòn bẩy: kênh/angle/USP).
+
+Win-rate ước tính: __%.
+
+Chỉ số kiểm chứng: SV = __, CTR = __%, CR = __%, CPC = __; Nguồn: __.
+
+Kế hoạch tận dụng nhanh: bước 1 __ → bước 2 __ → bước 3 __.
+
+Rủi ro lớn nhất - chi tiết tại sao đây là rủi ro lớn, data nào dữ liệu nào để đúc kết được vấn đề này:
+
+Mô tả: __ (pháp lý/trend/logistics/copycat…).
+
+Xác suất xảy ra: __% & Mức tác động: __ (doanh thu/margin).
+
+Dấu hiệu cảnh báo sớm: __ (ví dụ CPC tăng >__%, report DMCA __%).
+
+Bằng chứng dữ liệu: metric = __, giá trị = __; Nguồn: __.
+
+Biện pháp giảm thiểu: __ (phương án B/C, thay angle, đổi kênh, đa dạng mẫu…).
 
 ---
 
@@ -473,16 +508,69 @@ Trả về đúng cấu trúc JSON sau (bằng tiếng việt):
 
 {
   "executive_summary": {
-    "recommendation": "Gợi ý có nên bán hay không và tại sao",
+    "recommendation": {
+      "decision": "Nên / Không nên / Nên nhưng có điều kiện",
+      "reason": "Giải thích chi tiết tại sao, kèm số liệu",
+      "conditions": ["Điều kiện 1", "Điều kiện 2"],
+      "kpi_thresholds": {
+        "gross_margin_min_pct": "__",
+        "cpa_max": "__",
+        "break_even_orders_per_month_max": "__"
+      },
+      "confidence": "__%"
+    },
     "key_points": [
-      "Luận điểm 1",
-      "Luận điểm 2", 
-      "Luận điểm 3",
-      "Luận điểm 4 (nếu có)"
+      {
+        "title": "Luận điểm 1: Nhu cầu & Xu hướng",
+        "detail": "Google Trends 12m = __%, Search Volume = __",
+        "evidence": "Nguồn: __",
+        "impact": "Tác động: __"
+      },
+      {
+        "title": "Luận điểm 2: Cạnh tranh & Giá",
+        "detail": "Số listing = __, Price range = __, Top-3 share = __%",
+        "evidence": "Nguồn: __",
+        "impact": "Tác động: __"
+      },
+      {
+        "title": "Luận điểm 3: Chi phí tiếp cận",
+        "detail": "CPC/CPA benchmark = __/__, CR = __%",
+        "evidence": "Nguồn: __",
+        "impact": "Tác động: __"
+      },
+      {
+        "title": "Luận điểm 4: Biên lợi nhuận & vận hành",
+        "detail": "Giá vốn = __, phí sàn/ship = __, margin gộp = __%",
+        "evidence": "Nguồn: __",
+        "impact": "Tác động: __"
+      }
     ],
-    "biggest_opportunity": "Nội dung cơ hội (chi tiết vì sao đây là cơ hội lớn càng chi tiết càng tốt)",
-    "biggest_risk": "Nội dung rủi ro (có sô liệu cụ thể càng chi tiêt càng tốt, ví dụ tạo sao có rủi ro đó bao nhiêu %)"
-  },
+    "biggest_opportunity": {
+      "description": "Mô tả chi tiết tại sao đây là cơ hội lớn (USP/kênh/angle)",
+      "win_rate_pct": "__%",
+      "validation_metrics": {
+        "search_volume": "__",
+        "ctr": "__%",
+        "cr": "__%",
+        "cpc": "__"
+      },
+      "source": "Nguồn: __",
+      "action_plan": ["Bước 1 __", "Bước 2 __", "Bước 3 __"]
+    },
+    "biggest_risk": {
+      "description": "Mô tả chi tiết rủi ro (pháp lý/trend/logistics)",
+      "probability_pct": "__%",
+      "impact": "Ảnh hưởng dự kiến: __",
+      "early_signals": ["CPC tăng > __%", "DMCA report = __%"],
+      "evidence": {
+        "metric": "__",
+        "value": "__",
+        "source": "__"ßß
+      },
+      "mitigations": ["Phương án B", "Thay angle", "Đa kênh fulfillment"]
+    }
+  }
+},
   "market_and_keywords": {
     "sales_potential": "Cao / Trung bình / Thấp",
     "market_size_usd": 0,
@@ -545,7 +633,7 @@ Trả về đúng cấu trúc JSON sau (bằng tiếng việt):
     "gender_ratio": { "male": 0, "female": 0 },
     "age_range": "xx–yy",
     "occupations": [],
-    "locations": ["Urban", "Suburban", "Rural"],
+    "locations": "DANH SÁCH CÁC LOCATION CỦA CÁC TẬP SEGEMENTATION THEO TARGET MARKET ĐÃ ĐƯA RA",
     "purchase_frequency": "Theo mùa / Thường xuyên / Dịp lễ",
     "average_budget_usd": 0,
     "buying_behavior": "Tìm gì? Mua ở đâu? Quyết định dựa vào?",
@@ -604,7 +692,7 @@ Trả về đúng cấu trúc JSON sau (bằng tiếng việt):
     "gender_ratio": { "male": 0, "female": 0 },
     "age_range": "xx–yy",
     "occupations": [],
-    "locations": ["Urban", "Suburban", "Rural"],
+    "locations": "DANH SÁCH CÁC LOCATION CỦA CÁC TẬP SEGEMENTATION THEO TARGET MARKET ĐÃ ĐƯA RA",
     "purchase_frequency": "Theo mùa / Thường xuyên / Dịp lễ",
     "average_budget_usd": 0,
     "buying_behavior": "Tìm gì? Mua ở đâu? Quyết định dựa vào?",
@@ -663,7 +751,7 @@ Trả về đúng cấu trúc JSON sau (bằng tiếng việt):
     "gender_ratio": { "male": 0, "female": 0 },
     "age_range": "xx–yy",
     "occupations": [],
-    "locations": ["Urban", "Suburban", "Rural"],
+    "locations": "DANH SÁCH CÁC LOCATION CỦA CÁC TẬP SEGEMENTATION THEO TARGET MARKET ĐÃ ĐƯA RA",
     "purchase_frequency": "Theo mùa / Thường xuyên / Dịp lễ",
     "average_budget_usd": 0,
     "buying_behavior": "Tìm gì? Mua ở đâu? Quyết định dựa vào?",
@@ -722,7 +810,7 @@ Trả về đúng cấu trúc JSON sau (bằng tiếng việt):
     "gender_ratio": { "male": 0, "female": 0 },
     "age_range": "xx–yy",
     "occupations": [],
-    "locations": ["Urban", "Suburban", "Rural"],
+    "locations": "DANH SÁCH CÁC LOCATION CỦA CÁC TẬP SEGEMENTATION THEO TARGET MARKET ĐÃ ĐƯA RA",
     "purchase_frequency": "Theo mùa / Thường xuyên / Dịp lễ",
     "average_budget_usd": 0,
     "buying_behavior": "Tìm gì? Mua ở đâu? Quyết định dựa vào?",
@@ -781,7 +869,7 @@ Trả về đúng cấu trúc JSON sau (bằng tiếng việt):
     "gender_ratio": { "male": 0, "female": 0 },
     "age_range": "xx–yy",
     "occupations": [],
-    "locations": ["Urban", "Suburban", "Rural"],
+    "locations": "DANH SÁCH CÁC LOCATION CỦA CÁC TẬP SEGEMENTATION THEO TARGET MARKET ĐÃ ĐƯA RA",
     "purchase_frequency": "Theo mùa / Thường xuyên / Dịp lễ",
     "average_budget_usd": 0,
     "buying_behavior": "Tìm gì? Mua ở đâu? Quyết định dựa vào?",
