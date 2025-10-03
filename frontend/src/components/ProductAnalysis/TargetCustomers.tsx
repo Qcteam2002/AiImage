@@ -116,7 +116,7 @@ const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => 
         <div>
           <Typography.H3 className="mb-4">Customer Groups</Typography.H3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {analysisResult.target_customers.map((customer, index) => (
+            {(analysisResult.target_customers || []).map((customer, index) => (
               <div key={index} className="border border-gray-200 p-4 rounded-lg flex flex-col h-full">
                 <div className="flex items-center justify-between mb-3">
                   <Typography.H4>Nhóm {index + 1}</Typography.H4>

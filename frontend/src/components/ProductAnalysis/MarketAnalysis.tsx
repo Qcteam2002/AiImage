@@ -57,16 +57,16 @@ const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ analysisResult }) => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
           <div className="border border-gray-200 p-8 rounded-lg">
             <Typography.Label className="mb-4 block">Sales Potential</Typography.Label>
-            <Typography.Metric className="mb-4 block">{analysisResult.market_and_keywords.sales_potential}</Typography.Metric>
-            <Typography.BodySmall className="block mb-1">Market Size: ${analysisResult.market_and_keywords.market_size_usd.toLocaleString()}</Typography.BodySmall>
-            <Typography.BodySmall className="block">CAGR: {analysisResult.market_and_keywords.cagr_percent}%</Typography.BodySmall>
+            <Typography.Metric className="mb-4 block">{analysisResult.market_and_keywords?.sales_potential || 'N/A'}</Typography.Metric>
+            <Typography.BodySmall className="block mb-1">Market Size: ${analysisResult.market_and_keywords?.market_size_usd?.toLocaleString() || 'N/A'}</Typography.BodySmall>
+            <Typography.BodySmall className="block">CAGR: {analysisResult.market_and_keywords?.cagr_percent || 'N/A'}%</Typography.BodySmall>
           </div>
           
           <div className="border border-gray-200 p-8 rounded-lg">
             <Typography.Label className="mb-4 block">Google Trends</Typography.Label>
             <Typography.Metric className="mb-4 block">
-              {analysisResult.market_and_keywords.google_trends_change_percent > 0 ? '+' : ''}
-              {analysisResult.market_and_keywords.google_trends_change_percent}%
+              {(analysisResult.market_and_keywords?.google_trends_change_percent || 0) > 0 ? '+' : ''}
+              {analysisResult.market_and_keywords?.google_trends_change_percent || 0}%
             </Typography.Metric>
             <Typography.BodySmall className="block">12-month change</Typography.BodySmall>
           </div>
@@ -74,7 +74,7 @@ const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ analysisResult }) => {
           <div className="border border-gray-200 p-8 rounded-lg">
             <Typography.Label className="mb-4 block">Sources</Typography.Label>
             <div className="flex flex-wrap gap-2">
-              {analysisResult.market_and_keywords.sources.map((source, index) => (
+              {(analysisResult.market_and_keywords?.sources || []).map((source, index) => (
                 <Typography.Badge key={index} variant="default">
                   {source}
                 </Typography.Badge>

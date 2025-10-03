@@ -58,7 +58,7 @@ const ProductProblems: React.FC<ProductProblemsProps> = ({ analysisResult }) => 
             <div>
               <Typography.Label className="mb-3">Resolved Problems</Typography.Label>
               <div className={Spacing.elementSmall}>
-                {analysisResult.product_problems.resolved.map((problem, index) => (
+                {(analysisResult.product_problems?.resolved || []).map((problem, index) => (
                   <div key={index} className="border border-gray-200 p-4 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <Typography.H6>{problem.problem}</Typography.H6>
@@ -75,7 +75,7 @@ const ProductProblems: React.FC<ProductProblemsProps> = ({ analysisResult }) => 
             <div>
               <Typography.Label className="mb-3">Unresolved Problems</Typography.Label>
               <div className={Spacing.elementSmall}>
-                {analysisResult.product_problems.unresolved.map((problem, index) => (
+                {(analysisResult.product_problems?.unresolved || []).map((problem, index) => (
                   <div key={index} className="border border-gray-200 p-4 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <Typography.H6>{problem.problem}</Typography.H6>
