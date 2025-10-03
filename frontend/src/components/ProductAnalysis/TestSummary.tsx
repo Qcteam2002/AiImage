@@ -326,7 +326,7 @@ const TestSummary: React.FC<TestSummaryProps> = ({ analysisResult }) => {
                 </div>
               ) : (
                 <Typography.Body className="text-gray-800 whitespace-pre-line">
-                  {formatTextWithBullets(executiveSummary.biggest_opportunity)}
+                  {formatTextWithBullets(typeof executiveSummary.biggest_opportunity === 'string' ? executiveSummary.biggest_opportunity : 'N/A')}
                 </Typography.Body>
               )}
             </div>
@@ -430,7 +430,7 @@ const TestSummary: React.FC<TestSummaryProps> = ({ analysisResult }) => {
                 </div>
               ) : (
                 <Typography.Body className="text-gray-800 whitespace-pre-line">
-                  {formatTextWithBullets(executiveSummary.biggest_risk)}
+                  {formatTextWithBullets(typeof executiveSummary.biggest_risk === 'string' ? executiveSummary.biggest_risk : 'N/A')}
                 </Typography.Body>
               )}
             </div>
