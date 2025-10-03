@@ -46,7 +46,7 @@ router.post('/create', authenticate, requireCredits, upload.single('image'),   a
     }
 
     // Check if user has enough credits
-    if (req.user!.credits < 1) {
+    if (authenticatedReq.user!.credits < 1) {
       return res.status(403).json({ 
         success: false, 
         error: 'Insufficient credits. Video creation requires 1 credit.' 
@@ -123,7 +123,7 @@ router.post('/create', authenticate, requireCredits, upload.single('image'),   a
       success: true,
       message: 'Video created successfully!',
       videoUrl: `/generated/${videoFileName}`,
-      remainingCredits: req.user!.credits - 1
+      remainingCredits: authenticatedReq.user!.credits - 1
     });
 
   } catch (error) {

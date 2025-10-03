@@ -112,6 +112,14 @@ export const config = {
     format: process.env.LOG_FORMAT || 'combined'
   },
   
+  // OAuth
+  oauth: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || ''
+    }
+  },
+  
   // External URLs
   urls: {
     frontend: process.env.FRONTEND_URL || 'http://localhost:3000',

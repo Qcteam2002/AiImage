@@ -9,7 +9,7 @@ passport.use('google', new GoogleStrategy({
   clientID: config.oauth.google.clientId || 'dummy-client-id',
   clientSecret: config.oauth.google.clientSecret || 'dummy-client-secret',
   callbackURL: `http://localhost:3001/api/auth/google/callback`
-}, async (accessToken, refreshToken, profile, done) => {
+}, async (accessToken: string, refreshToken: string, profile: any, done: any) => {
     try {
       const { id, displayName, emails, photos } = profile;
       
@@ -52,7 +52,6 @@ passport.use('google', new GoogleStrategy({
           where: { id: existingUser.id },
           data: {
             googleId: id,
-            provider: 'google',
             avatar,
             isVerified: true
           }
@@ -64,10 +63,10 @@ passport.use('google', new GoogleStrategy({
       user = await prisma.user.create({
         data: {
           email: email.toLowerCase(),
+          password: '', // Empty password for OAuth users
           name: displayName,
           avatar,
           googleId: id,
-          provider: 'google',
           credits: 10,
           isActive: true,
           isVerified: true
@@ -82,12 +81,12 @@ passport.use('google', new GoogleStrategy({
   }));
 
 // Serialize user for session
-passport.serializeUser((user: any, done) => {
+passport.serializeUser((user: any, done: any) => {
   done(null, user.id);
 });
 
 // Deserialize user from session
-passport.deserializeUser(async (id: string, done) => {
+passport.deserializeUser(async (id: string, done: any) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id }

@@ -88,6 +88,7 @@ router.post('/',
       
       const generator = await prisma.productImageGenerator.create({
         data: {
+          prompt: title || 'Generate product image',
           title,
           image_url,
           user_id: req.user.id,

@@ -18,6 +18,8 @@ model User {
   credits   Int      @default(10)
   isActive  Boolean  @default(true)
   isVerified Boolean @default(false)
+  googleId  String?  @unique
+  avatar    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -158,6 +160,7 @@ model ProductImageGenerator {
   status        String   @default("waiting") // waiting, processing, done, error
   error_message String?
   generation_result String?
+  generated_at  DateTime?
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
   user_id       String
