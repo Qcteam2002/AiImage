@@ -10,6 +10,9 @@ build/
 # environment
 .env
 .env.local
+.env.*
+backend/.env
+frontend/.env
 
 # logs
 npm-debug.log*
