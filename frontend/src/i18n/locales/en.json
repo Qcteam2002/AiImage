@@ -15,7 +15,9 @@
     "confirm": "Confirm",
     "viewAll": "View All",
     "retry": "Retry",
-    "optional": "Optional"
+    "optional": "Optional",
+    "card": "Card",
+    "table": "Table"
   },
   "nav": {
     "home": "Home",

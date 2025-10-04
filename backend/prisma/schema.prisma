@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-1.1.x"]
 }
 
 datasource db {
@@ -117,6 +118,8 @@ model ProductAff {
   image2        String?
   title         String?
   description   String?
+  language      String   @default("vi") // vi, en
+  segmentation_number Int @default(3) // 3, 4, 5, etc.
   status        String   @default("waiting") // waiting, processing, done, error
   analysis_result String?
   analyzed_at   DateTime?

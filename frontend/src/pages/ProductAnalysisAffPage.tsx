@@ -356,7 +356,7 @@ const ProductAnalysisAffPage: React.FC = () => {
                 }`}
               >
                 <Grid3X3 className="w-4 h-4 mr-1" />
-                <span className="hidden sm:inline">Card</span>
+                <span className="hidden sm:inline">{t('common.card')}</span>
               </button>
               <button
                 onClick={() => setViewMode('table')}
@@ -367,7 +367,7 @@ const ProductAnalysisAffPage: React.FC = () => {
                 }`}
               >
                 <List className="w-4 h-4 mr-1" />
-                <span className="hidden sm:inline">Table</span>
+                <span className="hidden sm:inline">{t('common.table')}</span>
               </button>
             </div>
             

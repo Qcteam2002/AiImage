@@ -15,7 +15,9 @@
     "confirm": "Xác nhận",
     "viewAll": "Xem tất cả",
     "retry": "Thử lại",
-    "optional": "Tùy chọn"
+    "optional": "Tùy chọn",
+    "card": "Thẻ",
+    "table": "Bảng"
   },
   "nav": {
     "home": "Trang chủ",
