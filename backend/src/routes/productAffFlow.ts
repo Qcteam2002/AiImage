@@ -90,7 +90,7 @@ router.post('/', authenticate,   async (req: Request, res: Response) => {
     try {
       const authenticatedReq = req as AuthenticatedRequest;
     console.log('➕ [ProductAff] POST / - Creating new product');
-    const { target_market, image1, image2, title, description } = req.body;
+    const { target_market, image1, image2, title, description, language = 'vi', segmentation_number = 3 } = req.body;
     const userId = authenticatedReq.user?.id;
 
     if (!userId) {
@@ -109,6 +109,8 @@ router.post('/', authenticate,   async (req: Request, res: Response) => {
         image2,
         title,
         description,
+        language,
+        segmentation_number,
         status: 'waiting',
         userId: userId,
       },
@@ -234,19 +236,19 @@ router.post('/:id/analyze', authenticate,   async (req: Request, res: Response) 
     try {
       console.log('🚀 [ProductAff] POST /:id/analyze - Calling OpenRouter API');
       // Call OpenRouter API for analysis
-      const analysisResult = await analyzeProductWithAI(product);
+      const analysisResult = await analyzeProductWithAI(product, product.language || 'vi', product.segmentation_number || 3);
       console.log('✅ [ProductAff] POST /:id/analyze - AI analysis completed');
       
       // Update product with analysis result and deduct credit
       const updatedProduct = await prisma.$transaction(async (tx) => {
         // Update product status
         const updatedProduct = await tx.productAff.update({
-          where: { id: id },
-          data: {
-            status: 'done',
-            analysis_result: JSON.stringify(analysisResult),
-            analyzed_at: new Date(),
-          },
+        where: { id: id },
+        data: {
+          status: 'done',
+          analysis_result: JSON.stringify(analysisResult),
+          analyzed_at: new Date(),
+        },
         });
 
         // Deduct 1 credit from user
@@ -321,38 +323,277 @@ router.delete('/:id', authenticate,   async (req: Request, res: Response) => {
 });
 
 // AI Analysis function
-async function analyzeProductWithAI(product: any) {
+async function analyzeProductWithAI(product: any, language: string = 'vi', segmentationNumber: number = 3) {
   const openRouterApiKey = process.env.OPENROUTER_API_KEY;
   
   if (!openRouterApiKey) {
     throw new Error('OpenRouter API key not configured');
   }
 
-  const prompt = `# Analyze product
+  // Language configuration
+  const isVietnamese = language === 'vi';
+  const languageConfig = {
+    vi: {
+      title: "Phân tích sản phẩm",
+      context: "Tôi đang nghiên cứu và đánh giá tiềm năng kinh doanh của một sản phẩm theo hình thức **dropship hoặc affiliate**. Tôi cần một bản phân tích thị trường chi tiết, có cấu trúc logic, insight rõ ràng, để:",
+      goals: [
+        "Xác định khả năng bán hàng của sản phẩm",
+        "Hiểu khách hàng mục tiêu đủ sâu để chọn kênh, angle, cách làm content",
+        "Thiết kế các nội dung truyền thông hiệu quả (video, ads, caption…)"
+      ],
+      role: "Bạn là chuyên gia phân tích thị trường, hành vi khách hàng và chiến lược nội dung thương mại điện tử.",
+      instruction: "Bạn không cần làm sản phẩm, chỉ cần giúp tôi *bán sản phẩm người khác làm* thông qua **content hiệu quả & insight đúng**.",
+      requirement: "Khi tôi gửi tên sản phẩm + hình ảnh, thì bạn cần phải tìm kiếm các nguồn website uy tính và sau đó bạn cần trả về đầy đủ các phần sau, yêu cầu tất cả cần phải có số liệu chứng minh, data rõ ràng:"
+    },
+    en: {
+      title: "Product Analysis",
+      context: "I am researching and evaluating the business potential of a product through **dropship or affiliate** model. I need a detailed market analysis with logical structure and clear insights to:",
+      goals: [
+        "Determine the product's sales potential",
+        "Understand target customers deeply enough to choose channels, angles, and content strategies",
+        "Design effective communication content (videos, ads, captions...)"
+      ],
+      role: "You are a market analysis expert, customer behavior and e-commerce content strategy specialist.",
+      instruction: "You don't need to make products, just help me *sell other people's products* through **effective content & correct insights**.",
+      requirement: "When I send product name + images, you need to search reliable websites and then return all the following sections, requiring all to have supporting data and clear evidence:"
+    }
+  };
 
-# ✅ 📌 PROMPT HOÀN CHỈNH KHI PHÂN TÍCH SẢN PHẨM(Có Số Liệu)
+  const config = languageConfig[language as keyof typeof languageConfig] || languageConfig.vi;
 
-*(Phiên bản tối ưu cho Dropship / Affiliate – BẢN CÓ SỐ LIỆU + PHÂN KHÚC KHÁCH HÀNG MỞ RỘNG)*
+  // Generate dynamic JSON template based on language
+  const generateJsonTemplate = (isVietnamese: boolean) => {
+    if (isVietnamese) {
+      return `{
+  "executive_summary": {
+    "recommendation": "Gợi ý có nên bán hay không và tại sao",
+    "key_points": [
+      "Luận điểm 1",
+      "Luận điểm 2", 
+      "Luận điểm 3",
+      "Luận điểm 4 (nếu có)"
+    ],
+    "biggest_opportunity": "Nội dung cơ hội (chi tiết vì sao đây là cơ hội lớn càng chi tiết càng tốt)",
+    "biggest_risk": "Nội dung rủi ro (có sô liệu cụ thể càng chi tiêt càng tốt, ví dụ tạo sao có rủi ro đó bao nhiêu %)"
+  },
+  "market_and_keywords": {
+    "sales_potential": "Cao / Trung bình / Thấp",
+    "market_size_usd": 0,
+    "cagr_percent": 0,
+    "google_trends_change_percent": 0,
+    "marketplace_data": {
+      "aliexpress": {
+        "listings": 0,
+        "sales_per_month": 0,
+        "growth_percent": null
+      },
+      "etsy": {
+        "listings": 0,
+        "sales_per_month": 0,
+        "growth_percent": null
+      },
+      "amazon": {
+        "listings": 0,
+        "sales_per_month": 0,
+        "growth_percent": null
+      },
+      "shopee": {
+        "listings": 0,
+        "sales_per_month": 0,
+        "growth_percent": null
+      }
+    },
+    "keywords": {
+      "informational": [
+        { "keyword": "", "volume": 0, "cpc": 0, "competition": "" }
+      ],
+      "transactional": [
+        { "keyword": "", "volume": 0, "cpc": 0, "competition": "" }
+      ],
+      "comparative": [
+        { "keyword": "", "volume": 0, "cpc": 0, "competition": "" }
+      ],
+      "painpoint_related": [
+        { "keyword": "", "volume": 0, "cpc": 0, "competition": "" }
+      ]
+    },
+    "sources": ["Statista", "GVR", "Marketplace Pulse", "TikTok Trends"]
+  },
+  "product_problems": {
+    "resolved": [
+      { "problem": "Vấn đề", "satisfaction_percent": 0 }
+    ],
+    "unresolved": [
+      {
+        "problem": "Vấn đề",
+        "unsatisfied_percent": 0,
+        "example_feedback": "Trích dẫn review nếu có"
+      }
+    ]
+  }`;
+    } else {
+      return `{
+  "executive_summary": {
+    "recommendation": "Recommendation on whether to sell or not and why",
+    "key_points": [
+      "Key point 1",
+      "Key point 2", 
+      "Key point 3",
+      "Key point 4 (if any)"
+    ],
+    "biggest_opportunity": "Opportunity content (detailed why this is a big opportunity, the more detailed the better)",
+    "biggest_risk": "Risk content (with specific data, the more detailed the better, e.g. why this risk exists, what percentage)"
+  },
+  "market_and_keywords": {
+    "sales_potential": "High / Medium / Low",
+    "market_size_usd": 0,
+    "cagr_percent": 0,
+    "google_trends_change_percent": 0,
+    "marketplace_data": {
+      "aliexpress": {
+        "listings": 0,
+        "sales_per_month": 0,
+        "growth_percent": null
+      },
+      "etsy": {
+        "listings": 0,
+        "sales_per_month": 0,
+        "growth_percent": null
+      },
+      "amazon": {
+        "listings": 0,
+        "sales_per_month": 0,
+        "growth_percent": null
+      },
+      "shopee": {
+        "listings": 0,
+        "sales_per_month": 0,
+        "growth_percent": null
+      }
+    },
+    "keywords": {
+      "informational": [
+        { "keyword": "", "volume": 0, "cpc": 0, "competition": "" }
+      ],
+      "transactional": [
+        { "keyword": "", "volume": 0, "cpc": 0, "competition": "" }
+      ],
+      "comparative": [
+        { "keyword": "", "volume": 0, "cpc": 0, "competition": "" }
+      ],
+      "painpoint_related": [
+        { "keyword": "", "volume": 0, "cpc": 0, "competition": "" }
+      ]
+    },
+    "sources": ["Statista", "GVR", "Marketplace Pulse", "TikTok Trends"]
+  },
+  "product_problems": {
+    "resolved": [
+      { "problem": "Problem", "satisfaction_percent": 0 }
+    ],
+    "unresolved": [
+      {
+        "problem": "Problem",
+        "unsatisfied_percent": 0,
+        "example_feedback": "Quote review if available"
+      }
+    ]
+  }`;
+    }
+  };
+
+  // Generate dynamic target_customers template
+  const generateTargetCustomersTemplate = (count: number, isVietnamese: boolean) => {
+    const template = [];
+    for (let i = 1; i <= count; i++) {
+      template.push(`  {
+    "name": "${isVietnamese ? 'Tên nhóm khách hàng' : 'Customer Group'} ${i}",
+    "market_share_percent": 0,
+    "gender_ratio": { "male": 0, "female": 0 },
+    "age_range": "xx–yy",
+    "occupations": [],
+    "locations": ["${isVietnamese ? 'Thành phố 1' : 'City 1'}", "${isVietnamese ? 'Thành phố 2' : 'City 2'}", "${isVietnamese ? 'Thành phố 3' : 'City 3'}"],
+    "purchase_frequency": "${isVietnamese ? 'Theo mùa / Thường xuyên / Dịp lễ' : 'Seasonal / Regular / Holiday'}",
+    "average_budget_usd": 0,
+    "buying_behavior": "${isVietnamese ? 'Tìm gì? Mua ở đâu? Quyết định dựa vào?' : 'What do they search? Where do they buy? What influences decisions?'}",
+    "usage_context": "${isVietnamese ? 'Dùng ở đâu, với ai, mục đích gì?' : 'Where do they use it, with whom, for what purpose?'}",
+    "emotional_motivations": "${isVietnamese ? 'Cảm giác mong muốn' : 'Desired feelings'}",
+    "common_painpoints": [
+      "${isVietnamese ? 'Vấn đề 1' : 'Problem 1'}",
+      "${isVietnamese ? 'Vấn đề 2' : 'Problem 2'}"
+    ],
+    "main_channels": ["TikTok", "Facebook", "Pinterest", "Google"],
+    "repurchase_or_upsell": {
+      "exists": true,
+      "estimated_percent": 0
+    },
+    "painpoint_levels": {
+      "high": {
+        "percent": 0,
+        "description": "${isVietnamese ? 'Mô tả vấn đề mức độ cao' : 'High-level problem description'}"
+      },
+      "medium": {
+        "percent": 0,
+        "description": "${isVietnamese ? 'Mô tả vấn đề mức độ trung bình' : 'Medium-level problem description'}"
+      },
+      "low": {
+        "percent": 0,
+        "description": "${isVietnamese ? 'Mô tả vấn đề mức độ thấp' : 'Low-level problem description'}"
+      }
+    },
+    "solutions_and_content": [
+      {
+        "pain_point": "${isVietnamese ? 'Tên vấn đề' : 'Problem name'} 1",
+        "percent_of_customers": 0,
+        "usp": "${isVietnamese ? 'Giải pháp chính' : 'Main solution'}",
+        "content_hook": "${isVietnamese ? 'Hook content dùng cho video/caption' : 'Content hook for video/caption'}",
+        "ad_visual_idea": "${isVietnamese ? 'Kịch bản hình/video ngắn' : 'Short visual/video script'}"
+      },
+      {
+        "pain_point": "${isVietnamese ? 'Tên vấn đề' : 'Problem name'} 2",
+        "percent_of_customers": 0,
+        "usp": "${isVietnamese ? 'Giải pháp chính' : 'Main solution'}",
+        "content_hook": "${isVietnamese ? 'Hook content dùng cho video/caption' : 'Content hook for video/caption'}",
+        "ad_visual_idea": "${isVietnamese ? 'Kịch bản hình/video ngắn' : 'Short visual/video script'}"
+      },
+      {
+        "pain_point": "${isVietnamese ? 'Tên vấn đề' : 'Problem name'} 3",
+        "percent_of_customers": 0,
+        "usp": "${isVietnamese ? 'Giải pháp chính' : 'Main solution'}",
+        "content_hook": "${isVietnamese ? 'Hook content dùng cho video/caption' : 'Content hook for video/caption'}",
+        "ad_visual_idea": "${isVietnamese ? 'Kịch bản hình/video ngắn' : 'Short visual/video script'}"
+      }
+    ]
+  }`);
+    }
+    return template.join(',\n');
+  };
+
+  const prompt = `# ${config.title}
+
+# ✅ 📌 COMPLETE PROMPT FOR PRODUCT ANALYSIS (With Data)
+
+*(Optimized version for Dropship / Affiliate – DATA VERSION + EXPANDED CUSTOMER SEGMENTATION)*
 
 ---
 
-## 🎯 **Bối cảnh**
+## 🎯 **Context**
 
-Tôi đang nghiên cứu và đánh giá tiềm năng kinh doanh của một sản phẩm theo hình thức **dropship hoặc affiliate**. Tôi cần một bản phân tích thị trường chi tiết, có cấu trúc logic, insight rõ ràng, để:
+${config.context}
 
-- Xác định khả năng bán hàng của sản phẩm
-- Hiểu khách hàng mục tiêu đủ sâu để chọn kênh, angle, cách làm content
-- Thiết kế các nội dung truyền thông hiệu quả (video, ads, caption…)
+${config.goals.map(goal => `- ${goal}`).join('\n')}
 
 ---
 
-## 🧠 **Vai trò của bạn**
+## 🧠 **Your Role**
 
-Bạn là chuyên gia phân tích thị trường, hành vi khách hàng và chiến lược nội dung thương mại điện tử.
+${config.role}
 
-Bạn không cần làm sản phẩm, chỉ cần giúp tôi *bán sản phẩm người khác làm* thông qua **content hiệu quả & insight đúng**.
+${config.instruction}
 
-## 📝 **Khi tôi gửi tên sản phẩm + hình ảnh**, thì bạn cần phải tìm kiếm các nguồn website uy tính và sau đó bạn cần trả về đầy đủ các phần sau, yêu cầu tất cả cần phải có số liệu chứng minh, data rõ ràng:
+## 📝 **${config.requirement}
+
+---
 
 ---
 
@@ -434,6 +675,8 @@ Mỗi nhóm 4-8 từ khóa, liệt kê từ cao → thấp.
 
 ### Mỗi nhóm cần phân tích đầy đủ bảng sau:
 
+**QUAN TRỌNG:** Với mỗi nhóm khách hàng, hãy liệt kê cụ thể các thành phố/tỉnh mà nhóm đó tập trung sinh sống (ví dụ: Hà Nội, TP.HCM, Đà Nẵng, Cần Thơ, Hải Phòng...). Không dùng placeholder text.
+
 ### 🧑‍🤝‍🧑 **Nhóm X: [Tên nhóm khách hàng]**
 
 | **Hạng mục** | **Nội dung cụ thể** |
@@ -442,7 +685,7 @@ Mỗi nhóm 4-8 từ khóa, liệt kê từ cao → thấp.
 | Giới tính | % Nam / Nữ |
 | Độ tuổi chính | Khoảng tuổi chính, % phân bổ |
 | Nghề nghiệp phổ biến | Văn phòng, nội trợ, học sinh, freelancer… |
-| Vị trí địa lý chính | Urban / Suburban / Rural / theo quốc gia cụ thể |
+| Vị trí địa lý chính | Liệt kê các thành phố/tỉnh cụ thể (ví dụ: Hà Nội, TP.HCM, Đà Nẵng, Cần Thơ...) |
 | Tần suất mua hàng | Theo mùa / hàng tháng / dịp lễ |
 | Ngân sách trung bình | $ / mỗi đơn hoặc mỗi năm |
 | Hành vi tìm kiếm & mua | Họ tìm gì, mua ở đâu, ra quyết định theo yếu tố nào |
@@ -500,405 +743,46 @@ tương tự cho các nhóm còn lại, hiển thị đầy đủ ra, ví dụ c
 
 ---
 
-## 📊 **Yêu cầu trả về JSON**
+## 📊 **JSON Response Requirements**
 
-Trả về đúng cấu trúc JSON sau (bằng tiếng việt):
+Return the following JSON structure (in ${isVietnamese ? 'Vietnamese' : 'English'}):
+
+**IMPORTANT: Generate exactly ${segmentationNumber} customer segments in the target_customers array.**
 
 \`\`\`json
 
-{
-  "executive_summary": {
-    "recommendation": "Gợi ý có nên bán hay không và tại sao",
-    "key_points": [
-      "Luận điểm 1",
-      "Luận điểm 2", 
-      "Luận điểm 3",
-      "Luận điểm 4 (nếu có)"
-    ],
-    "biggest_opportunity": "Nội dung cơ hội (chi tiết vì sao đây là cơ hội lớn càng chi tiết càng tốt)",
-    "biggest_risk": "Nội dung rủi ro (có sô liệu cụ thể càng chi tiêt càng tốt, ví dụ tạo sao có rủi ro đó bao nhiêu %)"
-  },
-  "market_and_keywords": {
-    "sales_potential": "Cao / Trung bình / Thấp",
-    "market_size_usd": 0,
-    "cagr_percent": 0,
-    "google_trends_change_percent": 0,
-    "marketplace_data": {
-      "aliexpress": {
-        "listings": 0,
-        "sales_per_month": 0,
-        "growth_percent": null
-      },
-      "etsy": {
-        "listings": 0,
-        "sales_per_month": 0,
-        "growth_percent": null
-      },
-      "amazon": {
-        "listings": 0,
-        "sales_per_month": 0,
-        "growth_percent": null
-      },
-      "shopee": {
-        "listings": 0,
-        "sales_per_month": 0,
-        "growth_percent": null
-      }
-    },
-    "keywords": {
-      "informational": [
-        { "keyword": "", "volume": 0, "cpc": 0, "competition": "" }
-      ],
-      "transactional": [
-        { "keyword": "", "volume": 0, "cpc": 0, "competition": "" }
-      ],
-      "comparative": [
-        { "keyword": "", "volume": 0, "cpc": 0, "competition": "" }
-      ],
-      "painpoint_related": [
-        { "keyword": "", "volume": 0, "cpc": 0, "competition": "" }
-      ]
-    },
-    "sources": ["Statista", "GVR", "Marketplace Pulse", "TikTok Trends"]
-  },
-  "product_problems": {
-    "resolved": [
-      { "problem": "Vấn đề", "satisfaction_percent": 0 }
-    ],
-    "unresolved": [
-      {
-        "problem": "Vấn đề",
-        "unsatisfied_percent": 0,
-        "example_feedback": "Trích dẫn review nếu có"
-      }
-    ]
-  },
+${generateJsonTemplate(isVietnamese)},
 "target_customers": [
-  {
-    "name": "Tên nhóm khách hàng 1",
-    "market_share_percent": 0,
-    "gender_ratio": { "male": 0, "female": 0 },
-    "age_range": "xx–yy",
-    "occupations": [],
-    "locations": "DANH SÁCH CÁC LOCATION CỦA CÁC TẬP SEGEMENTATION THEO TARGET MARKET ĐÃ ĐƯA RA",
-    "purchase_frequency": "Theo mùa / Thường xuyên / Dịp lễ",
-    "average_budget_usd": 0,
-    "buying_behavior": "Tìm gì? Mua ở đâu? Quyết định dựa vào?",
-    "usage_context": "Dùng ở đâu, với ai, mục đích gì?",
-    "emotional_motivations": "Cảm giác mong muốn",
-    "common_painpoints": [
-      "Vấn đề 1",
-      "Vấn đề 2"
-    ],
-    "main_channels": ["TikTok", "Facebook", "Pinterest", "Google"],
-    "repurchase_or_upsell": {
-      "exists": true,
-      "estimated_percent": 0
-    },
-    "painpoint_levels": {
-      "high": {
-        "percent": 0,
-        "description": "Mô tả vấn đề mức độ cao"
-      },
-      "medium": {
-        "percent": 0,
-        "description": "Mô tả vấn đề mức độ trung bình"
-      },
-      "low": {
-        "percent": 0,
-        "description": "Mô tả vấn đề mức độ thấp"
-      }
-    },
-    "solutions_and_content": [
-      {
-        "pain_point": "Tên vấn đề",
-        "percent_of_customers": 0,
-        "usp": "Giải pháp chính",
-        "content_hook": "Hook content dùng cho video/caption",
-        "ad_visual_idea": "Kịch bản hình/video ngắn"
-      },
-            {
-        "pain_point": "Tên vấn đề 2",
-        "percent_of_customers": 0,
-        "usp": "Giải pháp chính",
-        "content_hook": "Hook content dùng cho video/caption",
-        "ad_visual_idea": "Kịch bản hình/video ngắn"
-      },
-      {
-        "pain_point": "Tên vấn đề 3",
-        "percent_of_customers": 0,
-        "usp": "Giải pháp chính",
-        "content_hook": "Hook content dùng cho video/caption",
-        "ad_visual_idea": "Kịch bản hình/video ngắn"
-      }
-    ]
-  },
-  {
-    "name": "Tên nhóm khách hàng 2",
-    "market_share_percent": 0,
-    "gender_ratio": { "male": 0, "female": 0 },
-    "age_range": "xx–yy",
-    "occupations": [],
-    "locations": "DANH SÁCH CÁC LOCATION CỦA CÁC TẬP SEGEMENTATION THEO TARGET MARKET ĐÃ ĐƯA RA",
-    "purchase_frequency": "Theo mùa / Thường xuyên / Dịp lễ",
-    "average_budget_usd": 0,
-    "buying_behavior": "Tìm gì? Mua ở đâu? Quyết định dựa vào?",
-    "usage_context": "Dùng ở đâu, với ai, mục đích gì?",
-    "emotional_motivations": "Cảm giác mong muốn",
-    "common_painpoints": [
-      "Vấn đề 1",
-      "Vấn đề 2"
-    ],
-    "main_channels": ["TikTok", "Facebook", "Pinterest", "Google"],
-    "repurchase_or_upsell": {
-      "exists": true,
-      "estimated_percent": 0
-    },
-    "painpoint_levels": {
-      "high": {
-        "percent": 0,
-        "description": "Mô tả vấn đề mức độ cao"
-      },
-      "medium": {
-        "percent": 0,
-        "description": "Mô tả vấn đề mức độ trung bình"
-      },
-      "low": {
-        "percent": 0,
-        "description": "Mô tả vấn đề mức độ thấp"
-      }
-    },
-    "solutions_and_content": [
-      {
-        "pain_point": "Tên vấn đề",
-        "percent_of_customers": 0,
-        "usp": "Giải pháp chính",
-        "content_hook": "Hook content dùng cho video/caption",
-        "ad_visual_idea": "Kịch bản hình/video ngắn"
-      },
-            {
-        "pain_point": "Tên vấn đề 2",
-        "percent_of_customers": 0,
-        "usp": "Giải pháp chính",
-        "content_hook": "Hook content dùng cho video/caption",
-        "ad_visual_idea": "Kịch bản hình/video ngắn"
-      },
-      {
-        "pain_point": "Tên vấn đề 3",
-        "percent_of_customers": 0,
-        "usp": "Giải pháp chính",
-        "content_hook": "Hook content dùng cho video/caption",
-        "ad_visual_idea": "Kịch bản hình/video ngắn"
-      }
-    ]
-  },
-  {
-    "name": "Tên nhóm khách hàng 3",
-    "market_share_percent": 0,
-    "gender_ratio": { "male": 0, "female": 0 },
-    "age_range": "xx–yy",
-    "occupations": [],
-    "locations": "DANH SÁCH CÁC LOCATION CỦA CÁC TẬP SEGEMENTATION THEO TARGET MARKET ĐÃ ĐƯA RA",
-    "purchase_frequency": "Theo mùa / Thường xuyên / Dịp lễ",
-    "average_budget_usd": 0,
-    "buying_behavior": "Tìm gì? Mua ở đâu? Quyết định dựa vào?",
-    "usage_context": "Dùng ở đâu, với ai, mục đích gì?",
-    "emotional_motivations": "Cảm giác mong muốn",
-    "common_painpoints": [
-      "Vấn đề 1",
-      "Vấn đề 2"
-    ],
-    "main_channels": ["TikTok", "Facebook", "Pinterest", "Google"],
-    "repurchase_or_upsell": {
-      "exists": true,
-      "estimated_percent": 0
-    },
-    "painpoint_levels": {
-      "high": {
-        "percent": 0,
-        "description": "Mô tả vấn đề mức độ cao"
-      },
-      "medium": {
-        "percent": 0,
-        "description": "Mô tả vấn đề mức độ trung bình"
-      },
-      "low": {
-        "percent": 0,
-        "description": "Mô tả vấn đề mức độ thấp"
-      }
-    },
-    "solutions_and_content": [
-      {
-        "pain_point": "Tên vấn đề 1",
-        "percent_of_customers": 0,
-        "usp": "Giải pháp chính",
-        "content_hook": "Hook content dùng cho video/caption",
-        "ad_visual_idea": "Kịch bản hình/video ngắn"
-      },
-      {
-        "pain_point": "Tên vấn đề 2",
-        "percent_of_customers": 0,
-        "usp": "Giải pháp chính",
-        "content_hook": "Hook content dùng cho video/caption",
-        "ad_visual_idea": "Kịch bản hình/video ngắn"
-      },
-      {
-        "pain_point": "Tên vấn đề 3",
-        "percent_of_customers": 0,
-        "usp": "Giải pháp chính",
-        "content_hook": "Hook content dùng cho video/caption",
-        "ad_visual_idea": "Kịch bản hình/video ngắn"
-      }
-    ]
-  },
-  {
-    "name": "Tên nhóm khách hàng 4",
-    "market_share_percent": 0,
-    "gender_ratio": { "male": 0, "female": 0 },
-    "age_range": "xx–yy",
-    "occupations": [],
-    "locations": "DANH SÁCH CÁC LOCATION CỦA CÁC TẬP SEGEMENTATION THEO TARGET MARKET ĐÃ ĐƯA RA",
-    "purchase_frequency": "Theo mùa / Thường xuyên / Dịp lễ",
-    "average_budget_usd": 0,
-    "buying_behavior": "Tìm gì? Mua ở đâu? Quyết định dựa vào?",
-    "usage_context": "Dùng ở đâu, với ai, mục đích gì?",
-    "emotional_motivations": "Cảm giác mong muốn",
-    "common_painpoints": [
-      "Vấn đề 1",
-      "Vấn đề 2"
-    ],
-    "main_channels": ["TikTok", "Facebook", "Pinterest", "Google"],
-    "repurchase_or_upsell": {
-      "exists": true,
-      "estimated_percent": 0
-    },
-    "painpoint_levels": {
-      "high": {
-        "percent": 0,
-        "description": "Mô tả vấn đề mức độ cao"
-      },
-      "medium": {
-        "percent": 0,
-        "description": "Mô tả vấn đề mức độ trung bình"
-      },
-      "low": {
-        "percent": 0,
-        "description": "Mô tả vấn đề mức độ thấp"
-      }
-    },
-    "solutions_and_content": [
-      {
-        "pain_point": "Tên vấn đề 1",
-        "percent_of_customers": 0,
-        "usp": "Giải pháp chính",
-        "content_hook": "Hook content dùng cho video/caption",
-        "ad_visual_idea": "Kịch bản hình/video ngắn"
-      },
-      {
-        "pain_point": "Tên vấn đề 2",
-        "percent_of_customers": 0,
-        "usp": "Giải pháp chính",
-        "content_hook": "Hook content dùng cho video/caption",
-        "ad_visual_idea": "Kịch bản hình/video ngắn"
-      },
-      {
-        "pain_point": "Tên vấn đề 3",
-        "percent_of_customers": 0,
-        "usp": "Giải pháp chính",
-        "content_hook": "Hook content dùng cho video/caption",
-        "ad_visual_idea": "Kịch bản hình/video ngắn"
-      }
-    ]
-  },
-  {
-    "name": "Tên nhóm khách hàng 5",
-    "market_share_percent": 0,
-    "gender_ratio": { "male": 0, "female": 0 },
-    "age_range": "xx–yy",
-    "occupations": [],
-    "locations": "DANH SÁCH CÁC LOCATION CỦA CÁC TẬP SEGEMENTATION THEO TARGET MARKET ĐÃ ĐƯA RA",
-    "purchase_frequency": "Theo mùa / Thường xuyên / Dịp lễ",
-    "average_budget_usd": 0,
-    "buying_behavior": "Tìm gì? Mua ở đâu? Quyết định dựa vào?",
-    "usage_context": "Dùng ở đâu, với ai, mục đích gì?",
-    "emotional_motivations": "Cảm giác mong muốn",
-    "common_painpoints": [
-      "Vấn đề 1",
-      "Vấn đề 2"
-    ],
-    "main_channels": ["TikTok", "Facebook", "Pinterest", "Google"],
-    "repurchase_or_upsell": {
-      "exists": true,
-      "estimated_percent": 0
-    },
-    "painpoint_levels": {
-      "high": {
-        "percent": 0,
-        "description": "Mô tả vấn đề mức độ cao"
-      },
-      "medium": {
-        "percent": 0,
-        "description": "Mô tả vấn đề mức độ trung bình"
-      },
-      "low": {
-        "percent": 0,
-        "description": "Mô tả vấn đề mức độ thấp"
-      }
-    },
-    "solutions_and_content": [
-      {
-        "pain_point": "Tên vấn đề 1",
-        "percent_of_customers": 0,
-        "usp": "Giải pháp chính",
-        "content_hook": "Hook content dùng cho video/caption",
-        "ad_visual_idea": "Kịch bản hình/video ngắn"
-      },
-      {
-        "pain_point": "Tên vấn đề 2",
-        "percent_of_customers": 0,
-        "usp": "Giải pháp chính",
-        "content_hook": "Hook content dùng cho video/caption",
-        "ad_visual_idea": "Kịch bản hình/video ngắn"
-      },
-      {
-        "pain_point": "Tên vấn đề 3",
-        "percent_of_customers": 0,
-        "usp": "Giải pháp chính",
-        "content_hook": "Hook content dùng cho video/caption",
-        "ad_visual_idea": "Kịch bản hình/video ngắn"
-      }
-    ]
-  }
-]
-,
+${generateTargetCustomersTemplate(segmentationNumber, isVietnamese)}
+],
   "conclusions": [
     {
-      "title": "Chiến lược 1: Tập trung vào nhóm khách hàng chính",
-      "focus_group_priority": "Tên nhóm khách hàng nên chạy đầu tiên",
-      "best_content_angle": "Angle tiềm năng nhất",
-      "upsell_combo_suggestions": "Ý tưởng upsell hoặc combo",
-      "risks_to_consider": "Pháp lý, mùa vụ, logistics, etc."
+      "title": "${isVietnamese ? 'Chiến lược 1: Tập trung vào nhóm khách hàng chính' : 'Strategy 1: Focus on Main Customer Groups'}",
+      "focus_group_priority": "${isVietnamese ? 'Tên nhóm khách hàng nên chạy đầu tiên' : 'Customer group to target first'}",
+      "best_content_angle": "${isVietnamese ? 'Angle tiềm năng nhất' : 'Most potential angle'}",
+      "upsell_combo_suggestions": "${isVietnamese ? 'Ý tưởng upsell hoặc combo' : 'Upsell or combo ideas'}",
+      "risks_to_consider": "${isVietnamese ? 'Pháp lý, mùa vụ, logistics, etc.' : 'Legal, seasonal, logistics, etc.'}"
     },
     {
-      "title": "Chiến lược 2: Mở rộng thị trường mới",
-      "focus_group_priority": "Tên nhóm khách hàng nên chạy đầu tiên",
-      "best_content_angle": "Angle tiềm năng nhất",
-      "upsell_combo_suggestions": "Ý tưởng upsell hoặc combo",
-      "risks_to_consider": "Pháp lý, mùa vụ, logistics, etc."
+      "title": "${isVietnamese ? 'Chiến lược 2: Mở rộng thị trường mới' : 'Strategy 2: Expand to New Markets'}",
+      "focus_group_priority": "${isVietnamese ? 'Tên nhóm khách hàng nên chạy đầu tiên' : 'Customer group to target first'}",
+      "best_content_angle": "${isVietnamese ? 'Angle tiềm năng nhất' : 'Most potential angle'}",
+      "upsell_combo_suggestions": "${isVietnamese ? 'Ý tưởng upsell hoặc combo' : 'Upsell or combo ideas'}",
+      "risks_to_consider": "${isVietnamese ? 'Pháp lý, mùa vụ, logistics, etc.' : 'Legal, seasonal, logistics, etc.'}"
     },
     {
-      "title": "Chiến lược 3: Tối ưu hóa nội dung hiện tại",
-      "focus_group_priority": "Tên nhóm khách hàng nên chạy đầu tiên",
-      "best_content_angle": "Angle tiềm năng nhất",
-      "upsell_combo_suggestions": "Ý tưởng upsell hoặc combo",
-      "risks_to_consider": "Pháp lý, mùa vụ, logistics, etc."
+      "title": "${isVietnamese ? 'Chiến lược 3: Tối ưu hóa nội dung hiện tại' : 'Strategy 3: Optimize Current Content'}",
+      "focus_group_priority": "${isVietnamese ? 'Tên nhóm khách hàng nên chạy đầu tiên' : 'Customer group to target first'}",
+      "best_content_angle": "${isVietnamese ? 'Angle tiềm năng nhất' : 'Most potential angle'}",
+      "upsell_combo_suggestions": "${isVietnamese ? 'Ý tưởng upsell hoặc combo' : 'Upsell or combo ideas'}",
+      "risks_to_consider": "${isVietnamese ? 'Pháp lý, mùa vụ, logistics, etc.' : 'Legal, seasonal, logistics, etc.'}"
     }
   ]
 }
 }
 \`\`\`
 
-Hãy phân tích sản phẩm này và trả về kết quả theo đúng cấu trúc JSON trên.`;
+${isVietnamese ? 'Hãy phân tích sản phẩm này và trả về kết quả theo đúng cấu trúc JSON trên.' : 'Please analyze this product and return the results according to the JSON structure above.'}`;
 
   const response = await axios.post(
     'https://openrouter.ai/api/v1/chat/completions',
@@ -907,7 +791,9 @@ Hãy phân tích sản phẩm này và trả về kết quả theo đúng cấu 
       messages: [
         {
           role: 'system',
-          content: 'Bạn là chuyên gia phân tích thị trường và nhận diện sản phẩm. Bạn có thể phân tích hình ảnh để extract title và description sản phẩm. Trả về CHỈ JSON hợp lệ, không có text thêm, không có markdown formatting.'
+          content: isVietnamese 
+            ? 'Bạn là chuyên gia phân tích thị trường và nhận diện sản phẩm. Bạn có thể phân tích hình ảnh để extract title và description sản phẩm. Trả về CHỈ JSON hợp lệ bằng tiếng Việt, không có text thêm, không có markdown formatting. Tất cả nội dung trong JSON phải được viết bằng tiếng Việt.'
+            : 'You are a market analysis expert and product identification specialist. You can analyze images to extract product titles and descriptions. Return ONLY valid JSON in English, no additional text, no markdown formatting. All content in the JSON must be written in English.'
         },
         {
           role: 'user',
