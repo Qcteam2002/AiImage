@@ -325,7 +325,7 @@ const ProductAnalysisAffPage: React.FC = () => {
             </div>
             <Button onClick={handleAddProduct} className="flex items-center">
               <Plus className="w-4 h-4 mr-2" />
-              Thêm sản phẩm
+              {t('productAnalysisAff.addProduct')}
             </Button>
           </div>
         </div>
