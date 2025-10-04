@@ -376,11 +376,11 @@ const ProductAnalysisAffPage: React.FC = () => {
               onChange={(e) => setFilterStatus(e.target.value as any)}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">Tất cả trạng thái</option>
-              <option value="waiting">Chờ xử lý</option>
-              <option value="processing">Đang xử lý</option>
-              <option value="done">Hoàn thành</option>
-              <option value="error">Lỗi</option>
+              <option value="all">{t('productAnalysisAff.allStatuses')}</option>
+              <option value="waiting">{t('productAnalysisAff.status.waiting')}</option>
+              <option value="processing">{t('productAnalysisAff.status.processing')}</option>
+              <option value="done">{t('productAnalysisAff.status.done')}</option>
+              <option value="error">{t('productAnalysisAff.status.error')}</option>
             </select>
           </div>
         </div>
@@ -394,14 +394,14 @@ const ProductAnalysisAffPage: React.FC = () => {
           <div className="text-center py-12">
             <Coins className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Chưa có sản phẩm nào
+              {t('productAnalysisAff.noProducts')}
             </h3>
             <p className="text-gray-600 mb-6">
-              Hãy thêm sản phẩm đầu tiên để bắt đầu phân tích
+              {t('productAnalysisAff.addFirstProduct')}
             </p>
             <Button onClick={handleAddProduct}>
               <Plus className="w-4 h-4 mr-2" />
-              Thêm sản phẩm
+              {t('productAnalysisAff.addProduct')}
             </Button>
           </div>
         ) : viewMode === 'table' ? (
