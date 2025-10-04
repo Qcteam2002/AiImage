@@ -314,11 +314,8 @@ const AddProductAffModal: React.FC<AddProductAffModalProps> = ({ onClose, onSucc
                   disabled
                   className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed text-sm"
                 >
-                  <option value={3}>3 Segments (Default)</option>
+                  <option value={3}>3 Segments</option>
                 </select>
-                <p className="text-xs text-gray-500 mt-1">
-                  Tạm thời cố định ở 3 segments. Sẽ mở lại sau.
-                </p>
               </div>
             </div>
 
