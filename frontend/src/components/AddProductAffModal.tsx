@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { X, Upload, Link, Image as ImageIcon, Globe, FileText, Type, Plus, Trash2 } from 'lucide-react';
+import { X, Upload, Link, Image as ImageIcon, Globe, FileText, Type, Plus, Trash2, Languages, Users } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Textarea } from './ui/Textarea';
 import { productAffService, CreateProductAffRequest } from '../services/productAffService';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 interface AddProductAffModalProps {
   onClose: () => void;
@@ -41,19 +42,22 @@ const TARGET_MARKETS = [
 ];
 
 const AddProductAffModal: React.FC<AddProductAffModalProps> = ({ onClose, onSuccess }) => {
+  const { t, i18n } = useTranslation();
   const [formData, setFormData] = useState<CreateProductAffRequest>({
     target_market: '',
     image1: '',
     image2: '',
     title: '',
-    description: ''
+    description: '',
+    language: i18n.language || 'vi',
+    segmentation_number: 3
   });
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const [imageMethod, setImageMethod] = useState<'upload' | 'url' | 'paste'>('upload');
   const [urlInput, setUrlInput] = useState('');
 
-  const handleInputChange = (field: keyof CreateProductAffRequest, value: string) => {
+  const handleInputChange = (field: keyof CreateProductAffRequest, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -278,6 +282,44 @@ const AddProductAffModal: React.FC<AddProductAffModalProps> = ({ onClose, onSucc
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Language & Segmentation Config */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Language */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <Languages className="w-4 h-4 inline mr-1" />
+                  Analysis Language
+                </label>
+                <select
+                  value={formData.language}
+                  onChange={(e) => handleInputChange('language', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                >
+                  <option value="vi">🇻🇳 Tiếng Việt</option>
+                  <option value="en">🇺🇸 English</option>
+                </select>
+              </div>
+
+              {/* Segmentation Number */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <Users className="w-4 h-4 inline mr-1" />
+                  Customer Segments
+                </label>
+                <select
+                  value={formData.segmentation_number}
+                  onChange={(e) => handleInputChange('segmentation_number', parseInt(e.target.value))}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed text-sm"
+                >
+                  <option value={3}>3 Segments (Default)</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Tạm thời cố định ở 3 segments. Sẽ mở lại sau.
+                </p>
+              </div>
             </div>
 
             {/* Product Title */}
