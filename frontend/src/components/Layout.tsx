@@ -97,7 +97,7 @@ const Layout: React.FC = () => {
                   </p>
                   <div className="flex items-center space-x-1 text-xs text-neutral-500">
                     <Coins className="w-3 h-3 text-secondary-500" />
-                    <span>{user.credits} tín dụng còn lại</span>
+                    <span>{user.credits} {t('common.creditsRemaining')}</span>
                   </div>
                 </div>
               </div>

@@ -17,7 +17,8 @@
     "retry": "Retry",
     "optional": "Optional",
     "card": "Card",
-    "table": "Table"
+    "table": "Table",
+    "creditsRemaining": "credits remaining"
   },
   "nav": {
     "home": "Home",
