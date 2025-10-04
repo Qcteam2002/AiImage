@@ -57,3 +57,5 @@ const AnimatedChartLegend: React.FC<AnimatedChartLegendProps> = ({
 };
 
 export default AnimatedChartLegend;
+
+

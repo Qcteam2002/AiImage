@@ -64,3 +64,5 @@ const AnimatedDetailedSection: React.FC<AnimatedDetailedSectionProps> = ({
 };
 
 export default AnimatedDetailedSection;
+
+

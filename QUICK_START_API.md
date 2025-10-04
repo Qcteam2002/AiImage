@@ -64,3 +64,5 @@ Mở file `test-api-example.html` trong browser để test API trực tiếp.
 - Hỗ trợ: JPG, PNG, WebP, GIF
 - Output: Base64 data URL
 
+
+

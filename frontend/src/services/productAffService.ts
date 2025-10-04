@@ -7,6 +7,8 @@ export interface ProductAff {
   image2?: string;
   title?: string;
   description?: string;
+  language?: string;
+  segmentation_number?: number;
   status: 'waiting' | 'processing' | 'done' | 'error';
   analysis_result?: string;
   created_at: string;
@@ -20,6 +22,8 @@ export interface CreateProductAffRequest {
   image2?: string;
   title?: string;
   description?: string;
+  language?: string;
+  segmentation_number?: number;
 }
 
 export interface UpdateProductAffRequest {

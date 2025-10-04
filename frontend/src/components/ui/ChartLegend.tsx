@@ -31,3 +31,5 @@ const ChartLegend: React.FC<ChartLegendProps> = ({ data, className = '' }) => {
 };
 
 export default ChartLegend;
+
+

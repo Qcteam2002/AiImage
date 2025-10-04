@@ -36,3 +36,5 @@ const DetailedSection: React.FC<DetailedSectionProps> = ({
 };
 
 export default DetailedSection;
+
+
