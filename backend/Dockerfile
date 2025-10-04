@@ -17,7 +17,8 @@ RUN apk add --no-cache \
     pixman-dev \
     pangomm-dev \
     libjpeg-turbo-dev \
-    freetype-dev
+    freetype-dev \
+    openssl1.1-compat
 
 # Copy package files
 COPY package*.json ./
