@@ -549,5 +549,9 @@
     "avgAov": "AOV trung bình",
     "growthScore": "Điểm tăng trưởng",
     "insightSummary": "Tóm tắt insight"
-  }
+  },
+  "startingAnalysis": "Đang bắt đầu phân tích...",
+  "analysisStarted": "Phân tích đã được khởi động thành công!",
+  "analysisError": "Lỗi khi khởi động phân tích",
+  "exploreAndAnalyze": "Khám phá & Phân tích"
 }

@@ -541,5 +541,9 @@
     "avgAov": "Avg AOV",
     "growthScore": "Growth Score",
     "insightSummary": "Insight Summary"
-  }
+  },
+  "startingAnalysis": "Starting analysis...",
+  "analysisStarted": "Analysis started successfully!",
+  "analysisError": "Error starting analysis",
+  "exploreAndAnalyze": "Explore & Analyze"
 }

@@ -90,9 +90,21 @@ const AddMarketExplorerModal: React.FC<AddMarketExplorerModalProps> = ({
   const createMutation = useMutation(
     (data: any) => marketExplorerService.createMarketExplorer(data),
     {
-      onSuccess: () => {
+      onSuccess: async (createdMarket) => {
         toast.success(t('marketExplorer.createSuccess'));
+        
+        // Automatically start analysis
+        try {
+          toast(t('marketExplorer.startingAnalysis'));
+          await marketExplorerService.analyzeMarketExplorer(createdMarket.id);
+          toast.success(t('marketExplorer.analysisStarted'));
+        } catch (error: any) {
+          console.error('Error starting analysis:', error);
+          toast.error(error.response?.data?.error || t('marketExplorer.analysisError'));
+        }
+        
         onSuccess();
+        onClose();
       },
       onError: (error: any) => {
         toast.error(error.message || t('marketExplorer.createError'));
@@ -385,7 +397,7 @@ const AddMarketExplorerModal: React.FC<AddMarketExplorerModalProps> = ({
             ) : (
               <>
                 <Target className="w-4 h-4 mr-2" />
-                {t('marketExplorer.explore')}
+                {t('marketExplorer.exploreAndAnalyze')}
               </>
             )}
           </Button>
