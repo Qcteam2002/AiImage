@@ -13,6 +13,7 @@ import MarketAnalysis from '../components/ProductAnalysis/MarketAnalysis';
 import ProductProblems from '../components/ProductAnalysis/ProductProblems';
 import TargetCustomers from '../components/ProductAnalysis/TargetCustomers';
 import Conclusion from '../components/ProductAnalysis/Conclusion';
+import ProductListingOptimizerModal from '../components/ProductAnalysis/ProductListingOptimizerModal';
 
 // Services
 import { productAffService } from '../services/productAffService';
@@ -38,6 +39,7 @@ const ProductAnalysisAffDetailPageNew: React.FC = () => {
   const [product, setProduct] = useState<ProductAff | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showOptimizerModal, setShowOptimizerModal] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -193,6 +195,7 @@ const ProductAnalysisAffDetailPageNew: React.FC = () => {
         <ProductHeader
           product={product}
           onBack={handleBack}
+          onOptimize={() => setShowOptimizerModal(true)}
         />
 
         {/* Analysis Content */}
@@ -254,6 +257,17 @@ const ProductAnalysisAffDetailPageNew: React.FC = () => {
           })()}
         </div>
       </div>
+
+      {/* Product Listing Optimizer Modal */}
+      <ProductListingOptimizerModal
+        isOpen={showOptimizerModal}
+        onClose={() => setShowOptimizerModal(false)}
+        analysisResult={product.analysis_result}
+        product={product}
+        originalTitle={product.title}
+        originalDescription={product.description}
+        targetMarket={product.target_market}
+      />
     </div>
   );
 };

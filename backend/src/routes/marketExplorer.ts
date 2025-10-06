@@ -226,6 +226,9 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
 async function analyzeMarketExplorer(marketExplorer: any) {
   try {
     console.log('🔍 [MarketExplorer] Starting analysis for:', marketExplorer.id);
+    console.log('🔍 [MarketExplorer] Industry category:', marketExplorer.industry_category);
+    console.log('🔍 [MarketExplorer] Business model:', marketExplorer.business_model);
+    console.log('🔍 [MarketExplorer] Target country:', marketExplorer.target_country);
     
     const isVietnamese = marketExplorer.target_country?.toLowerCase().includes('vietnam') || 
                         marketExplorer.target_country?.toLowerCase().includes('việt nam') ||
@@ -715,6 +718,10 @@ async function analyzeMarketExplorer(marketExplorer: any) {
       throw new Error('OpenRouter API key not configured');
     }
 
+    console.log('🚀 [MarketExplorer] Calling OpenRouter API...');
+    console.log('🚀 [MarketExplorer] Prompt length:', prompt.length);
+    console.log('🚀 [MarketExplorer] OpenRouter API key exists:', !!openRouterApiKey);
+
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
@@ -744,7 +751,12 @@ async function analyzeMarketExplorer(marketExplorer: any) {
       }
     );
 
+    console.log('✅ [MarketExplorer] OpenRouter API response received');
+    console.log('✅ [MarketExplorer] Response status:', response.status);
+    console.log('✅ [MarketExplorer] Response data keys:', Object.keys(response.data));
+    
     const analysisResult = response.data.choices[0].message.content;
+    console.log('✅ [MarketExplorer] Analysis result length:', analysisResult?.length);
     
     // Update the market explorer with results
     await prisma.marketExplorer.update({

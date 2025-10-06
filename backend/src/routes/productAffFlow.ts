@@ -849,4 +849,349 @@ ${isVietnamese ? 'Hãy phân tích sản phẩm này và trả về kết quả 
   }
 }
 
+// Product Listing Optimizer endpoint
+router.post('/:id/optimize', authenticate, async (req: Request, res: Response) => {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const { id } = req.params;
+    const { type, data } = req.body;
+    const userId = authenticatedReq.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    console.log('🔍 [ProductListingOptimizer] Starting optimization for product:', id);
+    console.log('🔍 [ProductListingOptimizer] Type:', type);
+    console.log('🔍 [ProductListingOptimizer] Data keys:', Object.keys(data || {}));
+
+    // Get the product analysis result
+    const product = await prisma.productAff.findFirst({
+      where: {
+        id: id,
+        userId: userId,
+      },
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    if (!product.analysis_result) {
+      return res.status(400).json({ message: 'No analysis result available' });
+    }
+
+    let analysisResult;
+    try {
+      analysisResult = typeof product.analysis_result === 'string' 
+        ? JSON.parse(product.analysis_result) 
+        : product.analysis_result;
+    } catch (parseError) {
+      console.error('Error parsing analysis result:', parseError);
+      return res.status(400).json({ message: 'Invalid analysis result format' });
+    }
+
+    const targetMarket = product.target_market || 'global';
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+
+    if (!openRouterApiKey) {
+      console.error('OpenRouter API key not found');
+      return res.status(500).json({ message: 'AI service not configured' });
+    }
+
+    let prompt = '';
+
+                if (type === 'keyword') {
+                  const keywordList = data.keywords.map((keyword: string) => `- ${keyword}`).join('\n');
+                  const tone = data.tone || 'Expert';
+                  
+                  prompt = `Act as an expert Amazon/e-commerce SEO copywriter for the ${targetMarket} market.
+
+            Based on the product's original listing and this comprehensive keyword analysis, generate a new, compelling, and SEO-optimized product title and description.
+
+            **Product Information:**
+            * Original Title: "${data.original_title}"
+            * Original Description: "${data.original_description}"
+
+            **Comprehensive Keyword List (from analysis):**
+            ${keywordList}
+
+            **Writing Tone:**
+            * Use a ${tone.toLowerCase()} tone throughout the content
+            * Match the tone to the target audience and product type
+            * Ensure consistency between title and description
+
+            **Your Task:**
+            1. Generate a new Product Title:
+               - Clear, concise, includes 2–3 high-value transactional keywords near the beginning.
+               - Under 200 characters.
+               - Written in ${tone.toLowerCase()} tone.
+            2. Generate a new Product Description:
+               - Write in PROFESSIONAL HTML format for Shopify compatibility
+               - Use advanced HTML structure: <h2>, <h3>, <h4>, <p>, <ul>, <ol>, <li>, <strong>, <em>, <br>, <table>, <tr>, <td>, <th>, <div>, <span>
+               - Create a structured layout with clear sections:
+                 * Hero section with main benefit
+                 * Key features table with specifications
+                 * Benefits list with bullet points
+                 * Technical details section
+                 * Call-to-action paragraph
+               - Use professional typography: bold headers, italicized benefits, clear bullet points
+               - Include comparison tables for specifications if relevant
+               - Make it visually appealing and easy to scan
+               - Use ${tone.toLowerCase()}, persuasive, trustworthy tone with clear value propositions
+               
+               **Example Structure:**
+               <h2>🚀 [Main Benefit Headline]</h2>
+               <p>[Compelling introduction paragraph]</p>
+               
+               <h3>✨ Key Features & Benefits</h3>
+               <table>
+                 <tr><th>Feature</th><th>Benefit</th><th>Why It Matters</th></tr>
+                 <tr><td><strong>Feature 1</strong></td><td>Benefit description</td><td>Customer value</td></tr>
+               </table>
+               
+               <h3>📋 Technical Specifications</h3>
+               <ul>
+                 <li><strong>Spec 1:</strong> Value with explanation</li>
+                 <li><strong>Spec 2:</strong> Value with explanation</li>
+               </ul>
+               
+               <h3>💡 Why Choose This Product?</h3>
+               <p>[Social proof and unique selling proposition]</p>
+
+            Output strictly as JSON with two keys:
+            {
+              "new_title": "...",
+              "new_description": "..."
+            }`;
+
+                } else if (type === 'feature') {
+                  const resolvedFeatures = data.resolved_features || [];
+                  const unresolvedProblems = data.unresolved_problems || [];
+                  const tone = data.tone || 'Expert';
+                  
+                  const resolvedFeaturesList = resolvedFeatures.map((feature: any) => 
+                    `- Problem Solved: "${feature.problem}"\n  - The Feature (How we solve it): "${feature.reason}"`
+                  ).join('\n\n');
+                  
+                  const unresolvedProblemsList = unresolvedProblems.map((problem: any) => 
+                    `- Limitation: "${problem.problem}"\n  - Customer Feedback Example: "${problem.example_feedback}"`
+                  ).join('\n\n');
+
+                  prompt = `Act as an expert Product Copywriter. Your goal is to create a clear, benefit-driven product listing based on its proven features and known limitations.
+
+**Product Information:**
+* Product Name: ${product.title || 'Product'}
+* Target Market: ${targetMarket}
+
+**Product Feature Analysis:**
+
+**1. Proven Product Features (What works well and solves customer problems):**
+${resolvedFeaturesList}
+
+**2. Known Issues & Limitations (What to be careful about when writing):**
+${unresolvedProblemsList}
+
+**Writing Tone:**
+* Use a ${tone.toLowerCase()} tone throughout the content
+* Match the tone to the target audience and product type
+* Ensure consistency between title and description
+
+**Your Task:**
+
+1. **Generate a new Product Title:**
+   - Highlight the product's strongest, most tangible feature from the "Proven Features" list.
+   - Focus on the direct benefit to the customer. For example: "Bedsure Clump-Proof Comforter with 8 Secure Tabs - Machine Washable & Stays Fluffy".
+   - Keep it concise and under 200 characters.
+   - Written in ${tone.toLowerCase()} tone.
+
+2. **Generate a new Product Description:**
+   - Write in PROFESSIONAL HTML format for Shopify compatibility
+   - Use advanced HTML structure: <h2>, <h3>, <h4>, <p>, <ul>, <ol>, <li>, <strong>, <em>, <br>, <table>, <tr>, <td>, <th>, <div>, <span>
+   - Create a structured layout with clear sections:
+     * Hero section highlighting the strongest proven feature
+     * Features vs Benefits comparison table
+     * Technical specifications table
+     * Problem-Solution format with clear bullet points
+     * Honest limitations section (if any)
+     * Call-to-action with confidence
+   - Use professional typography: bold headers, italicized benefits, clear bullet points
+   - Include comparison tables showing "Before vs After" scenarios
+   - **Crucially:** Handle the "Known Issues" with care. Do not make exaggerated claims related to them. For instance, for the 'All-Season' feature, frame it as "Ideal for most seasons" or "Provides balanced warmth for spring, fall, and air-conditioned rooms" instead of a blanket "perfect for all year round" statement. For "Fluffiness", manage expectations by stating "Follow instructions to restore its natural loft".
+   - The tone should be confident about what the product does well, and honest about its limitations.
+   - Use ${tone.toLowerCase()}, persuasive, trustworthy tone
+   
+   **Example Structure:**
+   <h2>🏆 [Strongest Feature Headline]</h2>
+   <p>[Confident introduction highlighting proven features]</p>
+   
+   <h3>✅ Proven Features That Work</h3>
+   <table>
+     <tr><th>Problem Solved</th><th>Our Solution</th><th>Customer Satisfaction</th></tr>
+     <tr><td>Problem 1</td><td><strong>Feature description</strong></td><td>85% satisfied</td></tr>
+   </table>
+   
+   <h3>🔧 Technical Excellence</h3>
+   <ul>
+     <li><strong>Feature 1:</strong> Detailed explanation with benefits</li>
+     <li><strong>Feature 2:</strong> Detailed explanation with benefits</li>
+   </ul>
+   
+   <h3>⚠️ Important Notes</h3>
+   <p><em>For optimal results: [Honest limitations and usage tips]</em></p>
+   
+   <h3>🎯 Why This Works</h3>
+   <p>[Confident closing with value proposition]</p>
+
+Output strictly as JSON with two keys:
+{
+  "new_title": "...",
+  "new_description": "..."
+}`;
+
+                } else if (type === 'segmentation') {
+                  const segmentData = data.segment_data;
+                  const painPointsList = segmentData.common_painpoints?.map((point: string) => `- ${point}`).join('\n') || '';
+                  const solutionsList = segmentData.solutions_and_content?.map((item: any) => 
+                    `- For the pain point "${item.pain_point}", our solution is "${item.solution}".`
+                  ).join('\n') || '';
+                  const tone = data.tone || 'Expert';
+
+                  prompt = `Act as a specialist Direct-to-Consumer (DTC) copywriter. Your task is to write a highly targeted product listing that speaks directly to a specific customer segment.
+
+            **Product Information:**
+            * Product Name: ${product.title || 'Product'}
+            * Target Market: ${targetMarket}
+
+            **Target Audience Profile:**
+            * Segment Name: "${segmentData.name}"
+            * Common Pain Points:
+            ${painPointsList}
+            * Product Solutions:
+            ${solutionsList}
+
+            **Writing Tone:**
+            * Use a ${tone.toLowerCase()} tone throughout the content
+            * Match the tone to the target audience and product type
+            * Ensure consistency between title and description
+
+            **Your Task:**
+            1. Generate a new Product Title:
+               - Emotionally resonate with "${segmentData.name}".
+               - Highlight the core benefit that solves their top pain point.
+               - Keep under 150 characters.
+               - Written in ${tone.toLowerCase()} tone.
+
+            2. Generate a new Product Description:
+               - Write in PROFESSIONAL HTML format for Shopify compatibility
+               - Use advanced HTML structure: <h2>, <h3>, <h4>, <p>, <ul>, <ol>, <li>, <strong>, <em>, <br>, <table>, <tr>, <td>, <th>, <div>, <span>
+               - Create a structured layout with clear sections:
+                 * Hero section addressing their specific pain points
+                 * Solution presentation with benefits table
+                 * Feature list tailored to their needs
+                 * Social proof and testimonials section
+                 * Call-to-action with urgency
+               - Use professional typography: bold headers, italicized benefits, clear bullet points
+               - Include comparison tables showing before/after scenarios
+               - Make it visually appealing and emotionally resonant
+               - Use ${tone.toLowerCase()} tone that matches the segment (e.g., elegant for Home Décor, warm for Comfort Seekers).
+               
+               **Example Structure:**
+               <h2>💝 [Emotional Headline for ${segmentData.name}]</h2>
+               <p>[Address their specific pain points with empathy]</p>
+               
+               <h3>🎯 Perfect Solution for You</h3>
+               <table>
+                 <tr><th>Your Challenge</th><th>Our Solution</th><th>Your Benefit</th></tr>
+                 <tr><td>Pain point 1</td><td><strong>How we solve it</strong></td><td>Emotional benefit</td></tr>
+               </table>
+               
+               <h3>✨ What Makes This Special for ${segmentData.name}</h3>
+               <ul>
+                 <li><strong>Benefit 1:</strong> Tailored to your lifestyle</li>
+                 <li><strong>Benefit 2:</strong> Solves your specific needs</li>
+               </ul>
+               
+               <h3>🌟 Join Thousands of Happy Customers</h3>
+               <p>[Social proof and call to action]</p>
+
+            Output strictly as JSON with two keys:
+            {
+              "new_title": "...",
+              "new_description": "..."
+            }`;
+
+    } else {
+      return res.status(400).json({ message: 'Invalid optimization type' });
+    }
+
+    console.log('🚀 [ProductListingOptimizer] Calling OpenRouter API...');
+    console.log('🚀 [ProductListingOptimizer] Prompt length:', prompt.length);
+
+    const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+      model: 'openai/gpt-4o-mini',
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 2000,
+    }, {
+      headers: {
+        'Authorization': `Bearer ${openRouterApiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'http://localhost:3000',
+        'X-Title': 'Product Listing Optimizer',
+      },
+    });
+
+    console.log('✅ [ProductListingOptimizer] OpenRouter API response received');
+    console.log('✅ [ProductListingOptimizer] Response status:', response.status);
+
+    const content = response.data.choices[0].message.content;
+    
+    try {
+      // Try to find complete JSON object
+      let jsonStart = content.indexOf('{');
+      if (jsonStart === -1) {
+        throw new Error('No JSON found in response');
+      }
+      
+      // Find matching closing brace
+      let braceCount = 0;
+      let jsonEnd = -1;
+      for (let i = jsonStart; i < content.length; i++) {
+        if (content[i] === '{') braceCount++;
+        if (content[i] === '}') braceCount--;
+        if (braceCount === 0) {
+          jsonEnd = i;
+          break;
+        }
+      }
+      
+      if (jsonEnd === -1) {
+        throw new Error('Incomplete JSON found');
+      }
+      
+      const jsonString = content.substring(jsonStart, jsonEnd + 1);
+      const result = JSON.parse(jsonString);
+      
+      console.log('✅ [ProductListingOptimizer] Successfully parsed result');
+      res.json(result);
+      
+    } catch (parseError) {
+      console.error('Error parsing AI response:', parseError);
+      console.error('Content length:', content.length);
+      console.error('Content preview:', content.substring(0, 500));
+      res.status(500).json({ message: 'Failed to parse AI response' });
+    }
+
+  } catch (error) {
+    console.error('Error in product listing optimizer:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 export default router;

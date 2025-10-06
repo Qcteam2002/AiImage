@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Globe, Calendar } from 'lucide-react';
+import { ArrowLeft, Globe, Calendar, Sparkles } from 'lucide-react';
 import { Button } from '../ui/Button';
 import Typography from '../design-system/Typography';
 import { useTranslation } from 'react-i18next';
@@ -11,17 +11,20 @@ interface ProductHeaderProps {
     analyzed_at?: string;
   };
   onBack: () => void;
+  onOptimize?: () => void;
 }
 
 const ProductHeader: React.FC<ProductHeaderProps> = ({
   product,
-  onBack
+  onBack,
+  onOptimize
 }) => {
   const { t } = useTranslation();
 
   return (
     <div className="mb-6 sm:mb-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+        {/* Left side - Back button and Product info */}
         <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
           <Button
             variant="secondary"
@@ -51,6 +54,20 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
             </div>
           </div>
         </div>
+        
+        {/* Right side - Optimize button */}
+        {onOptimize && (
+          <div className="flex justify-end">
+            <Button
+              variant="primary"
+              onClick={onOptimize}
+              className="flex items-center bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              {t('productAnalysisAff.optimizer.newTitle')}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

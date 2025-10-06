@@ -119,6 +119,13 @@ class ProductAffService {
       method: 'DELETE',
     });
   }
+
+  async optimizeProduct(id: string, data: any): Promise<any> {
+    return this.request<any>(`/api/product-aff/${id}/optimize`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
 }
 
 export const productAffService = new ProductAffService();
