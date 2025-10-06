@@ -220,7 +220,7 @@ const MarketExplorerPage: React.FC = () => {
                   </span>
                 </td>
                 <td className="px-4 py-4 whitespace-nowrap">
-                  <span className="text-sm text-gray-900">
+                  <span className="text-sm text-gray-900 max-w-xs truncate block" title={market.industry_category || 'Chưa xác định'}>
                     {market.industry_category || 'Chưa xác định'}
                   </span>
                 </td>

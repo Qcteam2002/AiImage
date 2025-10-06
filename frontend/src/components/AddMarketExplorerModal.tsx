@@ -78,7 +78,7 @@ const AddMarketExplorerModal: React.FC<AddMarketExplorerModalProps> = ({
   const [formData, setFormData] = useState({
     target_country: '',
     business_model: 'Dropshipping',
-    industry_category: '',
+    industry_category: null,
     custom_industry: '',
     product_features: '',
     business_goals: '',
@@ -111,8 +111,10 @@ const AddMarketExplorerModal: React.FC<AddMarketExplorerModalProps> = ({
     // Prepare data for API
     const submitData = {
       ...formData,
-      // Use custom_industry if "other" is selected, otherwise use industry_category
-      industry_category: formData.industry_category === 'other' ? formData.custom_industry : formData.industry_category,
+      // Use custom_industry if "other" is selected, otherwise use industry_category or null if not selected
+      industry_category: formData.industry_category === 'other' 
+        ? formData.custom_industry 
+        : formData.industry_category || null,
       // Remove custom_industry from final data
       custom_industry: undefined,
     };
