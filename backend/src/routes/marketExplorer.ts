@@ -250,7 +250,7 @@ async function analyzeMarketExplorer(marketExplorer: any) {
 🧩 **Đầu vào yêu cầu từ người dùng:**
 - **Quốc gia mục tiêu:** ${marketExplorer.target_country}
 - **Mô hình kinh doanh:** ${marketExplorer.business_model}
-- **Ngành hàng hoặc sản phẩm (tùy chọn):** ${marketExplorer.industry_category || 'Chưa xác định - AI sẽ tự phân tích và đề xuất các ngành hàng/niche tiềm năng nhất dựa trên thị trường và mô hình kinh doanh'}
+- **Ngành hàng hoặc sản phẩm (tùy chọn):** ${marketExplorer.industry_category === 'all' ? 'Tất cả ngành hàng - AI sẽ phân tích toàn bộ thị trường và đề xuất các ngành hàng/niche tiềm năng nhất' : marketExplorer.industry_category || 'Chưa xác định - AI sẽ tự phân tích và đề xuất các ngành hàng/niche tiềm năng nhất dựa trên thị trường và mô hình kinh doanh'}
 - **Mục tiêu kinh doanh:** ${marketExplorer.business_goals || 'Chưa xác định - AI sẽ phân tích tổng quát'}
 - **Số lượng nhóm khách hàng cần phân tích:** ${marketExplorer.customer_segments_count || 1} nhóm
 - **Số lượng ngành hàng/niche cần phân tích:** ${marketExplorer.niche_count || 3} ngành hàng
