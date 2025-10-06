@@ -243,13 +243,14 @@ async function analyzeMarketExplorer(marketExplorer: any) {
 - Location phải cụ thể: Trong "location_distribution", phải trả về TÊN THÀNH PHỐ/TỈNH CỤ THỂ của quốc gia mục tiêu, KHÔNG phải "Urban/Suburban/Rural". Ví dụ: Vietnam → ["Hồ Chí Minh", "Hà Nội", "Đà Nẵng"], USA → ["New York", "Los Angeles", "Chicago"].
 - Mô hình kinh doanh: "Self-Business" có nghĩa là tự sản xuất, tự kinh doanh (như in áo, làm đồ handmade, sản xuất sản phẩm riêng). Trong "model_suitability" phải có "self_business_score" cho tất cả các niche.
 - Số lượng niche: Phải trả về đúng số lượng ngành hàng/niche theo yêu cầu (${marketExplorer.niche_count || 3} ngành hàng). Không được ít hơn hoặc nhiều hơn số lượng yêu cầu.
+- **Tự động suggest category**: Nếu người dùng không cung cấp ngành hàng cụ thể, AI phải tự phân tích thị trường và đề xuất các ngành hàng/niche có tiềm năng cao nhất dựa trên quốc gia mục tiêu và mô hình kinh doanh. Ưu tiên các ngành hàng đang tăng trưởng mạnh và phù hợp với mô hình kinh doanh được chọn.
 - **NGÔN NGỮ TRẢ VỀ: ${marketExplorer.language === 'vi' ? 'TIẾNG VIỆT' : 'ENGLISH'}** - Tất cả nội dung trong JSON phải được viết bằng ${marketExplorer.language === 'vi' ? 'tiếng Việt' : 'English'}. Không được trả về tiếng Anh khi user chọn tiếng Việt.
 - Output duy nhất là JSON: Không giải thích, không giới thiệu, không dùng markdown. Chỉ trả về một khối mã JSON hợp lệ.
 
 🧩 **Đầu vào yêu cầu từ người dùng:**
 - **Quốc gia mục tiêu:** ${marketExplorer.target_country}
 - **Mô hình kinh doanh:** ${marketExplorer.business_model}
-- **Ngành hàng hoặc sản phẩm (tùy chọn):** ${marketExplorer.industry_category || 'Chưa xác định - AI sẽ tự đề xuất 3 niche tiềm năng nhất'}
+- **Ngành hàng hoặc sản phẩm (tùy chọn):** ${marketExplorer.industry_category || 'Chưa xác định - AI sẽ tự phân tích và đề xuất các ngành hàng/niche tiềm năng nhất dựa trên thị trường và mô hình kinh doanh'}
 - **Mục tiêu kinh doanh:** ${marketExplorer.business_goals || 'Chưa xác định - AI sẽ phân tích tổng quát'}
 - **Số lượng nhóm khách hàng cần phân tích:** ${marketExplorer.customer_segments_count || 1} nhóm
 - **Số lượng ngành hàng/niche cần phân tích:** ${marketExplorer.niche_count || 3} ngành hàng
