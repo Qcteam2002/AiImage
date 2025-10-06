@@ -22,34 +22,35 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div className="mb-6 sm:mb-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+    <div className="mb-4 sm:mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
         {/* Left side - Back button and Product info */}
-        <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
           <Button
             variant="secondary"
             onClick={onBack}
             className="flex items-center self-start"
+            size="sm"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             {t('productAnalysisAff.back')}
           </Button>
-          <div className="max-w-2xl">
-            <Typography.H1 className="leading-tight text-lg sm:text-2xl lg:text-3xl">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-sm sm:text-base font-medium text-gray-900 truncate" title={product.title || t('productAnalysisAff.noTitle')}>
               {product.title || t('productAnalysisAff.noTitle')}
-            </Typography.H1>
-            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-6 mt-3">
+            </h1>
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4 mt-1">
               <div className="flex items-center">
-                <Globe className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-gray-500" />
-                <Typography.BodySmall className="text-gray-600 sm:text-base">
+                <Globe className="w-3 h-3 mr-1.5 text-gray-500" />
+                <span className="text-xs text-gray-600 truncate">
                   {product.target_market || t('productAnalysisAff.noTargetMarket')}
-                </Typography.BodySmall>
+                </span>
               </div>
               <div className="flex items-center">
-                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-gray-500" />
-                <Typography.BodySmall className="text-gray-600 sm:text-base">
+                <Calendar className="w-3 h-3 mr-1.5 text-gray-500" />
+                <span className="text-xs text-gray-600">
                   {product.analyzed_at ? new Date(product.analyzed_at).toLocaleDateString() : t('productAnalysisAff.status.waiting')}
-                </Typography.BodySmall>
+                </span>
               </div>
             </div>
           </div>
@@ -62,6 +63,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
               variant="primary"
               onClick={onOptimize}
               className="flex items-center bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              size="sm"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               {t('productAnalysisAff.optimizer.newTitle')}
