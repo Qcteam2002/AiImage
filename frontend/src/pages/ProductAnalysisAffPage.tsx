@@ -230,7 +230,11 @@ const ProductAnalysisAffPage: React.FC = () => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredProducts.map((product) => (
-              <tr key={product.id} className="hover:bg-gray-50">
+              <tr 
+                key={product.id} 
+                className="hover:bg-gray-50 cursor-pointer"
+                onClick={() => handleViewProduct(product.id)}
+              >
                 <td className="px-4 py-4 max-w-xs">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-12 w-12">
@@ -277,7 +281,10 @@ const ProductAnalysisAffPage: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleViewProduct(product.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewProduct(product.id);
+                      }}
                       className="text-blue-600 hover:text-blue-700"
                     >
                       <Eye className="w-4 h-4" />
@@ -285,7 +292,10 @@ const ProductAnalysisAffPage: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleRetryAnalysis(product)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRetryAnalysis(product);
+                      }}
                       className="text-blue-600 hover:text-blue-700"
                     >
                       <RotateCcw className="w-4 h-4" />
@@ -293,7 +303,10 @@ const ProductAnalysisAffPage: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDeleteProduct(product.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteProduct(product.id);
+                      }}
                       className="text-red-600 hover:text-red-700"
                     >
                       <Trash2 className="w-4 h-4" />

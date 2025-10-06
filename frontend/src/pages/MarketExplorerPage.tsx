@@ -194,7 +194,11 @@ const MarketExplorerPage: React.FC = () => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {marketExplorers.map((market) => (
-              <tr key={market.id} className="hover:bg-gray-50">
+              <tr 
+                key={market.id} 
+                className="hover:bg-gray-50 cursor-pointer"
+                onClick={() => handleViewMarket(market.id)}
+              >
                 <td className="px-4 py-4 max-w-xs">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-12 w-12">
@@ -238,7 +242,10 @@ const MarketExplorerPage: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleViewMarket(market.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewMarket(market.id);
+                      }}
                       className="text-blue-600 hover:text-blue-700"
                     >
                       <Eye className="w-4 h-4" />
@@ -246,7 +253,10 @@ const MarketExplorerPage: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleRetryAnalysis(market)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRetryAnalysis(market);
+                      }}
                       className="text-blue-600 hover:text-blue-700"
                     >
                       <RotateCcw className="w-4 h-4" />
@@ -254,7 +264,10 @@ const MarketExplorerPage: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDeleteMarket(market.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteMarket(market.id);
+                      }}
                       className="text-red-600 hover:text-red-700"
                     >
                       <Trash2 className="w-4 h-4" />
