@@ -15,7 +15,8 @@ import {
   BarChart3,
   Video,
   Sparkles,
-  Zap
+  Zap,
+  MapPin
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/Button';
@@ -33,6 +34,7 @@ const Layout: React.FC = () => {
     // { name: t('nav.productImageTools'), href: '/product-image-tools', icon: Package },
     // { name: 'Phân tích sản phẩm', href: '/product-analysis', icon: BarChart3 },
     { name: t('productAnalysis'), href: '/product-analysis-aff', icon: Coins },
+    { name: t('nav.marketExplorer'), href: '/market-explorer', icon: MapPin },
     // { name: 'Product Image Generator', href: '/product-image-generator', icon: Sparkles },
     // { name: 'Product AI Flow', href: '/product-ai-flow', icon: Zap },
     // { name: 'Video Test', href: '/video-test', icon: Video },

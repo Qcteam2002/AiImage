@@ -14,11 +14,13 @@ import ProductImageToolsPage from './pages/ProductImageToolsPage';
 import ProductAnalysisPage from './pages/ProductAnalysisPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import ProductAnalysisAffPage from './pages/ProductAnalysisAffPage';
-import ProductAnalysisAffDetailPage from './pages/ProductAnalysisAffDetailPage';
+import ProductAnalysisAffDetailPage from './pages/ProductAnalysisAffDetailPageNew';
 import ProductImageGeneratorPage from './pages/ProductImageGeneratorPage';
 import ProductImageGeneratorDetailPage from './pages/ProductImageGeneratorDetailPage';
 import ProductAIFlowPage from './pages/ProductAIFlowPage';
 import ProductAIFlowDetailPage from './pages/ProductAIFlowDetailPage';
+import MarketExplorerPage from './pages/MarketExplorerPage';
+import MarketExplorerDetailPage from './pages/MarketExplorerDetailPage';
 import HistoryPage from './pages/HistoryPage';
 import ProfilePage from './pages/ProfilePage';
 import VideoTestPage from './pages/VideoTestPage';
@@ -130,6 +132,8 @@ const AppRoutes: React.FC = () => {
             <Route path="product-image-generator/:id" element={<ProductImageGeneratorDetailPage />} />
             <Route path="product-ai-flow" element={<ProductAIFlowPage />} />
             <Route path="product-ai-flow/:id" element={<ProductAIFlowDetailPage />} />
+            <Route path="market-explorer" element={<MarketExplorerPage />} />
+            <Route path="market-explorer/:id" element={<MarketExplorerDetailPage />} />
           <Route path="video-test" element={<VideoTestPage />} />
           <Route path="history" element={<HistoryPage />} />
           <Route path="profile" element={<ProfilePage />} />
