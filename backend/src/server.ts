@@ -11,6 +11,7 @@ import imageRoutes from './routes/images';
 import adminRoutes from './routes/admin';
 import productRoutes from './routes/products';
 import productAffFlowRoutes from './routes/productAffFlow';
+import marketExplorerRoutes from './routes/marketExplorer';
 
 // Validate configuration
 try {
@@ -91,6 +92,7 @@ app.use('/api/images', imageRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/product-aff', productAffFlowRoutes);
+app.use('/api/market-explorer', marketExplorerRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

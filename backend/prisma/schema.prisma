@@ -29,6 +29,7 @@ model User {
   productAIFlows ProductAIFlow[]
   productImageGenerators ProductImageGenerator[]
   videoProcesses VideoProcess[]
+  marketExplorers MarketExplorer[]
 
   @@map("users")
 }
@@ -182,4 +183,26 @@ model VideoProcess {
   user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("video_process")
+}
+
+model MarketExplorer {
+  id            String   @id @default(cuid())
+  target_country String
+  business_model String  // Dropshipping, Affiliate, Both, Self-Business
+  industry_category String?
+  product_features String?
+  business_goals String?
+  language      String   @default("vi") // vi, en
+  customer_segments_count Int @default(1) // 1, 2, 3, 4, 5
+  niche_count             Int @default(3) // 1, 2, 3, 4, 5
+  status        String   @default("waiting") // waiting, processing, done, error
+  analysis_result String? // JSON as string for SQLite
+  error_message String?
+  analyzed_at   DateTime?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("market_explorer")
 }
