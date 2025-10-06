@@ -48,6 +48,7 @@ const BUSINESS_GOALS = [
 ];
 
 const INDUSTRY_CATEGORIES = [
+  { value: 'all', label: 'Tất cả ngành hàng (AI tự phân tích)' },
   { value: 'fashion_accessories', label: 'Thời trang & Phụ kiện' },
   { value: 'electronics_gadgets', label: 'Điện tử & Gia dụng' },
   { value: 'health_beauty', label: 'Sức khỏe & Làm đẹp' },
@@ -123,9 +124,11 @@ const AddMarketExplorerModal: React.FC<AddMarketExplorerModalProps> = ({
     // Prepare data for API
     const submitData = {
       ...formData,
-      // Use custom_industry if "other" is selected, otherwise use industry_category or null if not selected
+      // Use custom_industry if "other" is selected, "all" if "all" is selected, otherwise use industry_category or null if not selected
       industry_category: formData.industry_category === 'other' 
         ? formData.custom_industry 
+        : formData.industry_category === 'all'
+        ? 'all'
         : formData.industry_category || null,
       // Remove custom_industry from final data
       custom_industry: undefined,
