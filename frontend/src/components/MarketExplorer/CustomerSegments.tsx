@@ -44,7 +44,7 @@ const CustomerSegments: React.FC<CustomerSegmentsProps> = ({ analysisResult }) =
 
   // Prepare chart data
   const chartData = segments.map((segment: any, index: number) => ({
-    name: segment.segment_name || `Nhóm ${index + 1}`,
+    name: segment.segment_name,
     value: segment.segment_size_percent || 0
   }));
 
@@ -80,7 +80,7 @@ const CustomerSegments: React.FC<CustomerSegmentsProps> = ({ analysisResult }) =
               <div key={index} className="border border-gray-200 p-4 rounded-lg flex flex-col h-full">
                 <div className="flex items-center justify-between mb-3">
                   <Typography.H4 className="flex-1 mr-2">
-                    {segment.segment_name || `Nhóm ${index + 1}`}
+                    {segment.segment_name}
                   </Typography.H4>
                   <span className="px-2 py-1 bg-gray-100 border border-gray-200 text-gray-700 rounded text-sm font-medium">
                     {segment.segment_size_percent || 0}%

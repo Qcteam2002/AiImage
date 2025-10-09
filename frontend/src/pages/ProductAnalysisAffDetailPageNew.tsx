@@ -14,6 +14,7 @@ import ProductProblems from '../components/ProductAnalysis/ProductProblems';
 import TargetCustomers from '../components/ProductAnalysis/TargetCustomers';
 import Conclusion from '../components/ProductAnalysis/Conclusion';
 import ProductListingOptimizerModal from '../components/ProductAnalysis/ProductListingOptimizerModal';
+import AIAdsGeneratorModal from '../components/ProductAnalysis/AIAdsGeneratorModal';
 
 // Services
 import { productAffService } from '../services/productAffService';
@@ -40,6 +41,7 @@ const ProductAnalysisAffDetailPageNew: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showOptimizerModal, setShowOptimizerModal] = useState(false);
+  const [showAdsGeneratorModal, setShowAdsGeneratorModal] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -196,6 +198,7 @@ const ProductAnalysisAffDetailPageNew: React.FC = () => {
           product={product}
           onBack={handleBack}
           onOptimize={() => setShowOptimizerModal(true)}
+          onGenerateAds={() => setShowAdsGeneratorModal(true)}
         />
 
         {/* Analysis Content */}
@@ -267,6 +270,14 @@ const ProductAnalysisAffDetailPageNew: React.FC = () => {
         originalTitle={product.title}
         originalDescription={product.description}
         targetMarket={product.target_market}
+      />
+
+      {/* AI Ads Generator Modal */}
+      <AIAdsGeneratorModal
+        isOpen={showAdsGeneratorModal}
+        onClose={() => setShowAdsGeneratorModal(false)}
+        analysisResult={product.analysis_result}
+        product={product}
       />
     </div>
   );

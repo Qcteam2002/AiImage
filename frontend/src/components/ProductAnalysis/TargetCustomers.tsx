@@ -59,7 +59,7 @@ const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => 
   }
 
   const targetCustomersData = analysisResult.target_customers.map(customer => ({
-    name: `${t('productAnalysisAff.customerGroups')} ${analysisResult.target_customers.indexOf(customer) + 1}`,
+    name: customer.name,
     value: customer.market_share_percent
   }));
 
@@ -138,15 +138,12 @@ const TargetCustomers: React.FC<TargetCustomersProps> = ({ analysisResult }) => 
             {analysisResult.target_customers.map((customer, index) => (
               <div key={index} className="border border-gray-200 p-4 rounded-lg flex flex-col h-full">
                 <div className="flex items-center justify-between mb-3">
-                  <Typography.H4>Nhóm {index + 1}</Typography.H4>
+                  <Typography.H4 className="flex-1 mr-2">{customer.name}</Typography.H4>
                   <span className="px-2 py-1 bg-gray-100 border border-gray-200 text-gray-700 rounded text-sm font-medium">
                     {customer.market_share_percent}%
                   </span>
                 </div>
                 
-                <div className="mb-3">
-                  <Typography.BodySmall className="font-medium">{customer.name}</Typography.BodySmall>
-                </div>
                 
                 <div className={`${Spacing.elementSmall} text-sm flex-grow`}>
                   <Typography.BodySmall><span className="font-medium">{t('productAnalysisAff.ageRange')}:</span> {customer.age_range}</Typography.BodySmall>

@@ -12,6 +12,7 @@ import adminRoutes from './routes/admin';
 import productRoutes from './routes/products';
 import productAffFlowRoutes from './routes/productAffFlow';
 import marketExplorerRoutes from './routes/marketExplorer';
+import productDiscoveryRoutes from './routes/productDiscovery';
 
 // Validate configuration
 try {
@@ -93,6 +94,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/product-aff', productAffFlowRoutes);
 app.use('/api/market-explorer', marketExplorerRoutes);
+app.use('/api/product-discovery', productDiscoveryRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

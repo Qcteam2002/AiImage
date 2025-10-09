@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Globe, Calendar, Sparkles } from 'lucide-react';
+import { ArrowLeft, Globe, Calendar, Sparkles, Video } from 'lucide-react';
 import { Button } from '../ui/Button';
 import Typography from '../design-system/Typography';
 import { useTranslation } from 'react-i18next';
@@ -12,12 +12,14 @@ interface ProductHeaderProps {
   };
   onBack: () => void;
   onOptimize?: () => void;
+  onGenerateAds?: () => void;
 }
 
 const ProductHeader: React.FC<ProductHeaderProps> = ({
   product,
   onBack,
-  onOptimize
+  onOptimize,
+  onGenerateAds
 }) => {
   const { t } = useTranslation();
 
@@ -36,7 +38,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
             {t('productAnalysisAff.back')}
           </Button>
           <div className="flex-1 min-w-0">
-            <h1 className="text-sm sm:text-base font-medium text-gray-900 truncate" title={product.title || t('productAnalysisAff.noTitle')}>
+            <h1 className="text-sm sm:text-base font-medium text-gray-900 truncate max-w-xs sm:max-w-sm" title={product.title || t('productAnalysisAff.noTitle')}>
               {product.title || t('productAnalysisAff.noTitle')}
             </h1>
             <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4 mt-1">
@@ -56,9 +58,20 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
           </div>
         </div>
         
-        {/* Right side - Optimize button */}
-        {onOptimize && (
-          <div className="flex justify-end">
+        {/* Right side - Action buttons */}
+        <div className="flex justify-end space-x-2">
+          {onGenerateAds && (
+            <Button
+              variant="primary"
+              onClick={onGenerateAds}
+              className="flex items-center bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
+              size="sm"
+            >
+              <Video className="w-4 h-4 mr-2" />
+              {t('productAnalysisAff.adsGenerator.generateAds')}
+            </Button>
+          )}
+          {onOptimize && (
             <Button
               variant="primary"
               onClick={onOptimize}
@@ -68,8 +81,8 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
               <Sparkles className="w-4 h-4 mr-2" />
               {t('productAnalysisAff.optimizer.newTitle')}
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

@@ -337,6 +337,84 @@
       "unresolvedProblems": "Unresolved Problems",
       "satisfaction": "Satisfaction",
       "unsatisfied": "Unsatisfied"
+    },
+    "adsGenerator": {
+      "title": "AI Ads Generator",
+      "generateAds": "Generate Ads",
+      "selectPlatform": "Select advertising platform",
+      "selectMode": "Choose Mode (Ad creation purpose)",
+      "selectFormat": "Choose Ad Format",
+      "selectSegment": "Select target customer segment",
+      "selectPainPoint": "Select pain point",
+      "selectFeature": "Select product feature",
+      "generateAd": "Generate Ad",
+      "generating": "Generating...",
+      "results": "Generated Ad Content",
+      "adHeadline": "Ad Headline",
+      "adCopy": "Ad Copy",
+      "visualIdea": "Visual Idea / Script",
+      "cta": "Call to Action",
+      "copy": "Copy",
+      "copied": "Copied!",
+      "modes": {
+        "segment": "Based on Audience Segment",
+        "painpoint": "Based on Pain Points",
+        "feature": "Based on USP / Feature Highlight"
+      },
+      "modeDescriptions": {
+        "segment": "Ads written specifically for each target customer group",
+        "painpoint": "Write ads using PAS model",
+        "feature": "Write ads emphasizing product features"
+      },
+      "formats": {
+        "PAS": "Problem – Agitate – Solve (PAS)",
+        "BAB": "Before – After – Bridge (BAB)",
+        "testimonial": "Testimonial Style",
+        "feature": "Feature Highlight"
+      },
+      "formatDescriptions": {
+        "PAS": "Persuasive style, for Cold Traffic",
+        "BAB": "Emotional style, storytelling",
+        "testimonial": "Real review style, suitable for Affiliate",
+        "feature": "Technical style, for Remarketing"
+      },
+      "formatExamples": {
+        "PAS": "\"Do you wake up in the middle of the night because your blanket is too hot?\"",
+        "BAB": "\"Before I couldn't sleep every night... now I sleep 8 hours straight!\"",
+        "testimonial": "\"I didn't think this blanket under $50 would be so good!\"",
+        "feature": "\"GentleSoft Fill 300 GSM – perfect temperature control without stuffiness.\""
+      },
+      "platforms": {
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "tiktok": "TikTok"
+      },
+      "platformOptions": {
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "tiktok": "TikTok (Video script 15s)"
+      },
+      "modeOptions": {
+        "segment": "Based on Customer Segment",
+        "painpoint": "Based on Pain Points",
+        "feature": "Based on Product Features"
+      },
+      "formatOptions": {
+        "PAS": "Problem - Agitate - Solve (PAS)",
+        "BAB": "Before - After - Bridge (BAB)",
+        "testimonial": "Testimonial Style",
+        "feature": "Feature Highlight"
+      },
+      "readyDescription": "Create professional ads with AI",
+      "readyToGenerate": "Ready to generate ads",
+      "allSettingsComplete": "✓ All settings completed",
+      "pleaseCompleteSettings": "Please complete all settings to generate ads",
+      "numberOfVersions": "Number of ad versions",
+      "version1": "1 version",
+      "version2": "2 versions", 
+      "version3": "3 versions",
+      "versionDescription": "Create multiple versions for A/B testing and choose the best one",
+      "tiktokNote": "Video script 15s"
     }
   },
   "productAnalysis": "Product Analysis",

@@ -337,6 +337,84 @@
       "unresolvedProblems": "Vấn đề chưa giải quyết",
       "satisfaction": "Độ hài lòng",
       "unsatisfied": "Không hài lòng"
+    },
+    "adsGenerator": {
+      "title": "AI Ads Generator",
+      "generateAds": "Generate Ads",
+      "selectPlatform": "Chọn nền tảng quảng cáo",
+      "selectMode": "Chọn Mode (Mục đích tạo ads)",
+      "selectFormat": "Chọn Format quảng cáo",
+      "selectSegment": "Chọn nhóm khách hàng mục tiêu",
+      "selectPainPoint": "Chọn pain point",
+      "selectFeature": "Chọn tính năng sản phẩm",
+      "generateAd": "Generate Ad",
+      "generating": "Generating...",
+      "results": "Generated Ad Content",
+      "adHeadline": "Ad Headline",
+      "adCopy": "Ad Copy",
+      "visualIdea": "Visual Idea / Script",
+      "cta": "Call to Action",
+      "copy": "Copy",
+      "copied": "Copied!",
+      "modes": {
+        "segment": "Based on Audience Segment",
+        "painpoint": "Based on Pain Points",
+        "feature": "Based on USP / Feature Highlight"
+      },
+      "modeDescriptions": {
+        "segment": "Quảng cáo viết riêng cho từng nhóm khách hàng",
+        "painpoint": "Viết quảng cáo theo mô hình PAS",
+        "feature": "Viết quảng cáo nhấn mạnh tính năng"
+      },
+      "formats": {
+        "PAS": "Problem – Agitate – Solve (PAS)",
+        "BAB": "Before – After – Bridge (BAB)",
+        "testimonial": "Testimonial Style",
+        "feature": "Feature Highlight"
+      },
+      "formatDescriptions": {
+        "PAS": "Dạng thuyết phục, cho Cold Traffic",
+        "BAB": "Dạng cảm xúc, kể chuyện",
+        "testimonial": "Dạng review thật, phù hợp Affiliate",
+        "feature": "Dạng kỹ thuật, dùng Remarketing"
+      },
+      "formatExamples": {
+        "PAS": "\"Bạn thức dậy giữa đêm vì chăn quá nóng?\"",
+        "BAB": "\"Trước kia mất ngủ mỗi đêm... giờ ngủ 8 tiếng liền!\"",
+        "testimonial": "\"Tôi không nghĩ chiếc chăn này dưới $50 lại xịn đến vậy!\"",
+        "feature": "\"GentleSoft Fill 300 GSM – giữ nhiệt hoàn hảo mà không bí hơi.\""
+      },
+      "platforms": {
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "tiktok": "TikTok"
+      },
+      "platformOptions": {
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "tiktok": "TikTok (Video script 15s)"
+      },
+      "modeOptions": {
+        "segment": "Dựa trên phân khúc khách hàng",
+        "painpoint": "Dựa trên nỗi đau khách hàng",
+        "feature": "Dựa trên tính năng sản phẩm"
+      },
+      "formatOptions": {
+        "PAS": "Problem - Agitate - Solve (PAS)",
+        "BAB": "Before - After - Bridge (BAB)",
+        "testimonial": "Testimonial Style",
+        "feature": "Feature Highlight"
+      },
+      "readyDescription": "Tạo quảng cáo chuyên nghiệp với AI",
+      "readyToGenerate": "Sẵn sàng tạo quảng cáo",
+      "allSettingsComplete": "✓ Tất cả cài đặt đã hoàn tất",
+      "pleaseCompleteSettings": "Vui lòng hoàn tất tất cả cài đặt để tạo quảng cáo",
+      "numberOfVersions": "Số lượng phiên bản quảng cáo",
+      "version1": "1 phiên bản",
+      "version2": "2 phiên bản", 
+      "version3": "3 phiên bản",
+      "versionDescription": "Tạo nhiều phiên bản để A/B test và chọn phiên bản tốt nhất",
+      "tiktokNote": "Video script 15s"
     }
   },
   "productAnalysis": "Phân tích sản phẩm",
