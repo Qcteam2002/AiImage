@@ -103,12 +103,23 @@ const AIAdsGeneratorModal: React.FC<AIAdsGeneratorModalProps> = ({
         payload.data = { feature_data: selectedFeature };
       }
 
-      const response = await fetch(`/api/product-aff/${product.id}/generate-ads`, {
+      // Determine API endpoint based on context
+      const apiEndpoint = analysisResult ? 
+        `/api/product-aff/${product.id}/generate-ads` : 
+        `/api/product-optimize/generate-ads/${product.id}`;
+      
+      const headers: any = {
+        'Content-Type': 'application/json'
+      };
+      
+      // Only add auth header for product-aff API
+      if (analysisResult) {
+        headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+      }
+      
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
+        headers,
         body: JSON.stringify(payload)
       });
 

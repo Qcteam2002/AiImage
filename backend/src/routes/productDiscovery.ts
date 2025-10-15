@@ -1,8 +1,25 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import multer from 'multer';
+import axios from 'axios';
 
 const router = express.Router();
 const prisma = new PrismaClient();
+
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  },
+});
 
 // Product Discovery API endpoint
 router.post('/suggest', async (req, res) => {
@@ -270,51 +287,17 @@ router.post('/suggest-test', async (req, res) => {
     });
 
     // Build comprehensive prompt for AI
-    const prompt = `Bạn là một nhà phân tích xu hướng và chiến lược gia sản phẩm E-commerce hàng đầu. Nhiệm vụ của bạn là tìm ra các cơ hội sản phẩm tiềm năng cho một doanh nhân mới bắt đầu, dựa trên các tiêu chí họ cung cấp.
+    const prompt = `Bạn là chuyên gia phân tích sản phẩm E-commerce. Tạo ${product_count} sản phẩm cho mô hình ${business_model} tại ${country} trong thời gian ${start_date} đến ${end_date}.
 
-**TIÊU CHÍ CỦA NGƯỜI DÙNG:**
-- **Mô hình Kinh doanh:** ${business_model}
-- **Quốc gia/Khu vực:** ${country}
-- **Số lượng sản phẩm gợi ý:** ${product_count}
-- **Thời gian bán:** Từ ${start_date} đến ${end_date}
-- **Ngày submit:** ${submit_date ? new Date(submit_date).toLocaleDateString('vi-VN', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric',
-    weekday: 'long'
-  }) : 'Không xác định'}
+YÊU CẦU:
+- Tên sản phẩm THẬT, cụ thể, không generic
+- JSON hợp lệ 100%, không có newline trong string
+- Không trùng lặp với ý tưởng hiện có
 
-**QUY TRÌNH LÀM VIỆC CỦA BẠN:**
+${existing_ideas.length > 0 ? `Ý TƯỞNG HIỆN CÓ (TRÁNH TRÙNG LẶP):
+${existing_ideas.map((idea: any) => `- ${idea.product_name || idea}`).join('\n')}` : ''}
 
-1. **Phân tích Thời điểm:** Dựa vào khoảng thời gian bán từ ${start_date} đến ${end_date}, hãy xác định các cơ hội phù hợp.
-   - Phân tích các dịp lễ, sự kiện trong khoảng thời gian này tại ${country}
-   - Xác định xu hướng theo mùa phù hợp
-   - Đề xuất sản phẩm phù hợp với thời điểm
-
-2. **Phân tích Mô hình Kinh doanh:** Dựa vào mô hình "${business_model}", hãy:
-   - Xác định loại sản phẩm phù hợp với mô hình này
-   - Phân tích rủi ro và cơ hội của mô hình
-   - Đề xuất chiến lược phù hợp
-
-3. **Thu thập dữ liệu:** Với mỗi ý tưởng, hãy sử dụng công cụ tìm kiếm của bạn để thu thập các dữ liệu sau cho thị trường ${country}:
-   - Ước tính lượng tìm kiếm hàng tháng (Search Volume)
-   - Xu hướng trên Google Trends (12 tháng qua)
-   - Mức độ cạnh tranh (số lượng listing trên Amazon/eBay, chi phí CPC cho từ khóa chính)
-   - Khoảng giá bán lẻ phổ biến
-   - Ước tính giá vốn (ví dụ từ AliExpress cho dropshipping, hoặc chi phí sản xuất cơ bản)
-
-4. **Phân tích & Chấm điểm:** Dựa trên dữ liệu thu thập, hãy đánh giá từng ý tưởng và chọn ra ${product_count} cơ hội tốt nhất. Một cơ hội tốt cần có sự cân bằng giữa nhu cầu cao, cạnh tranh có thể quản lý được, và tiềm năng lợi nhuận tốt.
-
-${existing_ideas.length > 0 ? `**QUAN TRỌNG - TRÁNH TRÙNG LẶP:**
-Người dùng đã có ${existing_ideas.length} ý tưởng sản phẩm sau:
-${existing_ideas.map((idea: string, index: number) => `${index + 1}. ${idea}`).join('\n')}
-
-Hãy tạo ra ${product_count} ý tưởng sản phẩm HOÀN TOÀN MỚI, không trùng lặp với các ý tưởng trên. Tập trung vào các ngách khác, sản phẩm khác, hoặc góc độ tiếp cận khác.` : ''}
-
-5. **Tạo Báo cáo:** Với mỗi cơ hội được chọn, hãy trình bày thông tin theo định dạng JSON dưới đây.
-
-**YÊU CẦU ĐẦU RA:**
-Ngôn ngữ: **Tiếng Việt**.
+TRẢ VỀ JSON ARRAY:
 Trả về một mảng JSON (JSON array), mỗi object trong mảng là một cơ hội sản phẩm.
 
 **BẮT BUỘC VỀ THỜI GIAN:**
@@ -329,10 +312,13 @@ Trả về một mảng JSON (JSON array), mỗi object trong mảng là một c
 - Bắt đầu bằng [ và kết thúc bằng ]
 - KHÔNG được thêm bất kỳ text nào trước hoặc sau JSON
 - KHÔNG được giải thích về việc thu thập dữ liệu hay hạn chế của AI
+- PHẢI tạo ra tên sản phẩm THẬT, cụ thể, không được dùng tên generic như "Sản phẩm Premium affiliate 1"
+- Mỗi sản phẩm phải có tên riêng biệt, mô tả chi tiết và thông tin thực tế
 
 [
   {
     "product_name": "Tên sản phẩm gợi ý",
+    "category": "Danh mục sản phẩm (ví dụ: Thời trang, Điện tử, Gia dụng, Làm đẹp, Thể thao, v.v.)",
     "image_query": "Từ khóa để tìm hình ảnh minh họa cho sản phẩm này",
     "metrics": {
       "demand_score": 8,
@@ -360,45 +346,84 @@ Trả về một mảng JSON (JSON array), mỗi object trong mảng là một c
 
     console.log('🧪 [Product Discovery Test] Prompt built, calling AI service...');
 
-    // Call AI service
-    const aiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.OPENROUTER_REFERER || 'http://localhost:3000',
-        'X-Title': 'AIComercer Product Discovery Test'
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-preview-09-2025',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        max_tokens: 4000,
-        temperature: 0.7
-      })
-    });
+    // Retry mechanism for AI calls
+    let aiResponse;
+    let aiContent;
+    let retryCount = 0;
+    const maxRetries = 2;
 
-    console.log('🧪 [Product Discovery Test] AI response status:', aiResponse.status);
+    while (retryCount <= maxRetries) {
+      try {
+        aiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': process.env.OPENROUTER_REFERER || 'http://localhost:3000',
+            'X-Title': 'AIComercer Product Discovery Test'
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash-preview-09-2025',
+            messages: [
+              {
+                role: 'user',
+                content: prompt
+              }
+            ],
+            max_tokens: 4000,
+            temperature: 0.3 // Lower temperature for more consistent JSON
+          })
+        });
 
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('🧪 [Product Discovery Test] AI service error:', errorText);
-      throw new Error(`AI service error: ${aiResponse.status} - ${errorText}`);
+        console.log('🧪 [Product Discovery Test] AI response status:', aiResponse.status);
+
+        if (!aiResponse.ok) {
+          const errorText = await aiResponse.text();
+          console.error('🧪 [Product Discovery Test] AI service error:', errorText);
+          throw new Error(`AI service error: ${aiResponse.status} - ${errorText}`);
+        }
+
+        const aiData = await aiResponse.json() as any;
+        aiContent = aiData.choices?.[0]?.message?.content;
+
+        console.log('🧪 [Product Discovery Test] AI content received:', aiContent ? 'Yes' : 'No');
+
+        if (!aiContent) {
+          console.error('🧪 [Product Discovery Test] No content from AI:', aiData);
+          throw new Error('No content from AI');
+        }
+
+        // Try to parse the content
+        let testParse = aiContent.trim();
+        testParse = testParse.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+        const firstBracket = testParse.indexOf('[');
+        const lastBracket = testParse.lastIndexOf(']');
+        if (firstBracket !== -1 && lastBracket !== -1) {
+          testParse = testParse.substring(firstBracket, lastBracket + 1);
+        }
+        
+        // Quick validation - if it looks like valid JSON, break
+        if (testParse.startsWith('[') && testParse.endsWith(']')) {
+          console.log('🧪 [Product Discovery Test] AI response looks valid, proceeding with parsing');
+          break;
+        } else {
+          throw new Error('AI response does not contain valid JSON array');
+        }
+
+      } catch (error) {
+        retryCount++;
+        console.log(`🧪 [Product Discovery Test] Attempt ${retryCount} failed:`, error instanceof Error ? error.message : String(error));
+        
+        if (retryCount > maxRetries) {
+          throw error;
+        }
+        
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     }
 
-    const aiData = await aiResponse.json() as any;
-    const aiContent = aiData.choices?.[0]?.message?.content;
-
-    console.log('🧪 [Product Discovery Test] AI content received:', aiContent ? 'Yes' : 'No');
-
-    if (!aiContent) {
-      console.error('🧪 [Product Discovery Test] No content from AI:', aiData);
-      throw new Error('No content from AI');
-    }
+    // aiContent is already extracted in the retry loop above
 
     // Parse AI response with improved error handling
     let opportunities;
@@ -422,7 +447,10 @@ Trả về một mảng JSON (JSON array), mỗi object trong mảng là một c
         .replace(/\\\\/g, '\\') // Fix double backslashes
         .replace(/\n/g, ' ')   // Replace actual newlines with space
         .replace(/\r/g, ' ')   // Replace carriage returns
-        .replace(/\t/g, ' ');  // Replace tabs
+        .replace(/\t/g, ' ')   // Replace tabs
+        .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
+        .replace(/,\s*}/g, '}') // Remove trailing commas before }
+        .replace(/,\s*]/g, ']'); // Remove trailing commas before ]
       
       console.log('🧪 [Product Discovery Test] Cleaned content:', cleanContent.substring(0, 200) + '...');
       
@@ -578,6 +606,176 @@ Trả về một mảng JSON (JSON array), mỗi object trong mảng là một c
       success: false,
       message: 'Internal server error', 
       error: error instanceof Error ? error.message : 'Unknown error' 
+    });
+  }
+});
+
+// Search Product endpoint
+router.post('/search-product', upload.single('image'), async (req, res) => {
+  try {
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    
+    if (!openRouterApiKey) {
+      return res.status(500).json({ error: 'OpenRouter API key not configured' });
+    }
+
+    // Handle file upload or URL
+    let imageData = null;
+    
+    if (req.body.imageUrl) {
+      // Handle URL input
+      imageData = req.body.imageUrl;
+    } else if (req.file) {
+      // Handle file upload
+      imageData = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    } else {
+      return res.status(400).json({ error: 'No image provided' });
+    }
+
+    const prompt = `# Tìm Kiếm Sản Phẩm
+
+Bạn là chuyên gia phân tích sản phẩm và thị trường. Hãy phân tích hình ảnh sản phẩm này và cung cấp thông tin chi tiết về sản phẩm.
+
+## Yêu cầu:
+1. Xác định tên sản phẩm chính xác
+2. Mô tả chi tiết sản phẩm
+3. Phân loại danh mục sản phẩm
+4. Ước tính giá bán trên thị trường
+5. Đánh giá tiềm năng thị trường
+6. Gợi ý từ khóa tìm kiếm
+7. Liệt kê sản phẩm tương tự
+
+## Trả về JSON với cấu trúc:
+\`\`\`json
+{
+  "products": [
+    {
+      "product_name": "Tên sản phẩm chính xác",
+      "description": "Mô tả chi tiết về sản phẩm, tính năng, công dụng",
+      "category": "Danh mục sản phẩm",
+      "estimated_price": "Giá ước tính (VD: 50-100 USD, 500,000-1,000,000 VND)",
+      "market_potential": "Đánh giá tiềm năng thị trường (Cao/Trung bình/Thấp) và lý do",
+      "search_keywords": ["từ khóa 1", "từ khóa 2", "từ khóa 3"],
+      "similar_products": ["Sản phẩm tương tự 1", "Sản phẩm tương tự 2", "Sản phẩm tương tự 3"]
+    }
+  ]
+}
+\`\`\`
+
+Hãy phân tích hình ảnh và trả về kết quả theo đúng cấu trúc JSON trên.`;
+
+    console.log('Making request to OpenRouter with model:', 'openai/gpt-4o-mini-search-preview');
+    console.log('Image data length:', imageData ? imageData.length : 0);
+    
+    const response = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
+        model: 'openai/gpt-4o-mini-search-preview',
+        messages: [
+          {
+            role: 'system',
+            content: 'Bạn là chuyên gia phân tích sản phẩm. Hãy phân tích hình ảnh và trả về CHỈ JSON hợp lệ, không có text thêm, không có markdown formatting.'
+          },
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: prompt
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: imageData
+                }
+              }
+            ]
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 2000,
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${openRouterApiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'http://localhost:3000',
+          'X-Title': 'Product Search',
+          'User-Agent': 'AI-Image-Processing-API/1.0',
+        },
+      }
+    );
+
+    console.log('OpenRouter response status:', response.status);
+    console.log('OpenRouter response data:', response.data);
+    
+    const content = response.data.choices[0].message.content;
+    
+    try {
+      // Try to parse JSON response
+      let jsonStart = content.indexOf('{');
+      if (jsonStart === -1) {
+        throw new Error('No JSON found in response');
+      }
+      
+      // Find matching closing brace
+      let braceCount = 0;
+      let jsonEnd = -1;
+      for (let i = jsonStart; i < content.length; i++) {
+        if (content[i] === '{') braceCount++;
+        if (content[i] === '}') braceCount--;
+        if (braceCount === 0) {
+          jsonEnd = i;
+          break;
+        }
+      }
+      
+      if (jsonEnd === -1) {
+        throw new Error('Incomplete JSON found');
+      }
+      
+      const jsonString = content.substring(jsonStart, jsonEnd + 1);
+      const result = JSON.parse(jsonString);
+      
+      res.json(result);
+    } catch (parseError) {
+      console.error('Error parsing AI response:', parseError);
+      console.error('Content:', content);
+      
+      // Fallback response
+      res.json({
+        products: [
+          {
+            product_name: "Sản phẩm không xác định",
+            description: "Không thể phân tích hình ảnh này. Vui lòng thử lại với hình ảnh rõ nét hơn.",
+            category: "Không xác định",
+            estimated_price: "Không xác định",
+            market_potential: "Không thể đánh giá",
+            search_keywords: ["sản phẩm", "hàng hóa"],
+            similar_products: ["Không có thông tin"]
+          }
+        ]
+      });
+    }
+  } catch (error: any) {
+    console.error('Error in search-product:', error);
+    
+    // Check if it's an axios error
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+      console.error('Response headers:', error.response.headers);
+    } else if (error.request) {
+      console.error('Request error:', error.request);
+    } else {
+      console.error('Error message:', error.message);
+    }
+    
+    res.status(500).json({ 
+      error: 'Internal server error',
+      details: error.message,
+      status: error.response?.status,
+      responseData: error.response?.data
     });
   }
 });

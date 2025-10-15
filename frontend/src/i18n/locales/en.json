@@ -28,6 +28,7 @@
     "productImageTools": "Product Image Tools",
     "productTools": "Product Tools",
     "marketExplorer": "Market Explorer",
+    "productDiscovery": "Product Discovery",
     "history": "History",
     "profile": "Profile",
     "logout": "Logout",
@@ -674,5 +675,33 @@
   "startingAnalysis": "Starting analysis...",
   "analysisStarted": "Analysis started successfully!",
   "analysisError": "Error starting analysis",
-  "exploreAndAnalyze": "Explore & Analyze"
+  "exploreAndAnalyze": "Explore & Analyze",
+  "productDiscovery": {
+    "subtitle": "Discover and analyze potential products with AI",
+    "description": "Use AI technology to discover high-potential business products, analyze markets and provide strategic recommendations.",
+    "table": {
+      "title": "Discovered Products List",
+      "showing": "Showing",
+      "results": "results",
+      "columns": {
+        "name": "Product Name",
+        "category": "Category",
+        "market": "Market",
+        "potential": "Potential",
+        "date": "Discovery Date",
+        "actions": "Actions"
+      }
+    },
+    "actions": {
+      "view": "View",
+      "optimize": "Optimize",
+      "startDiscovery": "Start Discovery",
+      "searchProduct": "Search Product",
+      "testStructure": "Test Structure"
+    },
+    "empty": {
+      "title": "No products discovered yet",
+      "description": "Start exploring to find potential products"
+    }
+  }
 }

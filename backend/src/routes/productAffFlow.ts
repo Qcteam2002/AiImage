@@ -248,6 +248,9 @@ router.post('/:id/analyze', authenticate,   async (req: Request, res: Response) 
       const analysisResult = await analyzeProductWithAI(product, product.language || 'vi', product.segmentation_number || 3, currentDate);
       console.log('✅ [ProductAff] POST /:id/analyze - AI analysis completed');
       
+      // Add analysis date to the result
+      analysisResult.analysis_date = currentDate;
+      
       // Update product with analysis result and deduct credit
       const updatedProduct = await prisma.$transaction(async (tx) => {
         // Update product status
@@ -390,26 +393,63 @@ async function analyzeProductWithAI(product: any, language: string = 'vi', segme
     "market_size_usd": 0,
     "cagr_percent": 0,
     "google_trends_change_percent": 0,
+    "pricing_analysis": {
+      "cost_price_usd": 0,
+      "average_selling_price_usd": 0,
+      "price_range_usd": {
+        "min": 0,
+        "max": 0
+      },
+      "profit_margin_percent": 0,
+      "competitive_pricing_analysis": "Phân tích về giá cả cạnh tranh"
+    },
+    "revenue_analysis": {
+      "market_revenue_12m_usd": 0,
+      "monthly_revenue_breakdown": {
+        "month_1": 0,
+        "month_2": 0,
+        "month_3": 0,
+        "month_4": 0,
+        "month_5": 0,
+        "month_6": 0,
+        "month_7": 0,
+        "month_8": 0,
+        "month_9": 0,
+        "month_10": 0,
+        "month_11": 0,
+        "month_12": 0
+      },
+      "sales_velocity_estimate": "Ước tính khả năng bán ra (đơn/tháng)",
+      "market_penetration_potential": "Tiềm năng thâm nhập thị trường (%)"
+    },
     "marketplace_data": {
       "aliexpress": {
         "listings": 0,
         "sales_per_month": 0,
-        "growth_percent": null
+        "growth_percent": null,
+        "avg_price_usd": 0,
+        "revenue_estimate_usd": 0
       },
       "etsy": {
         "listings": 0,
         "sales_per_month": 0,
-        "growth_percent": null
+        "growth_percent": null,
+        "avg_price_usd": 0,
+        "revenue_estimate_usd": 0
       },
       "amazon": {
         "listings": 0,
         "sales_per_month": 0,
-        "growth_percent": null
+        "growth_percent": null,
+        "avg_price_usd": 0,
+        "revenue_estimate_usd": 0
       },
       "shopee": {
         "listings": 0,
         "sales_per_month": 0,
-        "growth_percent": null
+        "growth_percent": null,
+        "avg_price_usd": 0,
+        "revenue_estimate_usd": 0
       }
     },
     "keywords": {
@@ -458,26 +498,63 @@ async function analyzeProductWithAI(product: any, language: string = 'vi', segme
     "market_size_usd": 0,
     "cagr_percent": 0,
     "google_trends_change_percent": 0,
+    "pricing_analysis": {
+      "cost_price_usd": 0,
+      "average_selling_price_usd": 0,
+      "price_range_usd": {
+        "min": 0,
+        "max": 0
+      },
+      "profit_margin_percent": 0,
+      "competitive_pricing_analysis": "Analysis of competitive pricing"
+    },
+    "revenue_analysis": {
+      "market_revenue_12m_usd": 0,
+      "monthly_revenue_breakdown": {
+        "month_1": 0,
+        "month_2": 0,
+        "month_3": 0,
+        "month_4": 0,
+        "month_5": 0,
+        "month_6": 0,
+        "month_7": 0,
+        "month_8": 0,
+        "month_9": 0,
+        "month_10": 0,
+        "month_11": 0,
+        "month_12": 0
+      },
+      "sales_velocity_estimate": "Estimated sales velocity (units/month)",
+      "market_penetration_potential": "Market penetration potential (%)"
+    },
     "marketplace_data": {
       "aliexpress": {
         "listings": 0,
         "sales_per_month": 0,
-        "growth_percent": null
+        "growth_percent": null,
+        "avg_price_usd": 0,
+        "revenue_estimate_usd": 0
       },
       "etsy": {
         "listings": 0,
         "sales_per_month": 0,
-        "growth_percent": null
+        "growth_percent": null,
+        "avg_price_usd": 0,
+        "revenue_estimate_usd": 0
       },
       "amazon": {
         "listings": 0,
         "sales_per_month": 0,
-        "growth_percent": null
+        "growth_percent": null,
+        "avg_price_usd": 0,
+        "revenue_estimate_usd": 0
       },
       "shopee": {
         "listings": 0,
         "sales_per_month": 0,
-        "growth_percent": null
+        "growth_percent": null,
+        "avg_price_usd": 0,
+        "revenue_estimate_usd": 0
       }
     },
     "keywords": {
@@ -657,10 +734,32 @@ Biện pháp giảm thiểu: __ (phương án B/C, thay angle, đổi kênh, đa
 - Đánh giá: Cho đánh giá đúng nhất và số liệu theo đánh giá thế nào
 - Quy mô thị trường: … USD (năm gần nhất), CAGR …% (giai đoạn 3–5 năm gần nhất).
 - Xu hướng Google Trends: tăng/giảm …% trong 12 tháng.
-- Dữ liệu TMĐT 3 tháng gần đây nhất (Amazon, Shopee, Etsy, AliExpress):
+
+**Phân tích giá cả & doanh thu**
+
+- **Giá gốc (Cost Price):** USD (giá nhập hàng từ supplier)
+- **Giá bán trung bình:** USD (giá bán trung bình trên thị trường)
+- **Khoảng giá:** USD - USD (min-max)
+- **Biên lợi nhuận:** % (profit margin)
+- **Phân tích giá cạnh tranh:** So sánh với competitors, điểm mạnh/yếu về giá
+
+**Phân tích doanh thu thị trường** tôi cần phân tích chính xác nhất bám sát thị trường nhất chứ không bị ngáo giá
+
+- **Tổng doanh thu thị trường 12 tháng:** USD
+- **Phân tích doanh thu theo tháng (12 tháng gần nhất):**
+    - Tháng 1: USD
+    - Tháng 2: USD
+    - ... (chi tiết từng tháng)
+    - Tháng 12: USD
+- **Khả năng bán ra:** đơn/tháng (ước tính sales velocity)
+- **Tiềm năng thâm nhập thị trường:** % (market penetration potential)
+
+**Dữ liệu TMĐT 3 tháng gần đây nhất (Amazon, Shopee, Etsy, AliExpress):**
     - Số lượng listing
     - Sản phẩm bán/tháng (ước tính)
     - Mức tăng trưởng % so với cùng kỳ (3 tháng trước đó)
+    - Giá trung bình trên từng sàn
+    - Ước tính doanh thu trên từng sàn
 - **Nguồn tham khảo:** Statista, Grand View Research, Marketplace Insights, v.v.Statista, GVR, Ahrefs, Marketplace Pulse, TikTok Trends…
 
 **20 từ khóa hiệu quả nhất có thể dùng để chạy** (chia 4 nhóm, mỗi từ khóa có Search Volume, CPC, Competition):
@@ -755,6 +854,9 @@ tương tự cho các nhóm còn lại, hiển thị đầy đủ ra, ví dụ c
   - Gợi ý thời điểm tốt nhất để launch sản phẩm
   - Phân tích các dịp lễ/sự kiện sắp tới có thể ảnh hưởng đến việc bán hàng
   - Đề xuất chiến lược marketing phù hợp với thời điểm hiện tại
+  - **PHÂN TÍCH DOANH THU 12 THÁNG:** Tính toán doanh thu từ ngày hiện tại đếm ngược về 12 tháng trước (từ ${currentDate ? new Date(currentDate).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN')} về ${currentDate ? new Date(new Date(currentDate).getFullYear(), new Date(currentDate).getMonth() - 11, new Date(currentDate).getDate()).toLocaleDateString('vi-VN') : new Date(new Date().getFullYear(), new Date().getMonth() - 11, new Date().getDate()).toLocaleDateString('vi-VN')})
+  - **PHÂN TÍCH GIÁ CẢ:** Tìm kiếm giá gốc từ suppliers (AliExpress, Alibaba, etc.) và giá bán trung bình trên các marketplace
+  - **ƯỚC TÍNH KHẢ NĂNG BÁN:** Dựa trên dữ liệu thị trường và xu hướng để đưa ra con số thực tế về khả năng bán ra
 
 ---
 

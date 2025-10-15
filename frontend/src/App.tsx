@@ -22,6 +22,7 @@ import ProductAIFlowDetailPage from './pages/ProductAIFlowDetailPage';
 import MarketExplorerPage from './pages/MarketExplorerPage';
 import MarketExplorerDetailPage from './pages/MarketExplorerDetailPage';
 import ProductDiscoveryPage from './pages/ProductDiscoveryPage';
+import ProductOptimizePage from './pages/ProductOptimizePage';
 import HistoryPage from './pages/HistoryPage';
 import ProfilePage from './pages/ProfilePage';
 import VideoTestPage from './pages/VideoTestPage';
@@ -136,6 +137,7 @@ const AppRoutes: React.FC = () => {
             <Route path="market-explorer" element={<MarketExplorerPage />} />
             <Route path="market-explorer/:id" element={<MarketExplorerDetailPage />} />
             <Route path="product-discovery" element={<ProductDiscoveryPage />} />
+            <Route path="product-optimize" element={<ProductOptimizePage />} />
           <Route path="video-test" element={<VideoTestPage />} />
           <Route path="history" element={<HistoryPage />} />
           <Route path="profile" element={<ProfilePage />} />

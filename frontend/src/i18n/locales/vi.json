@@ -28,6 +28,7 @@
     "productImageTools": "Công cụ hình sản phẩm",
     "productTools": "Công cụ sản phẩm",
     "marketExplorer": "Khám phá thị trường",
+    "productDiscovery": "Khám phá sản phẩm",
     "history": "Lịch sử",
     "profile": "Hồ sơ",
     "logout": "Đăng xuất",
@@ -682,5 +683,33 @@
   "startingAnalysis": "Đang bắt đầu phân tích...",
   "analysisStarted": "Phân tích đã được khởi động thành công!",
   "analysisError": "Lỗi khi khởi động phân tích",
-  "exploreAndAnalyze": "Khám phá & Phân tích"
+  "exploreAndAnalyze": "Khám phá & Phân tích",
+  "productDiscovery": {
+    "subtitle": "Khám phá và phân tích các sản phẩm tiềm năng với AI",
+    "description": "Sử dụng công nghệ AI để khám phá các sản phẩm kinh doanh tiềm năng cao, phân tích thị trường và đưa ra các khuyến nghị chiến lược.",
+    "table": {
+      "title": "Danh sách sản phẩm đã khám phá",
+      "showing": "Hiển thị",
+      "results": "kết quả",
+      "columns": {
+        "name": "Tên sản phẩm",
+        "category": "Danh mục",
+        "market": "Thị trường",
+        "potential": "Tiềm năng",
+        "date": "Ngày khám phá",
+        "actions": "Hành động"
+      }
+    },
+    "actions": {
+      "view": "Xem",
+      "optimize": "Tối ưu",
+      "startDiscovery": "Bắt đầu khám phá",
+      "searchProduct": "Tìm kiếm sản phẩm",
+      "testStructure": "Test cấu trúc"
+    },
+    "empty": {
+      "title": "Chưa có sản phẩm nào được khám phá",
+      "description": "Bắt đầu khám phá để tìm ra những sản phẩm tiềm năng"
+    }
+  }
 }

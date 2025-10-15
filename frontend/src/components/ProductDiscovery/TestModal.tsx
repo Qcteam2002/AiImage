@@ -1,24 +1,30 @@
 import React, { useState } from 'react';
-import { X, TestTube, MapPin, Calendar, Package, TrendingUp, Users, Target, AlertTriangle } from 'lucide-react';
+import { X, TestTube, MapPin, Calendar, Package, TrendingUp, Users, Target, AlertTriangle, Eye, Plus } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Typography } from '../design-system/Typography';
 import { Card } from '../ui/Card';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../design-system/Table';
 
 interface TestModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAddProducts?: (products: any[]) => void;
 }
 
-const TestModal: React.FC<TestModalProps> = ({ isOpen, onClose }) => {
+const TestModal: React.FC<TestModalProps> = ({ isOpen, onClose, onAddProducts }) => {
   const [businessModel, setBusinessModel] = useState('');
   const [country, setCountry] = useState('');
   const [productCount, setProductCount] = useState(5);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [customDateRange, setCustomDateRange] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<any>(null);
   const [showResults, setShowResults] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [showDetail, setShowDetail] = useState(false);
+  const [addedProducts, setAddedProducts] = useState<any[]>([]);
 
   const businessModels = [
     { value: 'dropshipping', label: 'Dropshipping' },
@@ -47,9 +53,27 @@ const TestModal: React.FC<TestModalProps> = ({ isOpen, onClose }) => {
   ];
 
   const handleSubmit = async () => {
-    if (!businessModel || !country || !startDate || !endDate) {
+    if (!businessModel || !country) {
       alert('Vui lòng điền đầy đủ thông tin');
       return;
+    }
+
+    // Set default dates if custom date range is not enabled
+    let finalStartDate = startDate;
+    let finalEndDate = endDate;
+    
+    if (!customDateRange) {
+      const today = new Date();
+      const futureDate = new Date();
+      futureDate.setDate(today.getDate() + 90);
+      
+      finalStartDate = today.toISOString().split('T')[0];
+      finalEndDate = futureDate.toISOString().split('T')[0];
+    } else {
+      if (!startDate || !endDate) {
+        alert('Vui lòng chọn đầy đủ ngày bắt đầu và kết thúc');
+        return;
+      }
     }
 
     setIsLoading(true);
@@ -63,8 +87,8 @@ const TestModal: React.FC<TestModalProps> = ({ isOpen, onClose }) => {
           business_model: businessModel,
           country: country,
           product_count: productCount,
-          start_date: startDate,
-          end_date: endDate,
+          start_date: finalStartDate,
+          end_date: finalEndDate,
           submit_date: new Date().toISOString()
         }),
       });
@@ -136,6 +160,7 @@ const TestModal: React.FC<TestModalProps> = ({ isOpen, onClose }) => {
     setProductCount(5);
     setStartDate('');
     setEndDate('');
+    setCustomDateRange(false);
     setResults(null);
     setShowResults(false);
   };
@@ -145,11 +170,32 @@ const TestModal: React.FC<TestModalProps> = ({ isOpen, onClose }) => {
     onClose();
   };
 
+  const handleViewDetail = (product: any) => {
+    setSelectedProduct(product);
+    setShowDetail(true);
+  };
+
+  const handleAddToProductList = (product: any) => {
+    setAddedProducts(prev => [...prev, product]);
+    
+    // Add to main product list if callback is provided
+    if (onAddProducts) {
+      onAddProducts([product]);
+    }
+    
+    alert('Đã thêm sản phẩm vào danh sách!');
+  };
+
+  const handleBackToList = () => {
+    setShowDetail(false);
+    setSelectedProduct(null);
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl max-w-7xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <div className="flex items-center space-x-3">
@@ -174,20 +220,21 @@ const TestModal: React.FC<TestModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
-          {!showResults ? (
-            <>
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left Column - Config */}
+          <div className="w-1/3 border-r border-gray-200 p-6 overflow-y-auto">
+            <div className="space-y-6">
               {/* Business Model Selection */}
               <div>
                 <Typography.H3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
                   <Package className="w-5 h-5 mr-2 text-blue-600" />
                   1. Chọn mô hình kinh doanh
                 </Typography.H3>
-                <div className="grid grid-cols-1 gap-3">
+                <div className="space-y-2">
                   {businessModels.map((model) => (
                     <label
                       key={model.value}
-                      className={`flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                      className={`flex items-center space-x-3 p-3 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
                         businessModel === model.value
                           ? 'border-blue-500 bg-blue-50 shadow-sm'
                           : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -202,7 +249,7 @@ const TestModal: React.FC<TestModalProps> = ({ isOpen, onClose }) => {
                         className="w-4 h-4 text-blue-600"
                       />
                       <div className="flex-1">
-                        <Typography.Body className="font-medium text-gray-900">
+                        <Typography.Body className="font-medium text-gray-900 text-sm">
                           {model.label}
                         </Typography.Body>
                       </div>
@@ -220,7 +267,7 @@ const TestModal: React.FC<TestModalProps> = ({ isOpen, onClose }) => {
                 <select
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 >
                   <option value="">Chọn quốc gia...</option>
                   {countries.map((country) => (
@@ -242,7 +289,7 @@ const TestModal: React.FC<TestModalProps> = ({ isOpen, onClose }) => {
                   max="20"
                   value={productCount}
                   onChange={(e) => setProductCount(parseInt(e.target.value) || 5)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 />
                 <Typography.Body className="text-sm text-gray-600 mt-1">
                   Số lượng sản phẩm AI sẽ gợi ý (1-20)
@@ -255,67 +302,253 @@ const TestModal: React.FC<TestModalProps> = ({ isOpen, onClose }) => {
                   <Calendar className="w-5 h-5 mr-2 text-purple-600" />
                   4. Thời gian muốn bán
                 </Typography.H3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Typography.Body className="text-sm font-medium text-gray-700 mb-2">
-                      Từ ngày
+                
+                {/* Default Date Range Info */}
+                {!customDateRange && (
+                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <Typography.Body className="text-sm text-blue-800">
+                      <strong>Mặc định:</strong> Từ hôm nay đến 90 ngày sau
                     </Typography.Body>
+                  </div>
+                )}
+
+                {/* Custom Date Range Checkbox */}
+                <div className="mb-4">
+                  <label className="flex items-center space-x-3 cursor-pointer">
                     <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      type="checkbox"
+                      checked={customDateRange}
+                      onChange={(e) => setCustomDateRange(e.target.checked)}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
-                  </div>
-                  <div>
-                    <Typography.Body className="text-sm font-medium text-gray-700 mb-2">
-                      Đến ngày
+                    <Typography.Body className="text-sm font-medium text-gray-700">
+                      Tùy chỉnh thời gian bán
                     </Typography.Body>
-                    <input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
+                  </label>
                 </div>
-              </div>
-            </>
-          ) : (
-            /* Results Display */
-            <div className="space-y-6">
-              {/* Test Info Summary */}
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
-                <Typography.H3 className="text-lg font-semibold text-gray-900 mb-3">
-                  Thông tin Test
-                </Typography.H3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <Typography.Body className="font-medium text-gray-700">Mô hình:</Typography.Body>
-                    <Typography.Body className="text-gray-900">{results?.test_info?.business_model}</Typography.Body>
+
+                {/* Date Inputs */}
+                {customDateRange && (
+                  <div className="space-y-3">
+                    <div>
+                      <Typography.Body className="text-sm font-medium text-gray-700 mb-2">
+                        Từ ngày
+                      </Typography.Body>
+                      <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      />
+                    </div>
+                    <div>
+                      <Typography.Body className="text-sm font-medium text-gray-700 mb-2">
+                        Đến ngày
+                      </Typography.Body>
+                      <input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <Typography.Body className="font-medium text-gray-700">Quốc gia:</Typography.Body>
-                    <Typography.Body className="text-gray-900">{results?.test_info?.country}</Typography.Body>
-                  </div>
-                  <div>
-                    <Typography.Body className="font-medium text-gray-700">Số sản phẩm:</Typography.Body>
-                    <Typography.Body className="text-gray-900">{results?.test_info?.product_count}</Typography.Body>
-                  </div>
-                  <div>
-                    <Typography.Body className="font-medium text-gray-700">Thời gian:</Typography.Body>
-                    <Typography.Body className="text-gray-900">
-                      {results?.test_info?.start_date} - {results?.test_info?.end_date}
-                    </Typography.Body>
-                  </div>
-                </div>
+                )}
               </div>
 
-              {/* Products List */}
-              <div>
-                <div className="flex items-center justify-between mb-4">
+              {/* Submit Button */}
+              <div className="pt-4">
+                <Button
+                  variant="primary"
+                  onClick={handleSubmit}
+                  disabled={isLoading || !businessModel || !country || (customDateRange && (!startDate || !endDate))}
+                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                >
+                  {isLoading ? 'Đang xử lý...' : 'Gửi Test'}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Results */}
+          <div className="w-2/3 p-6 overflow-y-auto">
+            {!showResults ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <TestTube className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <Typography.H3 className="text-lg font-medium text-gray-900 mb-2">
+                    Chưa có kết quả
+                  </Typography.H3>
+                  <Typography.Body className="text-gray-600">
+                    Vui lòng điền đầy đủ thông tin và nhấn "Gửi Test" để xem kết quả
+                  </Typography.Body>
+                </div>
+              </div>
+            ) : showDetail ? (
+              /* Product Detail View */
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <Button
+                    variant="secondary"
+                    onClick={handleBackToList}
+                    className="flex items-center"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Quay lại
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={() => handleAddToProductList(selectedProduct)}
+                    className="flex items-center"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Thêm vào danh sách
+                  </Button>
+                </div>
+
+                {selectedProduct && (
+                  <Card className="p-6">
+                    <div className="mb-6">
+                      <Typography.H3 className="text-xl font-semibold text-gray-900 mb-2">
+                        {selectedProduct.product_name}
+                      </Typography.H3>
+                      <div className="flex items-center space-x-4">
+                        <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                          {selectedProduct.category || 'N/A'}
+                        </span>
+                        <div className="flex space-x-2">
+                          <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                            Demand: {selectedProduct.metrics?.demand_score}/10
+                          </span>
+                          <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                            Competition: {selectedProduct.metrics?.competition_score}/10
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-6">
+                      {/* Metrics Overview */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+                        <div className="text-center">
+                          <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full mx-auto mb-1">
+                            <TrendingUp className="w-4 h-4 text-green-600" />
+                          </div>
+                          <Typography.Body className="text-xs text-gray-600">Profit</Typography.Body>
+                          <Typography.Body className="text-sm font-medium text-gray-900">
+                            {selectedProduct.metrics?.profit_potential}
+                          </Typography.Body>
+                        </div>
+                        <div className="text-center">
+                          <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full mx-auto mb-1">
+                            <Target className="w-4 h-4 text-blue-600" />
+                          </div>
+                          <Typography.Body className="text-xs text-gray-600">Trend</Typography.Body>
+                          <Typography.Body className="text-sm font-medium text-gray-900">
+                            {selectedProduct.metrics?.trend}
+                          </Typography.Body>
+                        </div>
+                        <div className="text-center">
+                          <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-full mx-auto mb-1">
+                            <Calendar className="w-4 h-4 text-purple-600" />
+                          </div>
+                          <Typography.Body className="text-xs text-gray-600">Timing</Typography.Body>
+                          <Typography.Body className="text-sm font-medium text-gray-900">
+                            {selectedProduct.timing_analysis?.type}
+                          </Typography.Body>
+                        </div>
+                        <div className="text-center">
+                          <div className="flex items-center justify-center w-8 h-8 bg-orange-100 rounded-full mx-auto mb-1">
+                            <Users className="w-4 h-4 text-orange-600" />
+                          </div>
+                          <Typography.Body className="text-xs text-gray-600">Window</Typography.Body>
+                          <Typography.Body className="text-sm font-medium text-gray-900">
+                            {selectedProduct.timing_analysis?.window}
+                          </Typography.Body>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Typography.Body className="font-medium text-gray-700 mb-2">Tóm tắt AI:</Typography.Body>
+                        <Typography.Body className="text-gray-600">
+                          {selectedProduct.ai_summary}
+                        </Typography.Body>
+                      </div>
+
+                      <div>
+                        <Typography.Body className="font-medium text-gray-700 mb-2">Cơ hội:</Typography.Body>
+                        <Typography.Body className="text-gray-600">
+                          {selectedProduct.detailed_analysis?.opportunity_overview}
+                        </Typography.Body>
+                      </div>
+
+                      <div>
+                        <Typography.Body className="font-medium text-gray-700 mb-2">Khách hàng mục tiêu:</Typography.Body>
+                        <Typography.Body className="text-gray-600">
+                          {selectedProduct.detailed_analysis?.target_customer_profile?.description}
+                        </Typography.Body>
+                      </div>
+
+                      <div>
+                        <Typography.Body className="font-medium text-gray-700 mb-2">Góc độ marketing:</Typography.Body>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {selectedProduct.detailed_analysis?.marketing_angles?.map((angle: string, idx: number) => (
+                            <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                              {angle}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {selectedProduct.detailed_analysis?.potential_risks?.length > 0 && (
+                        <div>
+                          <Typography.Body className="font-medium text-gray-700 mb-2 flex items-center">
+                            <AlertTriangle className="w-4 h-4 mr-1 text-orange-500" />
+                            Rủi ro cần lưu ý:
+                          </Typography.Body>
+                          <ul className="text-sm text-gray-600 space-y-1">
+                            {selectedProduct.detailed_analysis?.potential_risks?.map((risk: string, idx: number) => (
+                              <li key={idx} className="flex items-start">
+                                <span className="w-1 h-1 bg-orange-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                                {risk}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {selectedProduct.shopee_search && (
+                        <div className="pt-4 border-t">
+                          <Typography.Body className="font-medium text-gray-700 mb-2">Tìm nhanh trên Shopee:</Typography.Body>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {selectedProduct.shopee_search.keywords?.map((kw: string, idx: number) => (
+                              <span key={idx} className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded border border-blue-200">
+                                {kw}
+                              </span>
+                            ))}
+                          </div>
+                          <a
+                            href={selectedProduct.shopee_search.search_url || (selectedProduct.shopee_search.keywords?.[0] ? `https://shopee.vn/search?keyword=${encodeURIComponent(selectedProduct.shopee_search.keywords[0])}` : '#')}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center px-3 py-2 text-xs font-medium rounded bg-orange-500 hover:bg-orange-600 text-white"
+                          >
+                            Mở trên Shopee
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                )}
+              </div>
+            ) : (
+              /* Results Table */
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
                   <Typography.H3 className="text-lg font-semibold text-gray-900">
-                    Sản phẩm được gợi ý ({results?.opportunities?.length || 0})
+                    Kết quả gợi ý ({results?.opportunities?.length || 0})
                   </Typography.H3>
                   <Button
                     variant="secondary"
@@ -326,178 +559,114 @@ const TestModal: React.FC<TestModalProps> = ({ isOpen, onClose }) => {
                     {isLoadingMore ? 'Đang tạo...' : 'Suggest New Ideas'}
                   </Button>
                 </div>
-                <div className="space-y-4">
-                  {results?.opportunities?.map((product: any, index: number) => (
-                    <Card key={index} className="p-6 hover:shadow-lg transition-shadow">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <Typography.H4 className="text-lg font-semibold text-gray-900 mb-2">
-                            {product.product_name}
-                          </Typography.H4>
-                          <Typography.Body className="text-gray-600 mb-3">
-                            {product.ai_summary}
-                          </Typography.Body>
-                        </div>
-                        <div className="ml-4 flex space-x-2">
-                          <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                            Demand: {product.metrics?.demand_score}/10
-                          </span>
-                          <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                            Competition: {product.metrics?.competition_score}/10
-                          </span>
-                        </div>
-                      </div>
 
-                      {/* Metrics */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                        <div className="text-center">
-                          <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full mx-auto mb-1">
-                            <TrendingUp className="w-4 h-4 text-green-600" />
-                          </div>
-                          <Typography.Body className="text-xs text-gray-600">Profit</Typography.Body>
-                          <Typography.Body className="text-sm font-medium text-gray-900">
-                            {product.metrics?.profit_potential}
-                          </Typography.Body>
-                        </div>
-                        <div className="text-center">
-                          <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full mx-auto mb-1">
-                            <Target className="w-4 h-4 text-blue-600" />
-                          </div>
-                          <Typography.Body className="text-xs text-gray-600">Trend</Typography.Body>
-                          <Typography.Body className="text-sm font-medium text-gray-900">
-                            {product.metrics?.trend}
-                          </Typography.Body>
-                        </div>
-                        <div className="text-center">
-                          <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-full mx-auto mb-1">
-                            <Calendar className="w-4 h-4 text-purple-600" />
-                          </div>
-                          <Typography.Body className="text-xs text-gray-600">Timing</Typography.Body>
-                          <Typography.Body className="text-sm font-medium text-gray-900">
-                            {product.timing_analysis?.type}
-                          </Typography.Body>
-                        </div>
-                        <div className="text-center">
-                          <div className="flex items-center justify-center w-8 h-8 bg-orange-100 rounded-full mx-auto mb-1">
-                            <Users className="w-4 h-4 text-orange-600" />
-                          </div>
-                          <Typography.Body className="text-xs text-gray-600">Window</Typography.Body>
-                          <Typography.Body className="text-sm font-medium text-gray-900">
-                            {product.timing_analysis?.window}
-                          </Typography.Body>
-                        </div>
-                      </div>
-
-                      {/* Detailed Analysis */}
-                      <div className="space-y-3">
-                        <div>
-                          <Typography.Body className="font-medium text-gray-700 mb-1">Cơ hội:</Typography.Body>
-                          <Typography.Body className="text-sm text-gray-600">
-                            {product.detailed_analysis?.opportunity_overview}
-                          </Typography.Body>
-                        </div>
-                        
-                        <div>
-                          <Typography.Body className="font-medium text-gray-700 mb-1">Khách hàng mục tiêu:</Typography.Body>
-                          <Typography.Body className="text-sm text-gray-600">
-                            {product.detailed_analysis?.target_customer_profile?.description}
-                          </Typography.Body>
-                        </div>
-
-                        <div>
-                          <Typography.Body className="font-medium text-gray-700 mb-1">Góc độ marketing:</Typography.Body>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {product.detailed_analysis?.marketing_angles?.map((angle: string, idx: number) => (
-                              <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                                {angle}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        {product.detailed_analysis?.potential_risks?.length > 0 && (
-                          <div>
-                            <Typography.Body className="font-medium text-gray-700 mb-1 flex items-center">
-                              <AlertTriangle className="w-4 h-4 mr-1 text-orange-500" />
-                              Rủi ro cần lưu ý:
-                            </Typography.Body>
-                            <ul className="text-sm text-gray-600 space-y-1">
-                              {product.detailed_analysis?.potential_risks?.map((risk: string, idx: number) => (
-                                <li key={idx} className="flex items-start">
-                                  <span className="w-1 h-1 bg-orange-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                                  {risk}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {product.shopee_search && (
-                          <div className="pt-3 border-t">
-                            <Typography.Body className="font-medium text-gray-700 mb-2">Tìm nhanh trên Shopee:</Typography.Body>
-                            <div className="flex flex-wrap gap-2 mb-2">
-                              {product.shopee_search.keywords?.map((kw: string, idx: number) => (
-                                <span key={idx} className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded border border-blue-200">
-                                  {kw}
-                                </span>
-                              ))}
+                <div className="bg-white rounded-lg border border-gray-200">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Tên sản phẩm</TableHead>
+                        <TableHead>Danh mục</TableHead>
+                        <TableHead>Demand</TableHead>
+                        <TableHead>Competition</TableHead>
+                        <TableHead>Profit</TableHead>
+                        <TableHead>Trend</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {results?.opportunities?.map((product: any, index: number) => (
+                        <TableRow key={index}>
+                          <TableCell>
+                            <div>
+                              <Typography.Body className="font-medium text-gray-900">
+                                {product.product_name}
+                              </Typography.Body>
+                              <Typography.Body className="text-sm text-gray-600 mt-1">
+                                {product.ai_summary?.substring(0, 100)}...
+                              </Typography.Body>
                             </div>
-                            <a
-                              href={product.shopee_search.search_url || (product.shopee_search.keywords?.[0] ? `https://shopee.vn/search?keyword=${encodeURIComponent(product.shopee_search.keywords[0])}` : '#')}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center px-3 py-2 text-xs font-medium rounded bg-orange-500 hover:bg-orange-600 text-white"
-                            >
-                              Mở trên Shopee
-                            </a>
-                          </div>
-                        )}
-                      </div>
-                    </Card>
-                  ))}
+                          </TableCell>
+                          <TableCell>
+                            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+                              {product.category || 'N/A'}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                              {product.metrics?.demand_score}/10
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                              {product.metrics?.competition_score}/10
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <Typography.Body className="text-sm text-gray-900">
+                              {product.metrics?.profit_potential}
+                            </Typography.Body>
+                          </TableCell>
+                          <TableCell>
+                            <Typography.Body className="text-sm text-gray-900">
+                              {product.metrics?.trend}
+                            </Typography.Body>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end space-x-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleViewDetail(product)}
+                                className="text-blue-600 hover:text-blue-700"
+                              >
+                                <Eye className="w-4 h-4 mr-1" />
+                                Xem
+                              </Button>
+                              <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={() => handleAddToProductList(product)}
+                              >
+                                <Plus className="w-4 h-4 mr-1" />
+                                Thêm
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end space-x-3 p-6 border-t bg-gray-50">
-          {!showResults ? (
-            <>
-              <Button
-                variant="secondary"
-                onClick={handleClose}
-                disabled={isLoading}
-              >
-                Hủy
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleSubmit}
-                disabled={isLoading || !businessModel || !country || !startDate || !endDate}
-                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
-              >
-                {isLoading ? 'Đang xử lý...' : 'Gửi Test'}
-              </Button>
-            </>
-          ) : (
-            <>
+        <div className="flex items-center justify-between p-6 border-t bg-gray-50">
+          <div className="flex items-center space-x-4">
+            {addedProducts.length > 0 && (
+              <Typography.Body className="text-sm text-gray-600">
+                Đã thêm {addedProducts.length} sản phẩm vào danh sách
+              </Typography.Body>
+            )}
+          </div>
+          <div className="flex items-center space-x-3">
+            {showResults && (
               <Button
                 variant="secondary"
                 onClick={handleReset}
               >
                 Test lại
               </Button>
-              <Button
-                variant="primary"
-                onClick={handleClose}
-                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
-              >
-                Đóng
-              </Button>
-            </>
-          )}
+            )}
+            <Button
+              variant="secondary"
+              onClick={handleClose}
+            >
+              Đóng
+            </Button>
+          </div>
         </div>
       </div>
     </div>

@@ -1,221 +1,250 @@
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Sparkles, Search, Target, TrendingUp, Users, Globe, TestTube } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
+import React, { useState, useEffect } from 'react';
 import { Typography } from '../components/design-system/Typography';
+import { Button } from '../components/design-system/Button';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/design-system/Table';
+import { Sparkles, Search, TestTube, Eye, Calendar, TrendingUp } from 'lucide-react';
 import ProductDiscoveryModal from '../components/ProductDiscovery/ProductDiscoveryModal';
 import TestModal from '../components/ProductDiscovery/TestModal';
+import { useTranslation } from 'react-i18next';
+
+// Mock data for discovered products
+const mockProducts = [
+  {
+    id: '1',
+    name: 'Smart Fitness Tracker',
+    category: 'Electronics',
+    market: 'Vietnam',
+    potential: 'High',
+    date: '2024-01-15',
+    revenue: '$50K-100K',
+    competition: 'Medium'
+  },
+  {
+    id: '2', 
+    name: 'Organic Skincare Set',
+    category: 'Beauty',
+    market: 'Vietnam',
+    potential: 'Very High',
+    date: '2024-01-14',
+    revenue: '$100K-200K',
+    competition: 'Low'
+  },
+  {
+    id: '3',
+    name: 'Portable Air Purifier',
+    category: 'Home & Garden',
+    market: 'Vietnam',
+    potential: 'High',
+    date: '2024-01-13',
+    revenue: '$30K-80K',
+    competition: 'Medium'
+  }
+];
 
 const ProductDiscoveryPage: React.FC = () => {
   const { t } = useTranslation();
   const [showModal, setShowModal] = useState(false);
   const [showTestModal, setShowTestModal] = useState(false);
+  const [products, setProducts] = useState([]);
 
-  const features = [
-    {
-      icon: Target,
-      title: 'Discovery Wizard',
-      description: 'Trả lời 4 câu hỏi đơn giản để AI hiểu rõ mục tiêu và sở thích của bạn'
-    },
-    {
-      icon: TrendingUp,
-      title: 'Phân tích Xu hướng',
-      description: 'AI phân tích xu hướng thị trường, mức độ cạnh tranh và tiềm năng lợi nhuận'
-    },
-    {
-      icon: Users,
-      title: 'Hồ sơ Khách hàng',
-      description: 'Tự động tạo hồ sơ khách hàng mục tiêu và các góc độ marketing phù hợp'
-    },
-    {
-      icon: Globe,
-      title: 'Đa thị trường',
-      description: 'Hỗ trợ phân tích cho nhiều thị trường khác nhau trên toàn cầu'
-    }
-  ];
-
-  const businessModels = [
-    {
-      name: 'Dropshipping',
-      description: 'Bán hàng không cần giữ kho, rủi ro thấp',
-      icon: '📦',
-      color: 'from-blue-500 to-blue-600'
-    },
-    {
-      name: 'Print-on-Demand',
-      description: 'Bán sản phẩm thiết kế riêng, không cần sản xuất',
-      icon: '🎨',
-      color: 'from-purple-500 to-purple-600'
-    },
-    {
-      name: 'Affiliate Marketing',
-      description: 'Kiếm hoa hồng bằng cách giới thiệu sản phẩm',
-      icon: '🤝',
-      color: 'from-green-500 to-green-600'
-    },
-    {
-      name: 'Private Label',
-      description: 'Xây dựng thương hiệu riêng của bạn',
-      icon: '🏷️',
-      color: 'from-orange-500 to-orange-600'
-    }
-  ];
+  // Function to add products from TestModal
+  const handleAddProducts = (newProducts: any[]) => {
+    // Transform TestModal products to match the expected format
+    const transformedProducts = newProducts.map((product, index) => ({
+      id: `test-${Date.now()}-${index}`,
+      name: product.product_name || product.name || 'Unknown Product',
+      category: product.category || 'General',
+      market: product.country || 'Vietnam',
+      potential: product.metrics?.profit_potential || 'High',
+      date: new Date().toISOString().split('T')[0],
+      revenue: product.metrics?.revenue_estimate || '$10K-50K',
+      competition: product.metrics?.competition_score ? 
+        (product.metrics.competition_score > 7 ? 'High' : 
+         product.metrics.competition_score > 4 ? 'Medium' : 'Low') : 'Medium'
+    }));
+    
+    setProducts(prevProducts => [...prevProducts, ...transformedProducts]);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-6">
-            <Sparkles className="w-10 h-10 text-white" />
-          </div>
-          <Typography.H1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Product Discovery Hub
-          </Typography.H1>
-          <Typography.H2 className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Tìm ra cơ hội sản phẩm tiềm năng với AI. Từ ý tưởng đến kế hoạch kinh doanh chỉ trong vài phút.
-          </Typography.H2>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              variant="primary"
-              size="lg"
-              onClick={() => setShowModal(true)}
-              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
-            >
-              <Search className="w-5 h-5 mr-2" />
-              Bắt đầu Khám phá
-            </Button>
-            <Button
-              variant="secondary"
-              size="lg"
-              onClick={() => setShowTestModal(true)}
-              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
-            >
-              <TestTube className="w-5 h-5 mr-2" />
-              Test
-            </Button>
-          </div>
-        </div>
-
-        {/* Features Section */}
-        <div className="mb-16">
-          <Typography.H2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            Tại sao chọn Product Discovery Hub?
-          </Typography.H2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <Card key={index} className="p-6 text-center hover:shadow-lg transition-shadow">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-4">
-                  <feature.icon className="w-6 h-6 text-blue-600" />
-                </div>
-                <Typography.H3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {feature.title}
-                </Typography.H3>
-                <Typography.Body className="text-gray-600 text-sm">
-                  {feature.description}
-                </Typography.Body>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Business Models Section */}
-        <div className="mb-16">
-          <Typography.H2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            Hỗ trợ mọi mô hình kinh doanh
-          </Typography.H2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {businessModels.map((model, index) => (
-              <Card key={index} className="p-6 text-center hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
-                <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r ${model.color} rounded-full mb-4 text-2xl`}>
-                  {model.icon}
-                </div>
-                <Typography.H3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {model.name}
-                </Typography.H3>
-                <Typography.Body className="text-gray-600 text-sm">
-                  {model.description}
-                </Typography.Body>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* How it Works Section */}
-        <div className="mb-16">
-          <Typography.H2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            Cách thức hoạt động
-          </Typography.H2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500 text-white rounded-full text-xl font-bold mb-4">
-                1
-              </div>
-              <Typography.H3 className="text-lg font-semibold text-gray-900 mb-2">
-                Chọn mô hình kinh doanh
-              </Typography.H3>
-              <Typography.Body className="text-gray-600">
-                Chọn mô hình phù hợp với mục tiêu và nguồn lực của bạn
+    <div className="min-h-screen bg-[#F6F6F7]">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b border-[#D1D3D4]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div>
+              <Typography.H1 className="text-3xl font-bold text-[#212326]">
+                {t('nav.productDiscovery') || 'Product Discovery'}
+              </Typography.H1>
+              <Typography.Body className="text-[#6D7175] mt-2">
+                {t('productDiscovery.subtitle') || 'Discover and analyze potential products with AI'}
               </Typography.Body>
             </div>
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-500 text-white rounded-full text-xl font-bold mb-4">
-                2
-              </div>
-              <Typography.H3 className="text-lg font-semibold text-gray-900 mb-2">
-                Trả lời Discovery Wizard
-              </Typography.H3>
-              <Typography.Body className="text-gray-600">
-                Trả lời 4 câu hỏi về lĩnh vực, thời gian, cạnh tranh và thị trường
-              </Typography.Body>
-            </div>
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500 text-white rounded-full text-xl font-bold mb-4">
-                3
-              </div>
-              <Typography.H3 className="text-lg font-semibold text-gray-900 mb-2">
-                Nhận cơ hội sản phẩm
-              </Typography.H3>
-              <Typography.Body className="text-gray-600">
-                AI phân tích và đưa ra các cơ hội sản phẩm tiềm năng với kế hoạch chi tiết
-              </Typography.Body>
+            <div className="flex items-center space-x-3">
+              <Button
+                variant="tertiary"
+                size="md"
+                onClick={() => setShowTestModal(true)}
+              >
+                <TestTube className="w-4 h-4 mr-2" />
+                {t('productDiscovery.actions.testStructure')}
+              </Button>
+              <Button
+                variant="primary"
+                size="md"
+                onClick={() => setShowModal(true)}
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                {t('productDiscovery.actions.startDiscovery')}
+              </Button>
             </div>
           </div>
-        </div>
-
-        {/* CTA Section */}
-        <div className="text-center">
-          <Card className="p-8 bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-            <Typography.H2 className="text-2xl font-bold mb-4">
-              Sẵn sàng tìm ra cơ hội sản phẩm tiếp theo?
-            </Typography.H2>
-            <Typography.Body className="text-blue-100 mb-6">
-              Bắt đầu hành trình khám phá sản phẩm với AI ngay hôm nay
-            </Typography.Body>
-            <Button
-              variant="secondary"
-              size="lg"
-              onClick={() => setShowModal(true)}
-              className="bg-white text-blue-600 hover:bg-gray-100"
-            >
-              <Sparkles className="w-5 h-5 mr-2" />
-              Bắt đầu miễn phí
-            </Button>
-          </Card>
         </div>
       </div>
 
-      {/* Product Discovery Modal */}
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Description */}
+        <div className="mb-8">
+          <Typography.Body className="text-lg text-[#6D7175] max-w-4xl">
+            {t('productDiscovery.description')}
+          </Typography.Body>
+        </div>
+
+        {/* Products Table */}
+        <div className="bg-white rounded-lg shadow-sm border border-[#D1D3D4]">
+          <div className="px-6 py-4 border-b border-[#D1D3D4]">
+            <div className="flex justify-between items-center">
+              <Typography.H3 className="text-xl font-semibold text-[#212326]">
+                {t('productDiscovery.table.title')}
+              </Typography.H3>
+              <div className="flex items-center space-x-2 text-sm text-[#6D7175]">
+                <TrendingUp className="w-4 h-4" />
+                <span>{t('productDiscovery.table.showing')} {products.length} {t('productDiscovery.table.results')}</span>
+              </div>
+            </div>
+          </div>
+
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t('productDiscovery.table.columns.name')}</TableHead>
+                <TableHead>{t('productDiscovery.table.columns.category')}</TableHead>
+                <TableHead>{t('productDiscovery.table.columns.market')}</TableHead>
+                <TableHead>{t('productDiscovery.table.columns.potential')}</TableHead>
+                <TableHead>{t('productDiscovery.table.columns.date')}</TableHead>
+                <TableHead className="text-right">{t('productDiscovery.table.columns.actions')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products.length > 0 ? (
+                products.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10">
+                          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                            <span className="text-white font-semibold text-sm">
+                              {product.name.charAt(0)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="ml-4">
+                          <Typography.Body className="font-medium text-[#212326]">
+                            {product.name}
+                          </Typography.Body>
+                          <Typography.BodySmall className="text-[#6D7175]">
+                            Revenue: {product.revenue}
+                          </Typography.BodySmall>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E7F3FF] text-[#0969DA]">
+                        {product.category}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <span className="text-sm text-[#212326]">{product.market}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        product.potential === 'Very High' 
+                          ? 'bg-[#E3F2ED] text-[#008060]'
+                          : product.potential === 'High'
+                          ? 'bg-[#E7F3FF] text-[#0969DA]'
+                          : 'bg-[#FEF3E2] text-[#F79009]'
+                      }`}>
+                        {product.potential}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center text-sm text-[#6D7175]">
+                        <Calendar className="w-4 h-4 mr-1" />
+                        {new Date(product.date).toLocaleDateString()}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end space-x-2">
+                        <Button
+                          variant="plain"
+                          size="sm"
+                          className="text-[#212326] hover:text-[#1A1C1E]"
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          {t('productDiscovery.actions.view')}
+                        </Button>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                        >
+                          {t('productDiscovery.actions.optimize')}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-12">
+                    <div className="flex flex-col items-center">
+                      <div className="w-16 h-16 bg-[#F6F6F7] rounded-full flex items-center justify-center mb-4">
+                        <Search className="w-8 h-8 text-[#8C9196]" />
+                      </div>
+                      <Typography.H4 className="text-lg font-medium text-[#212326] mb-2">
+                        {t('productDiscovery.empty.title')}
+                      </Typography.H4>
+                      <Typography.Body className="text-[#6D7175] mb-4">
+                        {t('productDiscovery.empty.description')}
+                      </Typography.Body>
+                      <Button
+                        variant="primary"
+                        onClick={() => setShowModal(true)}
+                      >
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        {t('productDiscovery.actions.startDiscovery')}
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      {/* Modals */}
       <ProductDiscoveryModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
       />
-
-      {/* Test Modal */}
+      
       <TestModal
         isOpen={showTestModal}
         onClose={() => setShowTestModal(false)}
+        onAddProducts={handleAddProducts}
       />
     </div>
   );

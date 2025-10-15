@@ -32,15 +32,10 @@ const Layout: React.FC = () => {
   const navigation = [
     { name: t('nav.home'), href: '/dashboard', icon: Home },
     { name: t('nav.virtualTryOn'), href: '/virtual-tryon', icon: Image },
-    // { name: t('nav.productImageTools'), href: '/product-image-tools', icon: Package },
-    // { name: 'Phân tích sản phẩm', href: '/product-analysis', icon: BarChart3 },
     { name: t('productAnalysis'), href: '/product-analysis-aff', icon: Coins },
     { name: t('nav.marketExplorer'), href: '/market-explorer', icon: MapPin },
     { name: 'Product Discovery', href: '/product-discovery', icon: Search },
-    // { name: 'Product Image Generator', href: '/product-image-generator', icon: Sparkles },
-    // { name: 'Product AI Flow', href: '/product-ai-flow', icon: Zap },
-    // { name: 'Video Test', href: '/video-test', icon: Video },
-    // { name: t('nav.history'), href: '/history', icon: History },
+    { name: 'Product Optimize', href: '/product-optimize', icon: Sparkles },
     { name: t('nav.profile'), href: '/profile', icon: User },
   ];
 

@@ -15,6 +15,7 @@ import TargetCustomers from '../components/ProductAnalysis/TargetCustomers';
 import Conclusion from '../components/ProductAnalysis/Conclusion';
 import ProductListingOptimizerModal from '../components/ProductAnalysis/ProductListingOptimizerModal';
 import AIAdsGeneratorModal from '../components/ProductAnalysis/AIAdsGeneratorModal';
+import PricingRevenueAnalysis from '../components/ProductAnalysis/PricingRevenueAnalysis';
 
 // Services
 import { productAffService } from '../services/productAffService';
@@ -220,6 +221,11 @@ const ProductAnalysisAffDetailPageNew: React.FC = () => {
 
                   {/* Market Analysis */}
                   <MarketAnalysis
+                    analysisResult={product.analysis_result}
+                  />
+
+                  {/* Pricing & Revenue Analysis */}
+                  <PricingRevenueAnalysis
                     analysisResult={product.analysis_result}
                   />
 
