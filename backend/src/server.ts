@@ -25,6 +25,10 @@ try {
 
 const app = express();
 
+// Trust proxy - Required for rate limiting behind Nginx/reverse proxy
+// This allows Express to correctly identify client IPs from X-Forwarded-For header
+app.set('trust proxy', true);
+
 // Ensure upload directories exist
 const uploadDirs = [
   config.upload.uploadPath,
