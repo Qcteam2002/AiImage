@@ -26,8 +26,9 @@ try {
 const app = express();
 
 // Trust proxy - Required for rate limiting behind Nginx/reverse proxy
-// This allows Express to correctly identify client IPs from X-Forwarded-For header
-app.set('trust proxy', true);
+// Set to 1 to trust only the first proxy (Nginx) for security
+// This prevents IP spoofing while allowing correct client IP identification
+app.set('trust proxy', 1);
 
 // Ensure upload directories exist
 const uploadDirs = [
@@ -56,7 +57,14 @@ app.use(cors({
 const limiter = rateLimit({
   windowMs: config.rateLimit.windowMs,
   max: config.rateLimit.max,
-  message: config.rateLimit.message
+  message: config.rateLimit.message,
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  // Trust proxy is set to 1 above, so this will work correctly behind Nginx
+  skip: (req) => {
+    // Skip rate limiting for health checks
+    return req.path === '/health';
+  }
 });
 app.use(limiter);
 
