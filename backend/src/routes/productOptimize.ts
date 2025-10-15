@@ -700,6 +700,7 @@ router.post('/optimize-advanced', async (req, res) => {
       target_platform,
       target_market,
       main_keywords,
+      painpoint,
       brand_tone_reference,
       include_emoji,
       include_hashtags,
@@ -725,15 +726,16 @@ router.post('/optimize-advanced', async (req, res) => {
     }
 
     // Build comprehensive prompt with all advanced options
-    let prompt = `# Advanced Product Content Optimization
+    let prompt = `# 🚀 ELITE Product Content Optimization - Create Stunning, High-Converting Copy
 
-## Product Information
+## 📦 Product Information
 **Title:** ${product_title}
 **Description:** ${product_description || 'N/A'}
 ${features_keywords ? `**Features & Keywords:** ${features_keywords}` : ''}
 ${productImageUrl ? `**Product Image:** ${productImageUrl}` : ''}
+${painpoint ? `**Pain Point to Address:** ${painpoint}` : ''}
 
-## Optimization Settings
+## 🎯 Optimization Settings
 **Tone:** ${tone}
 **Optimization Goal:** ${optimization_goal} (${
   optimization_goal === 'SEO' 
@@ -748,7 +750,7 @@ ${target_platform ? `**Target Platform:** ${target_platform} (format content for
 ${main_keywords && main_keywords.length > 0 ? `**Main Keywords (MUST include):** ${main_keywords.join(', ')}` : ''}
 ${brand_tone_reference ? `**Brand Tone Reference:** ${brand_tone_reference}` : ''}
 
-## Content Requirements
+## 📝 Content Requirements
 - Include Emoji: ${include_emoji ? '✅ YES' : '❌ NO'}
 - Include Hashtags: ${include_hashtags ? '✅ YES (add relevant hashtags at end)' : '❌ NO'}
 - Include CTA: ${include_cta ? '✅ YES (add strong call-to-action)' : '❌ NO'}
@@ -756,50 +758,150 @@ ${brand_tone_reference ? `**Brand Tone Reference:** ${brand_tone_reference}` : '
 - Language: ${language_output}
 ${special_instructions ? `\n**Special Instructions:** ${special_instructions}` : ''}
 
-## Task
-Generate **${num_variants} DIFFERENT VARIANTS** of optimized content. Each variant should have a different approach:
+## 🎨 CRITICAL REQUIREMENTS FOR ELITE CONTENT:
+
+### Copywriting Excellence:
+1. **Hook with Emotion:** Start with a powerful emotional hook or problem statement
+2. **Benefit-Driven:** Focus on BENEFITS not just features (So what? Why should they care?)
+3. **Storytelling:** Weave a micro-story or scenario that resonates
+4. **Power Words:** Use persuasive language (guaranteed, exclusive, transform, discover, premium, proven)
+5. **Sensory Language:** Make readers visualize, feel, and imagine using the product
+6. **Social Proof:** Mention popularity, ratings, testimonials if applicable
+7. **Urgency & Scarcity:** Create FOMO (limited stock, trending, best-seller)
+8. **Specificity:** Use specific numbers, percentages, time frames (not "fast" but "2-day delivery")
+
+### HTML Design Excellence:
+1. **Visual Hierarchy:** Use clear sections with beautiful spacing
+2. **Modern Design:** Gradient backgrounds, rounded corners, shadows, modern color palette
+3. **Typography:** Vary font sizes, weights, colors for emphasis
+4. **Icons/Emojis:** Use strategically for visual breaks and emphasis
+5. **Highlight Boxes:** Use colored boxes/cards for key benefits or USPs
+6. **Breathing Room:** Generous padding and margins
+7. **Call-out Sections:** Create standout sections for important info
+8. **CTA Design:** Make CTA buttons pop with gradients and clear action text
+
+## 🎯 Task: Generate ${num_variants} DRAMATICALLY DIFFERENT Variants
 
 ${num_variants >= 3 ? `
-- **Variant 1 (SEO-Focused):** Maximum keyword optimization, structured for search engines
-- **Variant 2 (Conversion-Focused):** Persuasive copy, emotional triggers, strong CTAs
-- **Variant 3 (Balanced):** Best of both worlds - SEO + Conversion
+- **Variant 1 (SEO Power):** Keyword-rich, structured for search engines, but still engaging
+- **Variant 2 (Conversion Beast):** Ultra-persuasive, emotional triggers, strong CTAs, benefit-focused
+- **Variant 3 (Balanced Elite):** Perfect blend - SEO + Conversion + Storytelling
 ` : num_variants === 2 ? `
-- **Variant 1:** ${optimization_goal === 'SEO' ? 'SEO-optimized' : optimization_goal === 'Conversion' ? 'Conversion-optimized' : 'Balanced'} approach
-- **Variant 2:** Alternative ${optimization_goal === 'SEO' ? 'keyword-rich' : optimization_goal === 'Conversion' ? 'persuasive' : 'comprehensive'} approach
+- **Variant 1:** ${optimization_goal === 'SEO' ? 'SEO-optimized with storytelling elements' : optimization_goal === 'Conversion' ? 'Conversion-optimized with emotional appeal' : 'Balanced with strong hooks'}
+- **Variant 2:** ${optimization_goal === 'SEO' ? 'Keyword-rich with benefit focus' : optimization_goal === 'Conversion' ? 'Ultra-persuasive with urgency' : 'Comprehensive with social proof'}
 ` : `
-- **Variant 1:** Optimized content with ${tone} tone
+- **Variant 1:** Premium ${tone} content with all elite elements
 `}
 
-## Output Requirements
-1. Create HTML-formatted descriptions with:
-   - Proper HTML structure (h3, p, ul, li, strong, em tags)
-   - Inline CSS for beautiful styling
-   - Responsive layout
-   ${productImageUrl ? '- Embed product image with proper styling' : ''}
-   ${include_emoji ? '- Use relevant emojis throughout' : ''}
-   ${include_hashtags ? '- Add 5-10 relevant hashtags at the end' : ''}
-   ${include_cta ? '- Include compelling CTA button/section' : ''}
+## 🎨 HTML STRUCTURE TEMPLATE (USE AS INSPIRATION):
 
-2. Ensure each variant is SIGNIFICANTLY DIFFERENT from others
-3. Maintain ${tone} tone consistently
-4. Focus on ${optimization_goal} goal
-${main_keywords && main_keywords.length > 0 ? `5. MUST naturally include these keywords: ${main_keywords.join(', ')}` : ''}
+\`\`\`html
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.8; color: #333; max-width: 800px;">
+  
+  <!-- Hero Section with Gradient -->
+  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 12px; color: white; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    <h2 style="margin: 0 0 10px 0; font-size: 1.8em; font-weight: 700;">${include_emoji ? '✨ ' : ''}[POWERFUL TITLE]</h2>
+    <p style="margin: 0; font-size: 1.1em; opacity: 0.95;">[Compelling subtitle or hook]</p>
+  </div>
 
-## Return JSON Format:
+  <!-- Problem/Hook Section -->
+  <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin-bottom: 25px; border-radius: 8px;">
+    <h3 style="margin: 0 0 10px 0; color: #856404; font-size: 1.2em;">${include_emoji ? '⚠️ ' : ''}[Problem Statement]</h3>
+    <p style="margin: 0; color: #856404;">[Describe pain point that resonates]</p>
+  </div>
+
+  ${productImageUrl ? `
+  <!-- Product Image -->
+  <div style="text-align: center; margin: 25px 0;">
+    <img src="${productImageUrl}" alt="${product_title}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.15);" />
+  </div>
+  ` : ''}
+
+  <!-- Main Description -->
+  <div style="margin-bottom: 25px;">
+    <p style="font-size: 1.05em; line-height: 1.9; color: #555; margin-bottom: 20px;">
+      [Engaging paragraph with storytelling, benefits, and emotional appeal]
+    </p>
+  </div>
+
+  <!-- Key Benefits with Icons -->
+  <div style="margin-bottom: 25px;">
+    <h3 style="font-size: 1.4em; margin-bottom: 18px; color: #333; font-weight: 700;">${include_emoji ? '🌟 ' : ''}Why You'll Love This:</h3>
+    <div style="display: grid; gap: 15px;">
+      <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 18px; border-radius: 10px; border-left: 5px solid #667eea;">
+        <strong style="font-size: 1.1em; color: #333;">${include_emoji ? '💎 ' : ''}[Benefit 1 Title]</strong>
+        <p style="margin: 8px 0 0 0; color: #555;">[Benefit explanation focusing on outcome]</p>
+      </div>
+      <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 18px; border-radius: 10px; border-left: 5px solid #667eea;">
+        <strong style="font-size: 1.1em; color: #333;">${include_emoji ? '🚀 ' : ''}[Benefit 2 Title]</strong>
+        <p style="margin: 8px 0 0 0; color: #555;">[Benefit explanation focusing on outcome]</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Grid -->
+  <div style="background: #f8f9fa; padding: 25px; border-radius: 12px; margin-bottom: 25px;">
+    <h3 style="margin: 0 0 18px 0; color: #333; font-size: 1.3em; font-weight: 700;">${include_emoji ? '📋 ' : ''}What's Included:</h3>
+    <ul style="list-style: none; padding: 0; margin: 0; display: grid; gap: 12px;">
+      <li style="padding-left: 30px; position: relative; color: #555; font-size: 1.05em;">
+        <span style="position: absolute; left: 0; color: #667eea; font-weight: bold;">${include_emoji ? '✅' : '•'}</span>
+        [Feature with benefit explanation]
+      </li>
+    </ul>
+  </div>
+
+  <!-- Social Proof Section -->
+  <div style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%); padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: center;">
+    <p style="margin: 0; font-size: 1.2em; font-weight: 600; color: #2d3436;">${include_emoji ? '⭐ ' : ''}Trusted by Thousands • 4.8/5 Rating • Best Seller</p>
+  </div>
+
+  ${include_cta ? `
+  <!-- CTA Button -->
+  <div style="text-align: center; margin: 30px 0;">
+    <a href="#" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 18px 45px; border-radius: 50px; text-decoration: none; font-size: 1.2em; font-weight: 700; box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); transition: transform 0.2s;">
+      ${include_emoji ? '🛒 ' : ''}[Action-Oriented CTA Text] →
+    </a>
+    <p style="margin: 15px 0 0 0; font-size: 0.95em; color: #888;">${include_emoji ? '⚡ ' : ''}Limited Stock • Free Shipping • 30-Day Guarantee</p>
+  </div>
+  ` : ''}
+
+  ${include_hashtags ? `
+  <!-- Hashtags -->
+  <div style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 2px solid #eee;">
+    <p style="color: #888; font-size: 0.95em; margin: 0;">[5-10 relevant hashtags]</p>
+  </div>
+  ` : ''}
+
+</div>
+\`\`\`
+
+## ✅ QUALITY CHECKLIST - Every variant MUST have:
+- [ ] Emotional hook in first 2 sentences
+- [ ] At least 3 specific benefits (not features)
+- [ ] Sensory/vivid language that creates mental images
+- [ ] Social proof element (best-seller, rating, trusted by)
+- [ ] Urgency or scarcity element
+- [ ] Beautiful HTML with gradients and modern design
+- [ ] Clear visual hierarchy with sections
+- [ ] Minimum 3 colored highlight boxes/cards
+- [ ] Proper spacing (padding/margins)
+${main_keywords && main_keywords.length > 0 ? `- [ ] All keywords naturally included: ${main_keywords.join(', ')}` : ''}
+
+## 📤 Return JSON Format:
 \`\`\`json
 {
   "variants": [
     {
-      "variant_name": "SEO-Focused" | "Conversion-Focused" | "Balanced",
-      "optimization_focus": "Brief description of this variant's focus",
-      "new_title": "Optimized product title",
-      "new_description": "HTML-formatted description with all requirements"
+      "variant_name": "SEO Power" | "Conversion Beast" | "Balanced Elite",
+      "optimization_focus": "Brief description of this variant's unique approach",
+      "new_title": "COMPELLING, benefit-driven title (not boring!)",
+      "new_description": "STUNNING HTML description following template above"
     }
   ]
 }
 \`\`\`
 
-Generate ${num_variants} compelling, high-quality variants now!`;
+🎯 NOW: Create ${num_variants} ABSOLUTELY STUNNING, HIGH-CONVERTING variants that will blow minds! Make it ELITE! 💎`;
 
     // Call OpenRouter API
     const response = await axios.post(
@@ -809,15 +911,28 @@ Generate ${num_variants} compelling, high-quality variants now!`;
         messages: [
           {
             role: 'system',
-            content: `You are an expert e-commerce copywriter and SEO specialist. You create compelling, conversion-optimized product content in ${language_output}. Return ONLY valid JSON, no markdown formatting, no extra text.`
+            content: `You are an ELITE e-commerce copywriter, conversion optimization expert, and master storyteller. You've generated millions in revenue through compelling product copy. You understand psychology, persuasion, and what makes people click "Buy Now". 
+
+Your writing is:
+- Emotionally engaging and benefit-driven (not feature-focused)
+- Uses vivid, sensory language that creates mental images
+- Incorporates storytelling and social proof naturally
+- Creates urgency and exclusivity without being pushy
+- Modern, fresh, and never boring or generic
+
+You also excel at creating STUNNING, modern HTML designs with beautiful gradients, perfect spacing, and visual hierarchy.
+
+Language: ${language_output}
+
+Return ONLY valid JSON, no markdown code blocks, no extra text. Make every word count. Make it ELITE! 💎`
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        temperature: 0.8, // Higher temperature for more variety
-        max_tokens: 4000,
+        temperature: 0.95, // High temperature for maximum creativity
+        max_tokens: 5000, // Increased for more detailed content
       },
       {
         headers: {
