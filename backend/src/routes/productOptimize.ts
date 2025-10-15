@@ -670,4 +670,227 @@ Hãy tạo quảng cáo hấp dẫn và hiệu quả!`;
   }
 });
 
+// Advanced Optimize API - supports multiple variants and advanced options
+router.post('/optimize-advanced', async (req, res) => {
+  try {
+    const {
+      product_title,
+      product_description,
+      features_keywords,
+      special_instructions,
+      tone,
+      optimization_goal,
+      customer_segment,
+      target_platform,
+      target_market,
+      main_keywords,
+      brand_tone_reference,
+      include_emoji,
+      include_hashtags,
+      include_cta,
+      output_format,
+      language_output,
+      num_variants,
+      product_id
+    } = req.body;
+    
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    if (!openRouterApiKey) {
+      return res.status(500).json({ error: 'OpenRouter API key not configured' });
+    }
+
+    // Get product image if product_id is provided
+    let productImageUrl = null;
+    if (product_id) {
+      const product = await prisma.product.findUnique({
+        where: { id: product_id }
+      });
+      productImageUrl = product?.image_url;
+    }
+
+    // Build comprehensive prompt with all advanced options
+    let prompt = `# Advanced Product Content Optimization
+
+## Product Information
+**Title:** ${product_title}
+**Description:** ${product_description || 'N/A'}
+${features_keywords ? `**Features & Keywords:** ${features_keywords}` : ''}
+${productImageUrl ? `**Product Image:** ${productImageUrl}` : ''}
+
+## Optimization Settings
+**Tone:** ${tone}
+**Optimization Goal:** ${optimization_goal} (${
+  optimization_goal === 'SEO' 
+    ? 'Focus on search engine visibility, keywords density, and organic reach' 
+    : optimization_goal === 'Conversion' 
+    ? 'Focus on conversion rates, persuasive copy, and call-to-actions' 
+    : 'Balance between SEO and conversion optimization'
+})
+${customer_segment ? `**Target Customer Segment:** ${customer_segment}` : ''}
+${target_platform ? `**Target Platform:** ${target_platform} (format content for ${target_platform} marketplace)` : ''}
+**Target Market/Language:** ${target_market}
+${main_keywords && main_keywords.length > 0 ? `**Main Keywords (MUST include):** ${main_keywords.join(', ')}` : ''}
+${brand_tone_reference ? `**Brand Tone Reference:** ${brand_tone_reference}` : ''}
+
+## Content Requirements
+- Include Emoji: ${include_emoji ? '✅ YES' : '❌ NO'}
+- Include Hashtags: ${include_hashtags ? '✅ YES (add relevant hashtags at end)' : '❌ NO'}
+- Include CTA: ${include_cta ? '✅ YES (add strong call-to-action)' : '❌ NO'}
+- Output Format: ${output_format}
+- Language: ${language_output}
+${special_instructions ? `\n**Special Instructions:** ${special_instructions}` : ''}
+
+## Task
+Generate **${num_variants} DIFFERENT VARIANTS** of optimized content. Each variant should have a different approach:
+
+${num_variants >= 3 ? `
+- **Variant 1 (SEO-Focused):** Maximum keyword optimization, structured for search engines
+- **Variant 2 (Conversion-Focused):** Persuasive copy, emotional triggers, strong CTAs
+- **Variant 3 (Balanced):** Best of both worlds - SEO + Conversion
+` : num_variants === 2 ? `
+- **Variant 1:** ${optimization_goal === 'SEO' ? 'SEO-optimized' : optimization_goal === 'Conversion' ? 'Conversion-optimized' : 'Balanced'} approach
+- **Variant 2:** Alternative ${optimization_goal === 'SEO' ? 'keyword-rich' : optimization_goal === 'Conversion' ? 'persuasive' : 'comprehensive'} approach
+` : `
+- **Variant 1:** Optimized content with ${tone} tone
+`}
+
+## Output Requirements
+1. Create HTML-formatted descriptions with:
+   - Proper HTML structure (h3, p, ul, li, strong, em tags)
+   - Inline CSS for beautiful styling
+   - Responsive layout
+   ${productImageUrl ? '- Embed product image with proper styling' : ''}
+   ${include_emoji ? '- Use relevant emojis throughout' : ''}
+   ${include_hashtags ? '- Add 5-10 relevant hashtags at the end' : ''}
+   ${include_cta ? '- Include compelling CTA button/section' : ''}
+
+2. Ensure each variant is SIGNIFICANTLY DIFFERENT from others
+3. Maintain ${tone} tone consistently
+4. Focus on ${optimization_goal} goal
+${main_keywords && main_keywords.length > 0 ? `5. MUST naturally include these keywords: ${main_keywords.join(', ')}` : ''}
+
+## Return JSON Format:
+\`\`\`json
+{
+  "variants": [
+    {
+      "variant_name": "SEO-Focused" | "Conversion-Focused" | "Balanced",
+      "optimization_focus": "Brief description of this variant's focus",
+      "new_title": "Optimized product title",
+      "new_description": "HTML-formatted description with all requirements"
+    }
+  ]
+}
+\`\`\`
+
+Generate ${num_variants} compelling, high-quality variants now!`;
+
+    // Call OpenRouter API
+    const response = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
+        model: 'openai/gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: `You are an expert e-commerce copywriter and SEO specialist. You create compelling, conversion-optimized product content in ${language_output}. Return ONLY valid JSON, no markdown formatting, no extra text.`
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.8, // Higher temperature for more variety
+        max_tokens: 4000,
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${openRouterApiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'http://localhost:3000',
+          'X-Title': 'Product Optimize Advanced',
+        },
+      }
+    );
+
+    const content = response.data.choices[0].message.content;
+    
+    try {
+      // Parse JSON response
+      let jsonStart = content.indexOf('{');
+      if (jsonStart === -1) {
+        throw new Error('No JSON found in response');
+      }
+      
+      let braceCount = 0;
+      let jsonEnd = -1;
+      for (let i = jsonStart; i < content.length; i++) {
+        if (content[i] === '{') braceCount++;
+        if (content[i] === '}') braceCount--;
+        if (braceCount === 0) {
+          jsonEnd = i;
+          break;
+        }
+      }
+      
+      if (jsonEnd === -1) {
+        throw new Error('Incomplete JSON found');
+      }
+      
+      const jsonString = content.substring(jsonStart, jsonEnd + 1);
+      const result = JSON.parse(jsonString);
+      
+      // Ensure variants array exists
+      if (!result.variants || !Array.isArray(result.variants)) {
+        throw new Error('Invalid response format: missing variants array');
+      }
+
+      // Add variant names if missing
+      result.variants = result.variants.map((variant: any, index: number) => ({
+        variant_name: variant.variant_name || `Version ${index + 1}`,
+        optimization_focus: variant.optimization_focus || optimization_goal,
+        new_title: variant.new_title,
+        new_description: variant.new_description
+      }));
+      
+      res.json(result);
+    } catch (parseError) {
+      console.error('Error parsing AI response:', parseError);
+      console.error('Content:', content);
+      
+      // Fallback: Generate simple variants
+      const fallbackVariants = [];
+      for (let i = 0; i < num_variants; i++) {
+        fallbackVariants.push({
+          variant_name: `Version ${i + 1}`,
+          optimization_focus: optimization_goal,
+          new_title: `${product_title}${include_emoji ? ' ✨' : ''} - ${
+            i === 0 ? 'Best Quality' : i === 1 ? 'Premium Choice' : 'Top Rated'
+          }`,
+          new_description: `<div style="font-family: Arial, sans-serif; line-height: 1.8;">
+            <h3 style="color: #333; font-size: 1.2em; margin-bottom: 12px;">${include_emoji ? '🌟' : ''}${product_title}</h3>
+            <p style="color: #555; margin-bottom: 15px;">${product_description || 'High-quality product with excellent features.'}</p>
+            ${features_keywords ? `<p style="color: #555;"><strong>Features:</strong> ${features_keywords}</p>` : ''}
+            ${productImageUrl ? `<img src="${productImageUrl}" style="max-width: 100%; border-radius: 8px; margin: 15px 0;" alt="${product_title}" />` : ''}
+            <ul style="list-style: none; padding-left: 0; margin: 15px 0;">
+              <li style="margin-bottom: 8px;">${include_emoji ? '✅' : '•'} Premium quality guarantee</li>
+              <li style="margin-bottom: 8px;">${include_emoji ? '🚀' : '•'} Fast shipping available</li>
+              <li style="margin-bottom: 8px;">${include_emoji ? '💯' : '•'} 24/7 customer support</li>
+            </ul>
+            ${include_cta ? `<div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; text-align: center; font-weight: bold;">
+              ${include_emoji ? '🛒' : ''} Order Now - Limited Stock!
+            </div>` : ''}
+            ${include_hashtags ? `<p style="color: #888; margin-top: 15px; font-size: 0.9em;">${main_keywords && main_keywords.length > 0 ? main_keywords.map((k: string) => '#' + k.replace(/\s+/g, '')).join(' ') : '#quality #product #bestseller'}</p>` : ''}
+          </div>`
+        });
+      }
+      
+      res.json({ variants: fallbackVariants });
+    }
+  } catch (error) {
+    console.error('Error in optimize-advanced:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

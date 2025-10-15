@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Filter, MoreVertical, Edit, Trash2, Sparkles, Megaphone } from 'lucide-react';
+import { Plus, Search, Filter, MoreVertical, Edit, Trash2, Sparkles, Megaphone, Zap, Brain } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Typography } from '../components/design-system/Typography';
 import AddProductModal from '../components/ProductOptimize/AddProductModal';
 import ProductOptimizeModal from '../components/ProductOptimize/ProductOptimizeModal';
+import ProductOptimizeModalAdvanced from '../components/ProductOptimize/ProductOptimizeModalAdvanced';
+import ProductOptimizeModalV2 from '../components/ProductOptimize/ProductOptimizeModalV2';
 import ProductAdsGeneratorModal from '../components/ProductOptimize/ProductAdsGeneratorModal';
 
 interface Product {
@@ -21,6 +23,8 @@ const ProductOptimizePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showOptimizeModal, setShowOptimizeModal] = useState(false);
+  const [showOptimizeAdvancedModal, setShowOptimizeAdvancedModal] = useState(false);
+  const [showOptimizeV2Modal, setShowOptimizeV2Modal] = useState(false);
   const [showAdsModal, setShowAdsModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -82,6 +86,16 @@ const ProductOptimizePage: React.FC = () => {
   const handleOptimizeProduct = (product: Product) => {
     setSelectedProduct(product);
     setShowOptimizeModal(true);
+  };
+
+  const handleOptimizeProductAdvanced = (product: Product) => {
+    setSelectedProduct(product);
+    setShowOptimizeAdvancedModal(true);
+  };
+
+  const handleOptimizeProductV2 = (product: Product) => {
+    setSelectedProduct(product);
+    setShowOptimizeV2Modal(true);
   };
 
   const handleGenerateAds = (product: Product) => {
@@ -268,7 +282,7 @@ const ProductOptimizePage: React.FC = () => {
 
                       {/* Actions */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 flex-wrap gap-y-2">
                           <Button
                             onClick={() => handleOptimizeProduct(product)}
                             className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-3 py-1.5 rounded-md text-xs"
@@ -276,10 +290,28 @@ const ProductOptimizePage: React.FC = () => {
                             <Sparkles className="w-3 h-3 mr-1" />
                             Optimize
                           </Button>
+
+                          <Button
+                            onClick={() => handleOptimizeProductV2(product)}
+                            className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white px-3 py-1.5 rounded-md text-xs font-semibold"
+                            title="New flow with Market Insight"
+                          >
+                            <Brain className="w-3 h-3 mr-1" />
+                            Optimize 2
+                          </Button>
+
+                          <Button
+                            onClick={() => handleOptimizeProductAdvanced(product)}
+                            className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-3 py-1.5 rounded-md text-xs"
+                            title="Advanced Optimize with more options"
+                          >
+                            <Zap className="w-3 h-3 mr-1" />
+                            Advanced
+                          </Button>
                           
                           <Button
                             onClick={() => handleGenerateAds(product)}
-                            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3 py-1.5 rounded-md text-xs"
+                            className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-3 py-1.5 rounded-md text-xs"
                           >
                             <Megaphone className="w-3 h-3 mr-1" />
                             Generate Ads
@@ -322,6 +354,18 @@ const ProductOptimizePage: React.FC = () => {
       <ProductOptimizeModal
         isOpen={showOptimizeModal}
         onClose={() => setShowOptimizeModal(false)}
+        product={selectedProduct}
+      />
+
+      <ProductOptimizeModalAdvanced
+        isOpen={showOptimizeAdvancedModal}
+        onClose={() => setShowOptimizeAdvancedModal(false)}
+        product={selectedProduct}
+      />
+
+      <ProductOptimizeModalV2
+        isOpen={showOptimizeV2Modal}
+        onClose={() => setShowOptimizeV2Modal(false)}
         product={selectedProduct}
       />
 
