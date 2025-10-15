@@ -100,12 +100,27 @@ router.delete('/products/:id', async (req, res) => {
 // Suggest data API - Get keywords, segments, painpoints
 router.post('/suggest-data', async (req, res) => {
   try {
-    const { product_title, product_description, product_id } = req.body;
+    const { product_title, product_description, product_id, target_market } = req.body;
     
     const openRouterApiKey = process.env.OPENROUTER_API_KEY;
     if (!openRouterApiKey) {
       return res.status(500).json({ error: 'OpenRouter API key not configured' });
     }
+
+    // Map country codes to full names for better AI understanding
+    const marketNames: Record<string, string> = {
+      'vi': 'Vietnam',
+      'us': 'United States',
+      'id': 'Indonesia',
+      'th': 'Thailand',
+      'my': 'Malaysia',
+      'ph': 'Philippines',
+      'sg': 'Singapore',
+      'jp': 'Japan',
+      'kr': 'South Korea',
+      'au': 'Australia'
+    };
+    const marketName = marketNames[target_market || 'vi'] || 'Vietnam';
 
     const prompt = `# Phân Tích Sản Phẩm Để Gợi Ý Keywords và Phân Khúc
 
@@ -113,10 +128,11 @@ Bạn là chuyên gia phân tích thị trường. Hãy phân tích sản phẩm
 
 **Sản phẩm:** ${product_title}
 **Mô tả:** ${product_description}
+**Target Market:** ${marketName}
 
 ## Yêu cầu:
-1. **Keywords:** Tạo 10 keywords cho mỗi loại (informational, transactional, comparative, painpoint_related)
-2. **Target Customers:** Tạo 3 phân khúc khách hàng với painpoints cụ thể
+1. **Keywords:** Tạo 10 keywords cho mỗi loại (informational, transactional, comparative, painpoint_related) - phù hợp với thị trường ${marketName}
+2. **Target Customers:** Tạo 3 phân khúc khách hàng với painpoints cụ thể - phù hợp với văn hóa và đặc điểm người dùng ở ${marketName}
 3. **Dữ liệu phải thực tế và có thể sử dụng được**
 
 ## Trả về JSON với cấu trúc:
