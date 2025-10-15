@@ -1024,4 +1024,229 @@ Return ONLY valid JSON, no markdown code blocks, no extra text. Make every word 
   }
 });
 
+// Generate Landing Page for Product
+router.post('/generate-landing-page', async (req, res) => {
+  try {
+    const {
+      product_id,
+      product_title,
+      product_description,
+      product_image,
+      target_audience,
+      usp,
+      pain_points,
+      key_benefits,
+      pricing,
+      cta_text,
+      landing_goal,
+      color_scheme,
+      include_testimonials,
+      include_faq,
+      include_pricing,
+      language
+    } = req.body;
+    
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    if (!openRouterApiKey) {
+      return res.status(500).json({ error: 'OpenRouter API key not configured' });
+    }
+
+    // Map color scheme to actual colors - Beautiful, modern palettes
+    const colorSchemes: Record<string, any> = {
+      'luxury-gold': {
+        primary: '#d4af37',
+        secondary: '#1a1a1a',
+        accent: '#f4d03f',
+        text: '#1a1a1a',
+        name: '💎 Luxury Gold - Sang trọng, đẳng cấp'
+      },
+      'rose-gold': {
+        primary: '#e8b4b8',
+        secondary: '#c9a0dc',
+        accent: '#ffc0cb',
+        text: '#4a4a4a',
+        name: '🌹 Rose Gold - Nữ tính, tinh tế'
+      },
+      'ocean-blue': {
+        primary: '#0077be',
+        secondary: '#0099cc',
+        accent: '#00d4ff',
+        text: '#1a1a1a',
+        name: '🌊 Ocean Blue - Chuyên nghiệp, tin cậy'
+      },
+      'sunset-orange': {
+        primary: '#ff6b35',
+        secondary: '#f7931e',
+        accent: '#ffc107',
+        text: '#2d2d2d',
+        name: '🌅 Sunset Orange - Năng động, sáng tạo'
+      },
+      'forest-green': {
+        primary: '#2d6a4f',
+        secondary: '#52b788',
+        accent: '#95d5b2',
+        text: '#1b4332',
+        name: '🌿 Forest Green - Tự nhiên, thân thiện môi trường'
+      },
+      'royal-purple': {
+        primary: '#6a0dad',
+        secondary: '#9b59b6',
+        accent: '#ba68c8',
+        text: '#2d2d2d',
+        name: '👑 Royal Purple - Quý phái, sang trọng'
+      },
+      'elegant-black': {
+        primary: '#1a1a1a',
+        secondary: '#4a4a4a',
+        accent: '#d4af37',
+        text: '#1a1a1a',
+        name: '🖤 Elegant Black - Tối giản, hiện đại'
+      },
+      'coral-pink': {
+        primary: '#ff6b9d',
+        secondary: '#ff8fab',
+        accent: '#ffb3c6',
+        text: '#2d2d2d',
+        name: '🌸 Coral Pink - Trẻ trung, dễ thương'
+      }
+    };
+
+    const colors = colorSchemes[color_scheme] || colorSchemes['ocean-blue']; // Default: Ocean Blue
+
+    // Map landing goal to CTA strategy
+    const goalStrategies: Record<string, string> = {
+      'direct_sale': 'Direct call-to-action for immediate purchase with urgency and scarcity',
+      'lead_generation': 'Focus on collecting email/contact info with lead magnet or free trial',
+      'pre_order': 'Build excitement for upcoming launch with waitlist/early bird offers',
+      'learn_more': 'Educational approach with detailed information and gradual conversion'
+    };
+
+    const ctaStrategy = goalStrategies[landing_goal] || goalStrategies['direct_sale'];
+
+    // Build concise landing page prompt (shortened to avoid rate limits)
+    const prompt = `# Landing Page Generator
+
+YOU ARE AN EXPERT LANDING PAGE CREATOR. Generate a complete, modern HTML landing page.
+
+## Product Info
+- **Name:** ${product_title}
+- **Description:** ${product_description}
+${product_image ? `- **Image:** ${product_image}` : ''}
+- **Target:** ${target_audience}
+- **USP:** ${usp}
+${pain_points ? `- **Pain Points:** ${pain_points}` : ''}
+- **Benefits:** ${key_benefits}
+${pricing ? `- **Price:** ${pricing}` : ''}
+
+## Design
+- **Colors:** Primary ${colors.primary}, Secondary ${colors.secondary}
+- **Goal:** ${landing_goal} - ${ctaStrategy}
+- **CTA:** "${cta_text}"
+- **Language:** ${language}
+- **Sections:** Hero, Problem, Benefits, Features${include_testimonials ? ', Testimonials' : ''}${include_faq ? ', FAQ' : ''}${include_pricing ? ', Pricing' : ''}, Final CTA
+
+## Requirements
+1. **Complete HTML** with inline CSS (no external files)
+2. **Modern design**: Gradients, shadows, rounded corners, responsive
+3. **Sticky header** with CTA button
+4. **Hero section**: Compelling headline with benefit + ${product_image ? 'product image with float animation' : 'gradient placeholder'}
+5. **Problem section**: 3 pain point cards (yellow gradient background)
+6. **Benefits section**: ${key_benefits.split(',').length} benefit cards (gradient backgrounds, hover effects)
+7. **Features section**: Detailed feature list with icons
+${include_testimonials ? '8. **Testimonials**: 3 customer testimonials with 5-star ratings' : ''}
+${include_faq ? '9. **FAQ section**: 5-7 questions with answers' : ''}
+${include_pricing ? `10. **Pricing section**: Highlight ${pricing || 'special offer'} with feature list` : ''}
+11. **Final CTA**: Large conversion section with urgency
+12. **Mobile responsive** (media queries for tablets/phones)
+13. **Trust badges**: Free shipping, guarantee, support
+14. **Smooth animations**: Float, hover, fade effects (CSS only)
+
+## Style Guidelines
+- Font: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto
+- Spacing: Generous padding (80px sections, 30px+ cards)
+- Typography: h1 3em → h3 1.5em → p 1em
+- Buttons: 50px border-radius, gradient, shadow, hover transform
+- Cards: 15px border-radius, 5px solid left border, box-shadow
+- Use emojis strategically (✓, ⭐, 🚀, 💎, ⚠️)
+
+## Copywriting
+- Headlines: Benefit-driven, specific numbers
+- Problem: Agitate pain before solution
+- Benefits: Focus on outcomes, not features  
+- Social proof: "Trusted by 5,000+ customers", "4.8/5 rating"
+- Urgency: "Limited time", "Only 47 left in stock"
+- CTA: Action-oriented ("Get Yours Now", "Start Free Trial")
+
+## CRITICAL
+Return ONLY the complete HTML code. Start with <!DOCTYPE html> and end with </html>. No markdown, no explanations. Create a STUNNING, HIGH-CONVERTING landing page NOW!`;
+
+    // Call OpenRouter API - using DeepSeek V3.2 (powerful, free, excellent at code generation)
+    const response = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
+        model: 'deepseek/deepseek-v3.2-exp', // Free tier, excellent at HTML/CSS generation
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an elite landing page designer and conversion copywriter. You create STUNNING, modern, high-converting HTML landing pages with beautiful inline CSS, smooth animations, and compelling copy. Return ONLY the complete HTML code starting with <!DOCTYPE html>, no markdown formatting, no explanations.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.85,
+        max_tokens: 8000, // DeepSeek can handle more tokens
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${openRouterApiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'http://localhost:3000',
+          'X-Title': 'Landing Page Generator',
+        },
+      }
+    );
+
+    let htmlContent = response.data.choices[0].message.content;
+    
+    // Extract HTML if wrapped in markdown
+    const htmlMatch = htmlContent.match(/```html\s*([\s\S]*?)\s*```/);
+    if (htmlMatch) {
+      htmlContent = htmlMatch[1];
+    } else if (htmlContent.includes('```')) {
+      // Remove any markdown code blocks
+      htmlContent = htmlContent.replace(/```[\s\S]*?\n/g, '').replace(/```/g, '');
+    }
+    
+    // Ensure it starts with DOCTYPE
+    if (!htmlContent.trim().startsWith('<!DOCTYPE')) {
+      const doctypeMatch = htmlContent.match(/(<!DOCTYPE[\s\S]*)/i);
+      if (doctypeMatch) {
+        htmlContent = doctypeMatch[1];
+      }
+    }
+
+    res.json({ 
+      html: htmlContent.trim(),
+      success: true 
+    });
+  } catch (error: any) {
+    console.error('Error generating landing page:', error);
+    
+    // Handle rate limit errors specifically
+    if (error.response?.status === 429) {
+      return res.status(429).json({ 
+        error: 'Rate limit exceeded. Please wait a moment and try again.',
+        details: 'The AI service is temporarily unavailable. Please try again in 30 seconds.'
+      });
+    }
+    
+    res.status(500).json({ 
+      error: 'Failed to generate landing page',
+      message: error.message || 'Internal server error'
+    });
+  }
+});
+
 export default router;

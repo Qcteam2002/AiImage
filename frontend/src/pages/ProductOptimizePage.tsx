@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Filter, MoreVertical, Edit, Trash2, Sparkles, Megaphone, Zap, Brain } from 'lucide-react';
+import { Plus, Search, Filter, MoreVertical, Edit, Trash2, Sparkles, Megaphone, Zap, Brain, Rocket } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Typography } from '../components/design-system/Typography';
@@ -8,6 +8,7 @@ import ProductOptimizeModal from '../components/ProductOptimize/ProductOptimizeM
 import ProductOptimizeModalAdvanced from '../components/ProductOptimize/ProductOptimizeModalAdvanced';
 import ProductOptimizeModalV2 from '../components/ProductOptimize/ProductOptimizeModalV2';
 import ProductAdsGeneratorModal from '../components/ProductOptimize/ProductAdsGeneratorModal';
+import ProductLandingPageModal from '../components/ProductOptimize/ProductLandingPageModal';
 
 interface Product {
   id: string;
@@ -26,6 +27,7 @@ const ProductOptimizePage: React.FC = () => {
   const [showOptimizeAdvancedModal, setShowOptimizeAdvancedModal] = useState(false);
   const [showOptimizeV2Modal, setShowOptimizeV2Modal] = useState(false);
   const [showAdsModal, setShowAdsModal] = useState(false);
+  const [showLandingPageModal, setShowLandingPageModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -101,6 +103,11 @@ const ProductOptimizePage: React.FC = () => {
   const handleGenerateAds = (product: Product) => {
     setSelectedProduct(product);
     setShowAdsModal(true);
+  };
+
+  const handleGenerateLandingPage = (product: Product) => {
+    setSelectedProduct(product);
+    setShowLandingPageModal(true);
   };
 
 
@@ -301,6 +308,15 @@ const ProductOptimizePage: React.FC = () => {
                           </Button>
 
                           <Button
+                            onClick={() => handleGenerateLandingPage(product)}
+                            className="bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 hover:from-orange-700 hover:via-red-700 hover:to-pink-700 text-white px-3 py-1.5 rounded-md text-xs font-semibold"
+                            title="Generate Landing Page"
+                          >
+                            <Rocket className="w-3 h-3 mr-1" />
+                            Landing
+                          </Button>
+
+                          <Button
                             onClick={() => handleOptimizeProductAdvanced(product)}
                             className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-3 py-1.5 rounded-md text-xs"
                             title="Advanced Optimize with more options"
@@ -372,6 +388,12 @@ const ProductOptimizePage: React.FC = () => {
       <ProductAdsGeneratorModal
         isOpen={showAdsModal}
         onClose={() => setShowAdsModal(false)}
+        product={selectedProduct}
+      />
+
+      <ProductLandingPageModal
+        isOpen={showLandingPageModal}
+        onClose={() => setShowLandingPageModal(false)}
         product={selectedProduct}
       />
     </div>
