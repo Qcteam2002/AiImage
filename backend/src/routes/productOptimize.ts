@@ -1124,10 +1124,22 @@ router.post('/generate-landing-page', async (req, res) => {
 
     const ctaStrategy = goalStrategies[landing_goal] || goalStrategies['direct_sale'];
 
-    // Build concise landing page prompt (shortened to avoid rate limits)
-    const prompt = `# Landing Page Generator
+    // Build landing page prompt with premium template reference
+    const prompt = `# Elite Landing Page Generator
 
-YOU ARE AN EXPERT LANDING PAGE CREATOR. Generate a complete, modern HTML landing page.
+YOU ARE A WORLD-CLASS LANDING PAGE DESIGNER. Create a STUNNING, high-converting HTML landing page.
+
+## Design Inspiration Reference
+Study and apply design excellence from premium templates like Suxnix (https://themegenix.net/wp/suxnix/):
+- **Hero Section:** Full-width with gradient overlay, compelling headline, subheadline, prominent CTA button
+- **Visual Hierarchy:** Large headings (3-4em), clear sections with generous spacing (80-100px padding)
+- **Cards Design:** Rounded corners (15-20px), subtle shadows, hover effects (transform scale 1.05)
+- **Color Gradients:** Smooth linear gradients for backgrounds, buttons, and sections
+- **Icons & Emojis:** Strategic use for visual interest and scannability
+- **Typography:** Modern sans-serif stack, line-height 1.6-1.8, balanced font sizes
+- **Sections Flow:** Hero → Features → Products/Benefits → Pricing → Testimonials → FAQ → CTA
+- **Trust Elements:** Badges, guarantees, social proof, security icons
+- **Animations:** Subtle CSS animations (fade-in, slide-up, hover transforms)
 
 ## Product Info
 - **Name:** ${product_title}
@@ -1139,44 +1151,82 @@ ${pain_points ? `- **Pain Points:** ${pain_points}` : ''}
 - **Benefits:** ${key_benefits}
 ${pricing ? `- **Price:** ${pricing}` : ''}
 
-## Design
-- **Colors:** Primary ${colors.primary}, Secondary ${colors.secondary}
+## Design Specifications
+- **Colors:** Primary ${colors.primary}, Secondary ${colors.secondary}, Accent ${colors.accent}
 - **Goal:** ${landing_goal} - ${ctaStrategy}
 - **CTA:** "${cta_text}"
 - **Language:** ${language}
 - **Sections:** Hero, Problem, Benefits, Features${include_testimonials ? ', Testimonials' : ''}${include_faq ? ', FAQ' : ''}${include_pricing ? ', Pricing' : ''}, Final CTA
 
-## Requirements
-1. **Complete HTML** with inline CSS (no external files)
-2. **Modern design**: Gradients, shadows, rounded corners, responsive
-3. **Sticky header** with CTA button
-4. **Hero section**: Compelling headline with benefit + ${product_image ? 'product image with float animation' : 'gradient placeholder'}
-5. **Problem section**: 3 pain point cards (yellow gradient background)
-6. **Benefits section**: ${key_benefits.split(',').length} benefit cards (gradient backgrounds, hover effects)
-7. **Features section**: Detailed feature list with icons
-${include_testimonials ? '8. **Testimonials**: 3 customer testimonials with 5-star ratings' : ''}
-${include_faq ? '9. **FAQ section**: 5-7 questions with answers' : ''}
-${include_pricing ? `10. **Pricing section**: Highlight ${pricing || 'special offer'} with feature list` : ''}
-11. **Final CTA**: Large conversion section with urgency
-12. **Mobile responsive** (media queries for tablets/phones)
-13. **Trust badges**: Free shipping, guarantee, support
-14. **Smooth animations**: Float, hover, fade effects (CSS only)
+## Mandatory Requirements
+1. **Complete HTML** with inline CSS (no external files, all styles in <style> tag)
+2. **Premium Modern Design**:
+   - Smooth gradients (linear-gradient with 2-3 colors)
+   - Card shadows: box-shadow: 0 10px 30px rgba(0,0,0,0.1)
+   - Rounded corners: 15-25px border-radius
+   - Full-width sections with max-width: 1200px containers
+3. **Sticky Header**: Fixed navigation with logo, menu, CTA button, smooth scroll links
+4. **Hero Section** (100vh or 600px min-height):
+   - Gradient overlay background
+   - H1 headline (3-4em) with emotional hook
+   - Subheadline explaining benefit (1.2em)
+   - ${product_image ? 'Product image with CSS float/pulse animation' : 'Gradient background with shape decorations'}
+   - Prominent CTA button (60px height, gradient, shadow, hover transform)
+5. **Problem/Pain Points**: 3 cards with icons, yellow/orange gradients, clear problem statements
+6. **Benefits Section**: ${key_benefits.split(',').length} benefit cards
+   - Icon or emoji for each
+   - Gradient backgrounds (different colors per card)
+   - Hover: scale(1.05), enhanced shadow
+7. **Features Section**: Grid layout (2-3 columns) with checkmarks/icons
+${include_testimonials ? '8. **Testimonials**: 3 customer testimonials, profile photos (CSS circles), 5-star ratings, quote styling' : ''}
+${include_faq ? '9. **FAQ Accordion**: 5-7 Q&As, collapsible with CSS (details/summary or custom), style with borders' : ''}
+${include_pricing ? `10. **Pricing Section**: 1-3 pricing tiers, highlight ${pricing || 'best value'}, feature checkmarks, CTA buttons` : ''}
+11. **Final CTA Section**: Full-width, gradient background, large heading, urgency text, CTA button
+12. **Trust Elements**: Badges row (✓ Free Shipping, ✓ Money-back Guarantee, ✓ 24/7 Support, ✓ Secure Checkout)
+13. **Footer**: Company info, links, social icons (CSS only)
+14. **Mobile Responsive**: Media queries for ≤768px, ≤480px
+15. **CSS Animations**: 
+   - @keyframes float, pulse, fadeInUp
+   - Hover transforms on cards/buttons
+   - Smooth transitions (0.3s ease)
 
-## Style Guidelines
-- Font: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto
-- Spacing: Generous padding (80px sections, 30px+ cards)
-- Typography: h1 3em → h3 1.5em → p 1em
-- Buttons: 50px border-radius, gradient, shadow, hover transform
-- Cards: 15px border-radius, 5px solid left border, box-shadow
-- Use emojis strategically (✓, ⭐, 🚀, 💎, ⚠️)
+## Style Guidelines (Apply Premium Template Standards)
+- **Font Stack:** -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif
+- **Spacing:** 
+  - Sections: 80-120px padding top/bottom
+  - Cards: 30-40px padding
+  - Between elements: 20-30px margins
+- **Typography Scale:**
+  - H1: 3-4em, font-weight: 700-900, line-height: 1.2
+  - H2: 2-2.5em, font-weight: 600-700
+  - H3: 1.5-1.8em, font-weight: 600
+  - P: 1em-1.1em, line-height: 1.6-1.8
+  - Small/Caption: 0.85-0.9em
+- **Button Styles:**
+  - Size: 18-22px padding vertical, 40-60px horizontal
+  - Border-radius: 50px (pill shape) or 12-15px
+  - Gradient background from primary to secondary color
+  - Box-shadow: 0 10px 25px rgba(primary, 0.3)
+  - Hover: transform: translateY(-3px), enhanced shadow
+  - Font-weight: 600, letter-spacing: 0.5px
+- **Card Styles:**
+  - Border-radius: 15-20px
+  - Box-shadow: 0 5px 20px rgba(0,0,0,0.08)
+  - Hover: transform: translateY(-5px), shadow: 0 15px 40px rgba(0,0,0,0.15)
+  - Optional: 4-5px solid left border in accent color
+- **Color Usage:**
+  - Gradients: linear-gradient(135deg, color1, color2)
+  - Overlay: rgba(0,0,0,0.5) on hero images
+  - Accent: Use for borders, highlights, icons
+- **Icons/Emojis:** Strategic use (✓, ⭐, 🚀, 💎, 🎯, ⚡, 🔒, 📦, ⚠️, 💰, ❓, 💬)
 
-## Copywriting
-- Headlines: Benefit-driven, specific numbers
-- Problem: Agitate pain before solution
-- Benefits: Focus on outcomes, not features  
-- Social proof: "Trusted by 5,000+ customers", "4.8/5 rating"
-- Urgency: "Limited time", "Only 47 left in stock"
-- CTA: Action-oriented ("Get Yours Now", "Start Free Trial")
+## Copywriting Excellence (${language})
+- **Headlines:** Benefit-driven, emotional, specific numbers ("Tăng Doanh Thu 300%", "Giảm Chi Phí 50%")
+- **Problem Agitation:** Show pain BEFORE solution ("Bạn có đang gặp vấn đề...?")
+- **Benefits over Features:** Focus outcomes ("Tiết kiệm 10 giờ/tuần" NOT "Tính năng tự động")
+- **Social Proof:** "Tin cậy bởi 5,000+ khách hàng", "Đánh giá 4.9/5.0", "Top 1% thị trường"
+- **Urgency/Scarcity:** "Ưu đãi có hạn", "Chỉ còn 47 sản phẩm", "Kết thúc trong 24h"
+- **CTA Copy:** Action-oriented, benefit-focused ("Nhận Ngay Ưu Đãi", "Bắt Đầu Miễn Phí", "Đặt Hàng Ngay")
 
 ## CRITICAL
 Return ONLY the complete HTML code. Start with <!DOCTYPE html> and end with </html>. No markdown, no explanations. Create a STUNNING, HIGH-CONVERTING landing page NOW!`;
