@@ -33,9 +33,7 @@ const ProductLandingPageModal: React.FC<ProductLandingPageModalProps> = ({
   const aiModels = [
     { value: 'deepseek/deepseek-v3.2-exp', name: '🤖 DeepSeek V3.2', desc: 'Mạnh nhất, code tốt (Free)', recommended: true },
     { value: 'x-ai/grok-code-fast-1', name: '⚡ Grok Code Fast', desc: 'Nhanh, creative (Free)', recommended: true },
-    { value: 'openai/gpt-4o-mini', name: '🧠 GPT-4o Mini', desc: 'OpenAI, ổn định' },
-    { value: 'anthropic/claude-3.5-sonnet', name: '🎨 Claude 3.5', desc: 'Sáng tạo, artistic' },
-    { value: 'google/gemini-2.0-flash-exp:free', name: '💎 Gemini 2.0 Flash', desc: 'Google, free' }
+    { value: 'moonshotai/kimi-k2', name: '🌙 Kimi K2', desc: 'Moonshot AI, thông minh (Free)', recommended: false }
   ];
 
   // ========== FORM STATE ==========
