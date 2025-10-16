@@ -1130,16 +1130,31 @@ router.post('/generate-landing-page', async (req, res) => {
 YOU ARE A WORLD-CLASS LANDING PAGE DESIGNER. Create a STUNNING, high-converting HTML landing page.
 
 ## Design Inspiration Reference
-Study and apply design excellence from premium templates like Suxnix (https://themegenix.net/wp/suxnix/):
-- **Hero Section:** Full-width with gradient overlay, compelling headline, subheadline, prominent CTA button
-- **Visual Hierarchy:** Large headings (3-4em), clear sections with generous spacing (80-100px padding)
-- **Cards Design:** Rounded corners (15-20px), subtle shadows, hover effects (transform scale 1.05)
-- **Color Gradients:** Smooth linear gradients for backgrounds, buttons, and sections
-- **Icons & Emojis:** Strategic use for visual interest and scannability
-- **Typography:** Modern sans-serif stack, line-height 1.6-1.8, balanced font sizes
-- **Sections Flow:** Hero → Features → Products/Benefits → Pricing → Testimonials → FAQ → CTA
-- **Trust Elements:** Badges, guarantees, social proof, security icons
-- **Animations:** Subtle CSS animations (fade-in, slide-up, hover transforms)
+Study and apply design excellence from premium templates:
+**Suxnix Homepage:** https://themegenix.net/wp/suxnix/
+**Suxnix Product Page:** https://themegenix.net/wp/suxnix/product/sneaky-supplements/
+
+### Landing Page Structure (Apply These Standards):
+- **Hero Section:** Full-width gradient overlay, product image (float animation), compelling headline, subheadline, prominent CTA
+- **Visual Hierarchy:** Large headings (3-4em), clear sections with 80-100px padding
+- **Product Showcase:**
+  - Large product image with zoom/lightbox effect
+  - Price display (original + sale price with strikethrough)
+  - 5-star rating display
+  - Clear SKU, category, tags
+  - Prominent "Add to Cart" / CTA button (gradient, large, with hover effect)
+- **Description Sections:**
+  - "The True Strength of [Product]" - Detailed benefits paragraph
+  - "The Basics" - Bullet point list with checkmarks
+  - Each section with clear H4 headings
+- **Cards Design:** Rounded corners (15-20px), subtle shadows, hover effects (scale 1.05)
+- **Color Gradients:** Smooth linear-gradient(135deg, color1, color2)
+- **Icons & Emojis:** Strategic use for visual interest (✓, ⭐, 🚀, 💎, 📦)
+- **Typography:** Modern sans-serif, line-height 1.6-1.8
+- **Section Flow:** Hero → Problem → Product Showcase → Features → Benefits → Pricing → Testimonials → FAQ → CTA
+- **Trust Elements:** Badges, guarantees, "5.00 out of 5" ratings, security icons
+- **Related Products:** Grid of 3-4 related items (if applicable)
+- **CSS Animations:** Float, pulse, fadeInUp, hover transforms
 
 ## Product Info
 - **Name:** ${product_title}
@@ -1151,12 +1166,27 @@ ${pain_points ? `- **Pain Points:** ${pain_points}` : ''}
 - **Benefits:** ${key_benefits}
 ${pricing ? `- **Price:** ${pricing}` : ''}
 
+## 🎨 CRITICAL COLOR SCHEME (MUST APPLY EXACTLY)
+**YOU MUST USE THESE EXACT COLORS THROUGHOUT THE ENTIRE PAGE:**
+- **Primary Color:** ${colors.primary} (Main buttons, headlines, CTAs, primary sections)
+- **Secondary Color:** ${colors.secondary} (Secondary buttons, accents, borders)
+- **Accent Color:** ${colors.accent} (Highlights, hover states, badges)
+- **Text Color:** ${colors.text} (All text content)
+
+**COLOR USAGE RULES (MANDATORY):**
+1. All CTA buttons MUST use: background: linear-gradient(135deg, ${colors.primary}, ${colors.secondary})
+2. All section headings (H1, H2) MUST use: color: ${colors.primary}
+3. All hover effects MUST use: ${colors.accent}
+4. All borders/accents MUST use: ${colors.accent}
+5. All body text MUST use: color: ${colors.text}
+6. Hero section background: linear-gradient(135deg, ${colors.primary}20, ${colors.secondary}20)
+7. Cards gradient backgrounds: Use variations of primary/secondary with transparency
+
 ## Design Specifications
-- **Colors:** Primary ${colors.primary}, Secondary ${colors.secondary}, Accent ${colors.accent}
 - **Goal:** ${landing_goal} - ${ctaStrategy}
 - **CTA:** "${cta_text}"
 - **Language:** ${language}
-- **Sections:** Hero, Problem, Benefits, Features${include_testimonials ? ', Testimonials' : ''}${include_faq ? ', FAQ' : ''}${include_pricing ? ', Pricing' : ''}, Final CTA
+- **Sections:** Hero, Product Showcase, Benefits, Features${include_testimonials ? ', Testimonials' : ''}${include_faq ? ', FAQ' : ''}${include_pricing ? ', Pricing' : ''}, Final CTA
 
 ## Mandatory Requirements
 1. **Complete HTML** with inline CSS (no external files, all styles in <style> tag)
@@ -1172,64 +1202,52 @@ ${pricing ? `- **Price:** ${pricing}` : ''}
    - Subheadline explaining benefit (1.2em)
    - ${product_image ? 'Product image with CSS float/pulse animation' : 'Gradient background with shape decorations'}
    - Prominent CTA button (60px height, gradient, shadow, hover transform)
-5. **Problem/Pain Points**: 3 cards with icons, yellow/orange gradients, clear problem statements
-6. **Benefits Section**: ${key_benefits.split(',').length} benefit cards
+5. **Product Showcase Section** (Apply Suxnix Product Page Style):
+   - Grid layout: Product image left (40%), Details right (60%)
+   - Large product image with border-radius: 15px, box-shadow
+   - 5-star rating: ⭐⭐⭐⭐⭐ (5.00 out of 5)
+   - Product title H2 (2em, bold)
+   - Price display: ${pricing ? `~~Original ${pricing}~~ **Sale Price** (strikethrough + green)` : 'Prominent pricing with discount badge'}
+   - SKU, Category, Tags in small gray text
+   - Short product summary (2-3 sentences)
+   - Large "Add to Cart" button (gradient, 60px height, icon)
+   - Trust badges below button (Free Shipping, Guarantee, etc.)
+6. **Description Sections**:
+   - H4: "The True Strength of ${product_title}"
+   - Full paragraph explaining unique benefits
+   - H4: "The Basics:"
+   - Bullet list with ✓ checkmarks for key features
+7. **Problem/Pain Points**: 3 cards with icons, yellow/orange gradients, clear problem statements
+8. **Benefits Section**: ${key_benefits.split(',').length} benefit cards
    - Icon or emoji for each
    - Gradient backgrounds (different colors per card)
    - Hover: scale(1.05), enhanced shadow
-7. **Features Section**: Grid layout (2-3 columns) with checkmarks/icons
-${include_testimonials ? '8. **Testimonials**: 3 customer testimonials, profile photos (CSS circles), 5-star ratings, quote styling' : ''}
-${include_faq ? '9. **FAQ Accordion**: 5-7 Q&As, collapsible with CSS (details/summary or custom), style with borders' : ''}
-${include_pricing ? `10. **Pricing Section**: 1-3 pricing tiers, highlight ${pricing || 'best value'}, feature checkmarks, CTA buttons` : ''}
-11. **Final CTA Section**: Full-width, gradient background, large heading, urgency text, CTA button
-12. **Trust Elements**: Badges row (✓ Free Shipping, ✓ Money-back Guarantee, ✓ 24/7 Support, ✓ Secure Checkout)
-13. **Footer**: Company info, links, social icons (CSS only)
-14. **Mobile Responsive**: Media queries for ≤768px, ≤480px
-15. **CSS Animations**: 
+9. **Features Section**: Grid layout (2-3 columns) with checkmarks/icons
+${include_testimonials ? '10. **Testimonials Section** (Like Product Reviews):\n   - 3 customer testimonials with 5-star ratings ⭐⭐⭐⭐⭐\n   - Profile photo (CSS circle), name, date\n   - Quote styling with borders\n   - "5.00 out of 5" aggregate rating display' : ''}
+${include_faq ? '11. **FAQ Accordion**: 5-7 Q&As, collapsible with CSS (details/summary), style with borders' : ''}
+${include_pricing ? `12. **Pricing Section**: 1-3 pricing tiers (like product variants), highlight ${pricing || 'best value'}, feature checkmarks, CTA buttons` : ''}
+13. **Final CTA Section**: Full-width, gradient background, large heading, urgency text, CTA button
+14. **Trust Elements Row**: Badges (✓ Free Shipping, ✓ Money-back Guarantee, ✓ 24/7 Support, ✓ Secure Checkout)
+15. **Footer**: Company info, links, social icons (CSS only)
+16. **Mobile Responsive**: Media queries for ≤768px, ≤480px (Stack product showcase, full-width cards)
+17. **CSS Animations**: 
    - @keyframes float, pulse, fadeInUp
    - Hover transforms on cards/buttons
    - Smooth transitions (0.3s ease)
 
-## Style Guidelines (Apply Premium Template Standards)
-- **Font Stack:** -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif
-- **Spacing:** 
-  - Sections: 80-120px padding top/bottom
-  - Cards: 30-40px padding
-  - Between elements: 20-30px margins
-- **Typography Scale:**
-  - H1: 3-4em, font-weight: 700-900, line-height: 1.2
-  - H2: 2-2.5em, font-weight: 600-700
-  - H3: 1.5-1.8em, font-weight: 600
-  - P: 1em-1.1em, line-height: 1.6-1.8
-  - Small/Caption: 0.85-0.9em
-- **Button Styles:**
-  - Size: 18-22px padding vertical, 40-60px horizontal
-  - Border-radius: 50px (pill shape) or 12-15px
-  - Gradient background from primary to secondary color
-  - Box-shadow: 0 10px 25px rgba(primary, 0.3)
-  - Hover: transform: translateY(-3px), enhanced shadow
-  - Font-weight: 600, letter-spacing: 0.5px
-- **Card Styles:**
-  - Border-radius: 15-20px
-  - Box-shadow: 0 5px 20px rgba(0,0,0,0.08)
-  - Hover: transform: translateY(-5px), shadow: 0 15px 40px rgba(0,0,0,0.15)
-  - Optional: 4-5px solid left border in accent color
-- **Color Usage:**
-  - Gradients: linear-gradient(135deg, color1, color2)
-  - Overlay: rgba(0,0,0,0.5) on hero images
-  - Accent: Use for borders, highlights, icons
-- **Icons/Emojis:** Strategic use (✓, ⭐, 🚀, 💎, 🎯, ⚡, 🔒, 📦, ⚠️, 💰, ❓, 💬)
+## 🎨 DESIGN REQUIREMENTS
 
-## Copywriting Excellence (${language})
-- **Headlines:** Benefit-driven, emotional, specific numbers ("Tăng Doanh Thu 300%", "Giảm Chi Phí 50%")
-- **Problem Agitation:** Show pain BEFORE solution ("Bạn có đang gặp vấn đề...?")
-- **Benefits over Features:** Focus outcomes ("Tiết kiệm 10 giờ/tuần" NOT "Tính năng tự động")
-- **Social Proof:** "Tin cậy bởi 5,000+ khách hàng", "Đánh giá 4.9/5.0", "Top 1% thị trường"
-- **Urgency/Scarcity:** "Ưu đãi có hạn", "Chỉ còn 47 sản phẩm", "Kết thúc trong 24h"
-- **CTA Copy:** Action-oriented, benefit-focused ("Nhận Ngay Ưu Đãi", "Bắt Đầu Miễn Phí", "Đặt Hàng Ngay")
+**Fonts:** Google Fonts - Oswald (headings) + Roboto (body)
+**Colors:** Primary ${colors.primary}, Secondary ${colors.secondary}, Accent ${colors.accent}, Text ${colors.text}
+**Layout:** .container (max-width: 1200px), sections (100px padding), responsive
 
-## CRITICAL
-Return ONLY the complete HTML code. Start with <!DOCTYPE html> and end with </html>. No markdown, no explanations. Create a STUNNING, HIGH-CONVERTING landing page NOW!`;
+**Typography:** H1 3.5rem/Oswald, H2 2.5rem/Oswald, P 1.1rem/Roboto, line-height 1.8
+**Buttons:** Gradient (primary→secondary), 50px radius, 18px×48px padding, hover: translateY(-3px)
+**Cards:** 20px radius, 40px padding, 5px left border (accent), hover: translateY(-8px)
+
+**Structure:** Hero → Product Showcase → Description → Benefits → ${include_testimonials ? 'Testimonials → ' : ''}${include_faq ? 'FAQ → ' : ''}${include_pricing ? 'Pricing → ' : ''}Final CTA → Footer
+
+**Critical:** Return ONLY complete HTML. Use inline CSS. Apply colors exactly as specified. Professional e-commerce design like Suxnix template.`;
 
     // Use selected model or default to DeepSeek V3.2
     const selectedModel = ai_model || 'deepseek/deepseek-v3.2-exp';
@@ -1263,7 +1281,31 @@ Return ONLY the complete HTML code. Start with <!DOCTYPE html> and end with </ht
       }
     );
 
+    // Debug log the full response
+    console.log('🔍 OpenRouter Response Status:', response.status);
+    console.log('🔍 OpenRouter Response Data:', JSON.stringify(response.data, null, 2));
+
+    // Check if response has the expected structure
+    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
+      console.error('❌ Invalid API response structure:', response.data);
+      return res.status(500).json({ 
+        error: 'Invalid response from AI service',
+        details: 'The AI model did not return a valid response. Please try again or select a different model.',
+        debug: response.data
+      });
+    }
+
     let htmlContent = response.data.choices[0].message.content;
+    
+    if (!htmlContent) {
+      console.error('❌ Empty content from AI model');
+      return res.status(500).json({ 
+        error: 'Empty response from AI service',
+        details: 'The AI model returned an empty response. Please try again.'
+      });
+    }
+
+    console.log('✅ Got HTML content, length:', htmlContent.length);
     
     // Extract HTML if wrapped in markdown
     const htmlMatch = htmlContent.match(/```html\s*([\s\S]*?)\s*```/);
@@ -1287,7 +1329,8 @@ Return ONLY the complete HTML code. Start with <!DOCTYPE html> and end with </ht
       success: true 
     });
   } catch (error: any) {
-    console.error('Error generating landing page:', error);
+    console.error('❌ Error generating landing page:', error);
+    console.error('Error details:', error.response?.data || error.message);
     
     // Handle rate limit errors specifically
     if (error.response?.status === 429) {
