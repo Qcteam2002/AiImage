@@ -1040,6 +1040,7 @@ router.post('/generate-landing-page', async (req, res) => {
       cta_text,
       landing_goal,
       color_scheme,
+      ai_model, // Model selection
       include_testimonials,
       include_faq,
       include_pricing,
@@ -1180,11 +1181,15 @@ ${include_pricing ? `10. **Pricing section**: Highlight ${pricing || 'special of
 ## CRITICAL
 Return ONLY the complete HTML code. Start with <!DOCTYPE html> and end with </html>. No markdown, no explanations. Create a STUNNING, HIGH-CONVERTING landing page NOW!`;
 
-    // Call OpenRouter API - using DeepSeek V3.2 (powerful, free, excellent at code generation)
+    // Use selected model or default to DeepSeek V3.2
+    const selectedModel = ai_model || 'deepseek/deepseek-v3.2-exp';
+    console.log(`🤖 Generating landing page with model: ${selectedModel}`);
+
+    // Call OpenRouter API with dynamic model selection
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: 'deepseek/deepseek-v3.2-exp', // Free tier, excellent at HTML/CSS generation
+        model: selectedModel, // Dynamic model selection for testing/comparison
         messages: [
           {
             role: 'system',

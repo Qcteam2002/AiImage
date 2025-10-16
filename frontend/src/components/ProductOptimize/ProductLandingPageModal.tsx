@@ -29,6 +29,15 @@ const ProductLandingPageModal: React.FC<ProductLandingPageModalProps> = ({
     { value: 'coral-pink', name: '🌸 Coral Pink', desc: 'Trẻ trung, dễ thương', colors: ['#ff6b9d', '#ff8fab'] }
   ];
 
+  // ========== AI MODELS ==========
+  const aiModels = [
+    { value: 'deepseek/deepseek-v3.2-exp', name: '🤖 DeepSeek V3.2', desc: 'Mạnh nhất, code tốt (Free)', recommended: true },
+    { value: 'x-ai/grok-code-fast-1', name: '⚡ Grok Code Fast', desc: 'Nhanh, creative (Free)', recommended: true },
+    { value: 'openai/gpt-4o-mini', name: '🧠 GPT-4o Mini', desc: 'OpenAI, ổn định' },
+    { value: 'anthropic/claude-3.5-sonnet', name: '🎨 Claude 3.5', desc: 'Sáng tạo, artistic' },
+    { value: 'google/gemini-2.0-flash-exp:free', name: '💎 Gemini 2.0 Flash', desc: 'Google, free' }
+  ];
+
   // ========== FORM STATE ==========
   const [targetAudience, setTargetAudience] = useState('');
   const [usp, setUsp] = useState('');
@@ -38,6 +47,7 @@ const ProductLandingPageModal: React.FC<ProductLandingPageModalProps> = ({
   const [ctaText, setCtaText] = useState('Buy Now');
   const [landingGoal, setLandingGoal] = useState('direct_sale');
   const [colorScheme, setColorScheme] = useState('ocean-blue'); // Default: Ocean Blue
+  const [aiModel, setAiModel] = useState('deepseek/deepseek-v3.2-exp'); // Default: DeepSeek
   const [includeTestimonials, setIncludeTestimonials] = useState(true);
   const [includeFaq, setIncludeFaq] = useState(true);
   const [includePricing, setIncludePricing] = useState(true);
@@ -60,6 +70,7 @@ const ProductLandingPageModal: React.FC<ProductLandingPageModalProps> = ({
       setCtaText('Mua Ngay');
       setLandingGoal('direct_sale');
       setColorScheme('ocean-blue'); // Default: Ocean Blue - professional
+      setAiModel('deepseek/deepseek-v3.2-exp'); // Default: DeepSeek
       setIncludeTestimonials(true);
       setIncludeFaq(true);
       setIncludePricing(false); // Default off since pricing is optional
@@ -86,6 +97,7 @@ const ProductLandingPageModal: React.FC<ProductLandingPageModalProps> = ({
         cta_text: ctaText,
         landing_goal: landingGoal,
         color_scheme: colorScheme,
+        ai_model: aiModel, // Pass selected model
         include_testimonials: includeTestimonials,
         include_faq: includeFaq,
         include_pricing: includePricing,
@@ -370,6 +382,28 @@ const ProductLandingPageModal: React.FC<ProductLandingPageModalProps> = ({
                         </button>
                       ))}
                     </div>
+                  </div>
+
+                  {/* AI Model Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      🤖 AI Model <span className="text-blue-500 text-xs">(Test & Compare)</span>
+                    </label>
+                    <select
+                      value={aiModel}
+                      onChange={(e) => setAiModel(e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm bg-white"
+                    >
+                      {aiModels.map((model) => (
+                        <option key={model.value} value={model.value}>
+                          {model.name} - {model.desc}
+                          {model.recommended ? ' ⭐' : ''}
+                        </option>
+                      ))}
+                    </select>
+                    <Typography.Caption className="text-gray-500 mt-1">
+                      Thử các models khác nhau để so sánh chất lượng landing page
+                    </Typography.Caption>
                   </div>
 
                   {/* Sections to Include */}
