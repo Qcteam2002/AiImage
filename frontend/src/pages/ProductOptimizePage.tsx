@@ -31,6 +31,23 @@ const ProductOptimizePage: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Helper function to get the first image URL from JSON array or return the URL directly
+  const getFirstImageUrl = (imageUrl: string | null): string | null => {
+    if (!imageUrl) return null;
+    
+    try {
+      // Try to parse as JSON array
+      const parsed = JSON.parse(imageUrl);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed[0];
+      }
+      return imageUrl; // Return as-is if not an array
+    } catch {
+      // If parsing fails, it's already a string URL
+      return imageUrl;
+    }
+  };
+
   // Load products on component mount
   useEffect(() => {
     loadProducts();
@@ -239,14 +256,14 @@ const ProductOptimizePage: React.FC = () => {
                       {/* Product Image */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex-shrink-0 h-16 w-16">
-                          {product.image_url ? (
+                          {getFirstImageUrl(product.image_url) ? (
                             <img
-                              src={product.image_url}
+                              src={getFirstImageUrl(product.image_url)!}
                               alt={product.name}
                               className="h-16 w-16 rounded-lg object-cover border border-gray-200"
-                              onLoad={() => console.log('Image loaded successfully:', product.image_url)}
+                              onLoad={() => console.log('Image loaded successfully:', getFirstImageUrl(product.image_url))}
                               onError={(e) => {
-                                console.error('Image failed to load:', product.image_url);
+                                console.error('Image failed to load:', getFirstImageUrl(product.image_url));
                                 const target = e.target as HTMLImageElement;
                                 target.style.display = 'none';
                                 const fallback = target.nextElementSibling as HTMLElement;
@@ -256,7 +273,7 @@ const ProductOptimizePage: React.FC = () => {
                               }}
                             />
                           ) : null}
-                          <div className={`h-16 w-16 rounded-lg bg-gray-200 flex items-center justify-center border border-gray-200 ${product.image_url ? 'hidden' : ''}`}>
+                          <div className={`h-16 w-16 rounded-lg bg-gray-200 flex items-center justify-center border border-gray-200 ${getFirstImageUrl(product.image_url) ? 'hidden' : ''}`}>
                             <Typography.Caption>No Image</Typography.Caption>
                           </div>
                         </div>

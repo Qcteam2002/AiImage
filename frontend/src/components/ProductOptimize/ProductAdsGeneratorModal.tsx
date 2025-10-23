@@ -100,6 +100,14 @@ const ProductAdsGeneratorModal: React.FC<ProductAdsGeneratorModalProps> = ({
 
     setSuggestLoading(true);
     try {
+      // Get current date for market insight
+      const currentDate = new Date().toLocaleDateString('vi-VN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'long'
+      });
+
       const response = await fetch('/api/product-optimize/suggest-data', {
         method: 'POST',
         headers: {
@@ -109,6 +117,7 @@ const ProductAdsGeneratorModal: React.FC<ProductAdsGeneratorModalProps> = ({
           product_title: product.name,
           product_description: product.description,
           product_id: product.id,
+          market_insight_date: currentDate, // Add date for better AI analysis
         }),
       });
 

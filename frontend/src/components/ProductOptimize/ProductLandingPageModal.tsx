@@ -86,7 +86,7 @@ const ProductLandingPageModal: React.FC<ProductLandingPageModalProps> = ({
         product_id: product.id,
         product_title: product.name,
         product_description: product.description || '',
-        product_image: product.image_url || '',
+        product_image: product.image_url || '', // Send image for ImgBB upload
         target_audience: targetAudience,
         usp: usp,
         pain_points: painPoints,
