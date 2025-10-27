@@ -709,6 +709,17 @@ Hãy phân tích hình ảnh và trả về kết quả theo đúng cấu trúc 
     console.log('OpenRouter response status:', response.status);
     console.log('OpenRouter response data:', response.data);
     
+    // Validate API response structure
+    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
+      console.error('Invalid API response structure:', JSON.stringify(response.data, null, 2));
+      throw new Error('Invalid API response: missing choices array');
+    }
+
+    if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
+      console.error('Invalid message structure:', JSON.stringify(response.data.choices[0], null, 2));
+      throw new Error('Invalid API response: missing message content');
+    }
+    
     const content = response.data.choices[0].message.content;
     
     try {

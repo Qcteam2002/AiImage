@@ -435,6 +435,17 @@ Please analyze and return results in the exact JSON structure above.`;
       }
     );
 
+    // Validate API response structure
+    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
+      console.error('Invalid API response structure:', JSON.stringify(response.data, null, 2));
+      throw new Error('Invalid API response: missing choices array');
+    }
+
+    if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
+      console.error('Invalid message structure:', JSON.stringify(response.data.choices[0], null, 2));
+      throw new Error('Invalid API response: missing message content');
+    }
+
     const content = response.data.choices[0].message.content;
     
     try {
@@ -801,6 +812,17 @@ Trả về JSON:
     
     console.log('✅ OpenRouter AI response received');
 
+    // Validate API response structure
+    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
+      console.error('Invalid API response structure:', JSON.stringify(response.data, null, 2));
+      throw new Error('Invalid API response: missing choices array');
+    }
+
+    if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
+      console.error('Invalid message structure:', JSON.stringify(response.data.choices[0], null, 2));
+      throw new Error('Invalid API response: missing message content');
+    }
+
     const content = response.data.choices[0].message.content;
     
     try {
@@ -1158,6 +1180,17 @@ Return ONLY valid JSON, no markdown code blocks, no extra text. Make every word 
         },
       }
     );
+
+    // Validate API response structure
+    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
+      console.error('Invalid API response structure:', JSON.stringify(response.data, null, 2));
+      throw new Error('Invalid API response: missing choices array');
+    }
+
+    if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
+      console.error('Invalid message structure:', JSON.stringify(response.data.choices[0], null, 2));
+      throw new Error('Invalid API response: missing message content');
+    }
 
     const content = response.data.choices[0].message.content;
     
@@ -1544,6 +1577,15 @@ ${include_testimonials ? '**Testimonials:** 3 customer reviews with 5-star ratin
         error: 'Invalid response from AI service',
         details: 'The AI model did not return a valid response. Please try again or select a different model.',
         debug: response.data
+      });
+    }
+
+    if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
+      console.error('❌ Invalid message structure:', response.data.choices[0]);
+      return res.status(500).json({ 
+        error: 'Invalid response from AI service',
+        details: 'The AI model did not return valid message content.',
+        debug: response.data.choices[0]
       });
     }
 
@@ -1985,6 +2027,17 @@ WRONG: \`\`\`json { ... } \`\`\` (markdown)`
       }
     );
 
+    // Validate API response structure
+    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
+      console.error('Invalid API response structure:', JSON.stringify(response.data, null, 2));
+      throw new Error('Invalid API response: missing choices array');
+    }
+
+    if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
+      console.error('Invalid message structure:', JSON.stringify(response.data.choices[0], null, 2));
+      throw new Error('Invalid API response: missing message content');
+    }
+
     let content = response.data.choices[0].message.content;
     
     try {
@@ -2199,7 +2252,7 @@ Dựa vào tất cả thông tin trên, hãy viết:
 
 **QUAN TRỌNG VỀ HÌNH ẢNH:**
 - Tôi đã gửi kèm ${images.length} hình ảnh sản phẩm trong message này. Hãy XEM và PHÂN TÍCH TẤT CẢ hình ảnh
-- TỰ CHỌN 2-3 hình ảnh phù hợp nhất từ ${images.length} hình ảnh có sẵn, dựa trên nội dung và persona "${personaName}"
+- TỰ CHỌN 2-3 hình ảnh phù hợp nhất từ ${images.length} hình ảnh có sẵn, dựa trên nội dung và persona "${personaName}" và "${painpoint}"
 - CHÈN trực tiếp URL hình ảnh đã chọn vào HTML description bằng thẻ <img>
 - Chọn hình ảnh phù hợp với từng section:
   * Hero section: Hình ảnh đẹp nhất, thu hút nhất từ ${images.length} hình có sẵn
@@ -2215,7 +2268,7 @@ Nội dung cần phải kể một câu chuyện, khơi gợi cảm xúc và thu
 - **Hướng dẫn giọng văn (Voice Guideline):** ${voiceGuideline}
 - **Văn phong:** Sử dụng câu ngắn, gạch đầu dòng, emoji ✨🔥✅💎🌟 để dễ đọc
 - **Tránh dùng từ ngữ kỹ thuật phức tạp** - Tập trung vào LỢI ÍCH thay vì TÍNH NĂNG
-- **Không được:** Viết chung chung, sáo rỗng. Phải cá nhân hóa cho đúng persona "${personaName}"
+- **Không được:** Viết chung chung, sáo rỗng. Phải cá nhân hóa cho đúng persona "${personaName}" và paonpoint "${painpoint}"
 - **Ngôn ngữ:** ${language === 'vi-VN' ? 'Tiếng Việt' : 'English'}
 
 [ĐỊNH DẠNG ĐẦU RA]
@@ -2233,16 +2286,17 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
     <div class='benefits-section'>
       <h3>✨ Tại Sao Bạn Sẽ Yêu Thích Sản Phẩm Này?</h3>
       <ul class='benefits-list'>
-        <li>🔥 <strong>Lợi ích 1:</strong> Mô tả chi tiết</li>
-        <li>✅ <strong>Lợi ích 2:</strong> Mô tả chi tiết</li>
-        <li>💎 <strong>Lợi ích 3:</strong> Mô tả chi tiết</li>
+        <li>✅ <strong>Lợi ích chính 1:</strong> Mô tả chi tiết lợi ích, không phải tính năng. Ví dụ: "Mua Sắm An Tâm, Không Cảm Thấy Có Lỗi" thay vì "Minh Bạch Tuyệt Đối"</li>
+        <li>💎 <strong>Lợi ích chính 2:</strong> Tập trung vào kết quả người dùng nhận được. Ví dụ: "Đầu Tư Một Lần, Mặc Bền Bỉ Nhiều Năm" thay vì "Được Thiết Kế Để Tồn Tại"</li>
+        <li>🔥 <strong>Lợi ích chính 3:</strong> Nhấn mạnh sự chuyển đổi và cảm xúc tích cực</li>
       </ul>
       <img src='URL_HÌNH_ẢNH_BENEFITS' alt='Product benefits' style='max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0;' />
     </div>
     
     <div class='transformation-section'>
       <h3>🚀 Kết Quả Bạn Sẽ Đạt Được</h3>
-      <p>Mô tả sự chuyển đổi (transformation)</p>
+      <p>Mô tả sự chuyển đổi (transformation) - nhấn mạnh phong cách và tính đa dụng</p>
+      <p><strong>Hoàn hảo cho:</strong> [Nhóm người cụ thể] <strong>cần [sản phẩm] hoàn hảo, dễ dàng [tính năng đa dụng]</strong>, [nhóm người khác]...</p>
       <img src='URL_HÌNH_ẢNH_LIFESTYLE' alt='Product in use' style='max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0;' />
     </div>
     
@@ -2257,6 +2311,31 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
 - PHẢI có emoji để thu hút
 - PHẢI tập trung vào EMOTION và TRANSFORMATION
 - KHÔNG viết chung chung - cá nhân hóa cho persona "${personaName}"
+
+**QUY TẮC VIẾT GẠCH ĐẦU DÒNG (BENEFITS):**
+- Phần in đậm PHẢI là LỢI ÍCH, không phải tính năng
+- Ví dụ ĐÚNG: "Mua Sắm An Tâm, Không Cảm Thấy Có Lỗi" (lợi ích cảm xúc)
+- Ví dụ SAI: "Minh Bạch Tuyệt Đối" (chỉ là tính năng)
+- Ví dụ ĐÚNG: "Đầu Tư Một Lần, Mặc Bền Bỉ Nhiều Năm" (lợi ích dài hạn)
+- Ví dụ SAI: "Được Thiết Kế Để Tồn Tại" (chỉ là tính năng)
+- Sau phần in đậm, giải thích CHI TIẾT lợi ích đó mang lại gì cho người dùng
+
+**VÍ DỤ CỤ THỂ CHO SẢN PHẨM TRANG SỨC:**
+- ✅ **Tự Tin Tỏa Sáng Mọi Lúc:** Với thiết kế tinh tế và chất liệu cao cấp, bạn sẽ luôn cảm thấy tự tin và thu hút mọi ánh nhìn trong mọi dịp từ công sở đến dạo phố
+- 💎 **Phong Cách Đa Dạng, Một Bộ Đủ Dùng:** Dễ dàng phối với mọi trang phục từ casual đến formal, giúp bạn tiết kiệm thời gian suy nghĩ "hôm nay đeo gì" và luôn có vẻ ngoài hoàn hảo
+- 🔥 **Đầu Tư Một Lần, Sử Dụng Lâu Dài:** Chất liệu bền đẹp không bị phai màu hay biến dạng, giúp bạn thoát khỏi vòng lặp mua sắm liên tục và tiết kiệm chi phí trong dài hạn
+
+**QUY TẮC VIẾT PHẦN "HOÀN HẢO CHO":**
+- PHẢI nhấn mạnh tính đa dụng và phong cách
+- Ví dụ: "Những người theo đuổi phong cách tối giản **cần một chiếc áo phông hoàn hảo, dễ dàng phối với mọi trang phục**"
+- KHÔNG viết: "Những người theo đuổi phong cách tối giản" (thiếu tính đa dụng)
+
+**VÍ DỤ CỤ THỂ CHO TRANG SỨC:**
+- "Những cô gái yêu thích phong cách bohemian **cần bộ trang sức đa dụng, dễ dàng phối với mọi outfit từ váy maxi đến quần jeans**"
+- "Những người phụ nữ hiện đại **cần trang sức tinh tế, phù hợp cả công sở và dạo phố**"
+- "Những tín đồ thời trang **cần phụ kiện statement, giúp nổi bật trong mọi bức ảnh Instagram**"
+
+**QUY TẮC HÌNH ẢNH:**
 - PHẢI XEM và PHÂN TÍCH TẤT CẢ ${images.length} hình ảnh đã gửi kèm
 - PHẢI chọn 2-3 hình ảnh phù hợp từ ${images.length} hình có sẵn, dựa trên persona và nội dung
 - Thay thế URL_HÌNH_ẢNH_HERO, URL_HÌNH_ẢNH_BENEFITS, URL_HÌNH_ẢNH_LIFESTYLE bằng URL thật từ hình ảnh đã chọn
@@ -2313,6 +2392,17 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
         timeout: 60000 // 60 seconds
       }
     );
+
+    // Validate API response structure
+    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
+      console.error('Invalid API response structure:', JSON.stringify(response.data, null, 2));
+      throw new Error('Invalid API response: missing choices array');
+    }
+
+    if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
+      console.error('Invalid message structure:', JSON.stringify(response.data.choices[0], null, 2));
+      throw new Error('Invalid API response: missing message content');
+    }
 
     let content = response.data.choices[0].message.content;
     console.log('📝 Raw AI response length:', content.length);
@@ -2377,6 +2467,690 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
     console.error('Error in generate-content-from-segmentation:', error.message);
     res.status(500).json({ 
       error: 'Failed to generate content',
+      message: error.message 
+    });
+  }
+});
+
+// 🎨 API: POST /api/product-optimize/generate-image
+// 🎯 Mục tiêu: Tạo API mới để phân tích hình ảnh sản phẩm và tạo ra 6 prompt cho các phong cách ảnh khác nhau
+router.post('/generate-image', async (req, res) => {
+  try {
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    
+    const { 
+      productTitle,
+      productImages,
+      productDescription,
+      keyFeature,
+      persona,
+      painpoints,
+      keywords,
+      tone,
+      language = 'en',
+      market,
+      segmentation
+    } = req.body;
+
+    console.log('🎨 Image Generation - Product:', productTitle);
+    console.log('📥 Request Body:', JSON.stringify({
+      productTitle,
+      productImages: productImages?.length || 0,
+      productDescription: productDescription?.substring(0, 100) + '...',
+      keyFeature,
+      persona,
+      painpoints: painpoints?.length || 0,
+      keywords: keywords?.length || 0,
+      tone,
+      language,
+      market,
+      hasSegmentation: !!segmentation
+    }, null, 2));
+
+    // Validate required fields
+    if (!productTitle || !productImages || !Array.isArray(productImages) || productImages.length === 0) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: productTitle and productImages (at least one image URL)' 
+      });
+    }
+
+    // Extract segmentation data if provided
+    let segmentationData = null;
+    if (segmentation) {
+      segmentationData = {
+        name: segmentation.name,
+        painpoint: segmentation.painpoint,
+        personaProfile: segmentation.personaProfile,
+        toneType: segmentation.toneType,
+        voiceGuideline: segmentation.voiceGuideline,
+        locations: segmentation.locations
+      };
+    }
+
+    // Build comprehensive prompt for AI
+    const imagePrompt = `
+TASK:
+Bạn sẽ nhận các hình ảnh sản phẩm + thông tin sản phẩm.
+Bạn phải phân tích sản phẩm trong hình trước, sau đó tạo ra bộ prompt quảng cáo hình ảnh phục vụ thương mại.
+Bạn luôn trả về JSON đúng schema yêu cầu, không thêm markdown.
+
+STEP 1. PHÂN TÍCH HÌNH
+- Nhìn trực tiếp vào từng hình tôi gửi.
+- Mô tả sản phẩm thật sự nhìn thấy: chất liệu, màu, bề mặt, hình dáng, cấu trúc nắp / dây / họa tiết / logo / pattern / số lớp / các chi tiết đặc trưng không thể thay đổi.
+- Nếu có nhiều biến thể (ví dụ nhiều dung tích), mô tả sự khác nhau.
+- Xác định USP trực quan: ví dụ "nắp vặn chống rò", "thép không gỉ 316 bóng gương", "in hình rồng mosaic trên áo navy", v.v.
+
+STEP 2. CHỌN 1 HÌNH CHUẨN
+Từ tất cả ảnh bạn nhận:
+- Chọn ảnh rõ nhất, ánh sáng ổn định nhất, thấy rõ sản phẩm đầy đủ nhất.
+- Ưu tiên ảnh mà sản phẩm không bị che.
+- Nếu có ảnh lộ rõ chi tiết vật liệu bề mặt → ưu tiên.
+=> Gọi ảnh đó là bestImageUrl.
+Giải thích tại sao chọn nó (imageSelectionReason).
+
+STEP 3. SINH 6 PROMPT (STRICT KEEP PRODUCT)
+Với sản phẩm trong bestImageUrl, tạo 6 prompt khác nhau, mỗi prompt phải giữ y nguyên sản phẩm gốc.
+
+STYLE DEFINITIONS:
+- Studio Shot → pure white or light-gray seamless background, balanced soft studio lighting, eCommerce product catalog look.
+- Lifestyle Shot → real-life environment such as desk, bedroom, outdoor picnic, or workspace. Natural daylight with warm soft shadows.
+- Infographic Style → clean light neutral background with product-centered composition, add simple text callouts, arrows, or icons highlighting key features or specs.
+- UGC (User Generated Content) → casual human context, handheld or natural composition, slight imperfections, natural daylight, smartphone photo realism.
+- Close-up → macro or detailed shot focusing on textures, materials, stitching, surface reflection, realistic depth of field, angled light.
+- Motion / Animated → 360° product rotation or looped showcase on a reflective white surface with consistent lighting and soft shadows.
+
+
+RÀNG BUỘC BẮT BUỘC CHO MỌI PROMPT:
+- "Use the provided image as the exact product reference."
+- "The product must be pixel-identical to the reference image; treat its shape, material, texture, proportions, logo/print (if any), and color as locked geometry."
+- "Do not repaint or redesign any part of the product. No recolor. No added or removed elements. No modifying labels or details."
+- "Only replace background, camera angle, environment, lighting, or presentation style."
+- "no duplication, no resizing of the main product shape, no cartoon look, no illustration, photorealistic only."
+
+ĐỊNH NGHĨA 6 STYLE (bạn phải dùng để tạo prompt cụ thể):
+1. "studio":
+   - Mục tiêu: ảnh sạch để dùng cho trang sản phẩm / marketplace.
+   - Bối cảnh: nền trắng hoặc xám nhạt liền mạch, ánh sáng studio mềm, bóng đổ nhẹ, cảm giác cao cấp.
+   - Không props lạ nếu sản phẩm không có props trong hình gốc.
+2. "lifestyle":
+   - Mục tiêu: làm người mua hình dung sản phẩm trong bối cảnh sử dụng.
+   - Bối cảnh ví dụ: bàn gỗ trong camping, bàn làm việc, phòng khách ấm, góc bếp sáng sớm... chọn 1 ngữ cảnh phù hợp với tính năng sản phẩm.
+   - Ánh sáng tự nhiên (daylight), bóng đổ mềm, depth of field nhẹ (hậu cảnh mờ).
+   - Tone cảm xúc: real life, warm, mua là xài liền.
+3. "infographic":
+   - Bối cảnh nền sáng sạch, bố cục thẳng chính diện.
+   - Có chèn text callout dạng bullet / label (ví dụ "316 stainless steel", "Leak-proof lid", "Keeps hot 24h", "4 sizes: 600/800/1200/1500ml").
+   - Phong cách quảng cáo shop/ecommerce.
+   - Vẫn photorealistic, không vẽ icon lòe loẹt kiểu cartoon.
+4. "ugc":
+   - User Generated Content style (kiểu khách tự chụp review thật).
+   - Góc chụp cầm tay, hơi nghiêng, hậu cảnh đời thường (ví dụ picnic, bàn làm việc lộn xộn nhẹ, ghế xe hơi, balo mở).
+   - Ánh sáng tự nhiên, kiểu chụp điện thoại, hơi imperfect => tăng niềm tin.
+5. "closeup":
+   - Zoom cận chi tiết then chốt bán hàng: chất liệu bề mặt, đường khâu, nắp chống rò, texture inox bóng, in vải, v.v.
+   - Ánh sáng xiên để thấy texture thật.
+   - Là macro shot / detail shot dùng để chứng minh chất lượng.
+6. "motion":
+   - Mô tả như thể sản phẩm quay 360° trên nền trắng/studio với bóng đổ mềm dưới chân.
+   - Dùng ngôn ngữ kiểu "clean 360-degree rotation product showcase".
+   - Vẫn phải là sản phẩm giống hệt ảnh gốc (không thay màu, không thay hình dáng).
+
+STEP 4. TECH SETTINGS
+Luôn trả thêm block tech_settings:
+- img2img_strength = 0.3 (giữ form gốc, chỉ đổi bối cảnh)
+- cfg_scale = 9 (giảm sáng tạo quá mức)
+- lighting = "natural daylight or balanced studio light, soft realistic shadows"
+- style = "photorealistic commercial product photography, high detail, high conversion intent"
+
+OUTPUT FORMAT:
+Trả về JSON **thuần túy**, không markdown, không giải thích thêm ngoài JSON:
+
+{
+  "product": "tên sản phẩm lấy từ ${productTitle}",
+  "analysis": "mô tả ngắn gọn sản phẩm nhìn từ hình, nêu chất liệu / cấu trúc / đặc điểm bán hàng chính",
+  "bestImageUrl": "URL hình tốt nhất bạn chọn từ danh sách ở dưới",
+  "imageSelectionReason": "vì sao chọn hình này để làm chuẩn",
+  "styles": {
+    "studio": "prompt studio đã khóa sản phẩm",
+    "lifestyle": "prompt lifestyle đã khóa sản phẩm và bối cảnh sử dụng thực tế",
+    "infographic": "prompt infographic có callout lợi ích / tính năng / size",
+    "ugc": "prompt ugc theo phong cách chụp tự nhiên của người dùng",
+    "closeup": "prompt closeup tập trung chất liệu / chi tiết",
+    "motion": "prompt motion mô tả quay 360° clean trên nền studio"
+  },
+  "tech_settings": {
+    "img2img_strength": 0.3,
+    "cfg_scale": 9,
+    "lighting": "natural daylight or balanced studio light, soft realistic shadows",
+    "style": "photorealistic commercial product photography, high detail, high conversion intent"
+  }
+}
+
+DỮ LIỆU SẢN PHẨM ĐÃ CUNG CẤP:
+- Product Title: ${productTitle}
+- Product Description: ${productDescription || 'Chưa có mô tả'}
+- Key Feature: ${keyFeature || 'Chưa xác định'}
+- Persona (nếu có): ${persona || 'Chưa xác định'}
+- Pain points: ${painpoints ? painpoints.join(', ') : 'Chưa xác định'}
+- Keywords: ${keywords ? keywords.join(', ') : 'Chưa xác định'}
+- Tone: ${tone || 'Chưa xác định'}
+- Market: ${market || 'Chưa xác định'}
+- Language: ${language}
+
+${
+  segmentationData
+    ? `SEGMENTATION INSIGHT:
+- Persona Name: ${segmentationData.name}
+- Pain Point Core: ${segmentationData.painpoint}
+- Demographics: ${segmentationData.personaProfile?.demographics || 'N/A'}
+- Behaviors: ${segmentationData.personaProfile?.behaviors || 'N/A'}
+- Tone Type: ${segmentationData.toneType || 'N/A'}
+- Locations: ${segmentationData.locations ? segmentationData.locations.join(', ') : 'N/A'}`
+    : ''
+}
+
+IMAGE INPUTS:
+Tôi đã gửi kèm ${productImages.length} hình ảnh của sản phẩm ở các URL sau. Hãy dùng chúng để phân tích và chọn bestImageUrl duy nhất:
+${productImages.map((u,i)=>`${i+1}. ${u}`).join('\n')}
+`;
+
+    // Prepare messages with images
+    const messageContent: any[] = [
+      {
+        type: 'text',
+        text: imagePrompt
+      }
+    ];
+
+    // Add ALL product images to context
+    if (productImages && productImages.length > 0) {
+      console.log('🖼️ Sending ALL product images to AI for analysis:', productImages.length);
+      productImages.forEach((imageUrl: string, index: number) => {
+        console.log(`📸 Product Image ${index + 1}:`, imageUrl);
+        messageContent.push({
+          type: 'image_url',
+          image_url: {
+            url: imageUrl
+          }
+        });
+      });
+    } else {
+      console.log('⚠️ No product images provided for AI analysis');
+    }
+
+    // Call GPT-4o API for image analysis and prompt generation
+    console.log('🤖 Calling GPT-4o for image analysis and prompt generation...');
+    console.log('📊 AI Request Details:', {
+      model: 'openai/gpt-4o-mini',
+      messageCount: messageContent.length,
+      imageCount: productImages?.length || 0,
+      promptLength: imagePrompt.length,
+      maxTokens: 2048,
+      temperature: 0.7
+    });
+    
+    const response = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
+        model: 'openai/gpt-4o-mini',
+        messages: [
+          {
+            role: 'user',
+            content: messageContent
+          }
+        ],
+        max_tokens: 2048,
+        temperature: 0.7
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${openRouterApiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'http://localhost:3000',
+          'X-Title': 'Product Image Generator',
+        },
+        timeout: 60000 // 1 minute
+      }
+    );
+
+    // Validate API response structure
+    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
+      console.error('Invalid API response structure:', JSON.stringify(response.data, null, 2));
+      throw new Error('Invalid API response: missing choices array');
+    }
+
+    if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
+      console.error('Invalid message structure:', JSON.stringify(response.data.choices[0], null, 2));
+      throw new Error('Invalid API response: missing message content');
+    }
+
+    let content = response.data.choices[0].message.content;
+    console.log('📝 Raw AI response length:', content.length);
+    console.log('📝 AI Response Preview:', content.substring(0, 200) + '...');
+
+    // Parse JSON response
+    try {
+      // Clean up markdown if present
+      content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+      
+      // Find JSON boundaries
+      let jsonStart = content.indexOf('{');
+      let jsonEnd = content.lastIndexOf('}');
+      
+      if (jsonStart === -1 || jsonEnd === -1) {
+        throw new Error('No valid JSON found in response');
+      }
+      
+      let jsonString = content.substring(jsonStart, jsonEnd + 1);
+      
+      // Parse the JSON
+      const result = JSON.parse(jsonString);
+      
+      console.log('✅ Image prompts generated successfully');
+      console.log('📌 Product:', result.product);
+      console.log('🎨 Styles generated:', Object.keys(result.styles || {}).length);
+      console.log('🖼️ Best Image URL:', result.bestImageUrl);
+      console.log('💭 Selection Reason:', result.imageSelectionReason);
+      
+      const response = {
+        success: true,
+        data: result
+      };
+      
+      console.log('📤 Response:', JSON.stringify({
+        success: response.success,
+        product: response.data.product,
+        bestImageUrl: response.data.bestImageUrl,
+        imageSelectionReason: response.data.imageSelectionReason,
+        stylesCount: Object.keys(response.data.styles || {}).length
+      }, null, 2));
+      
+      res.json(response);
+      
+    } catch (parseError: any) {
+      console.error('❌ JSON parse error:', parseError.message);
+      console.log('Raw content:', content);
+      
+      // Return fallback response
+      res.json({
+        success: true,
+        data: {
+          product: productTitle,
+          analysis: `Product analysis for ${productTitle}`,
+          bestImageUrl: productImages && productImages.length > 0 ? productImages[0] : null,
+          imageSelectionReason: "Selected first image as fallback due to AI analysis failure",
+          styles: {
+            studio: `Use the provided image as the exact product reference. Keep the product identical — same structure, material, color, and geometry. Place the product centered on a white-to-light gray seamless background under soft balanced studio lighting. Emphasize realistic highlights and reflections for a premium look. photorealistic, commercial eCommerce ready.`,
+            lifestyle: `Use the provided image as the exact product reference. Keep the product identical — same structure, material, and proportions. Remove current background and place the product in a natural lifestyle setting with appropriate props and natural lighting. photorealistic, commercial-ready.`,
+            infographic: `Use the provided image as the exact product reference. Keep product identical in color, shape, and design. Center the product on a clean light background with soft shadow. Add minimalist infographic text and icons around it. Use clean typography and subtle design elements.`,
+            ugc: `Use the provided image as the exact product reference. Keep the product unchanged. Place it naturally in a user context with authentic lighting and slightly imperfect framing like a genuine smartphone photo. Emphasize authenticity and natural tones.`,
+            closeup: `Use the provided image as the exact product reference. Keep same texture, structure, and details. Zoom closely on key features to show craftsmanship and quality. Light source angled to reveal natural reflections and depth. photorealistic macro lens look.`,
+            motion: `Use the provided image as the exact product reference. Keep the product identical. Create a 360° rotating animation on a soft reflective base with smooth transitions and accurate perspective. Maintain consistent lighting and reflections across all frames.`
+          },
+          tech_settings: {
+            img2img_strength: 0.3,
+            cfg_scale: 9,
+            lighting: "natural daylight or balanced studio light",
+            style: "photorealistic commercial product photography"
+          }
+        }
+      });
+    }
+
+  } catch (error: any) {
+    console.error('❌ Error in generate-image:', error.message);
+    console.error('❌ Error details:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        headers: error.config?.headers
+      }
+    });
+    
+    res.status(500).json({ 
+      error: 'Failed to generate image prompts',
+      message: error.message,
+      details: error.response?.data || 'No additional details'
+    });
+  }
+});
+
+// 🎨 API: POST /api/product-optimize/generate-image-result
+// 🎯 Mục tiêu: Step 2 - Sử dụng prompt từ Step 1 để tạo ra hình ảnh mới bằng AI
+// Validate request API
+router.post('/validate-image-request', async (req, res) => {
+  try {
+    const { productTitle, productImages, productDescription } = req.body;
+    
+    console.log('🔍 Validating Image Request');
+    console.log('📥 Request Size:', JSON.stringify(req.body).length, 'bytes');
+    console.log('📥 Request Details:', {
+      productTitle: productTitle?.length || 0,
+      productImages: productImages?.length || 0,
+      productDescription: productDescription?.length || 0,
+      totalSize: JSON.stringify(req.body).length
+    });
+    
+    // Check request size
+    const requestSize = JSON.stringify(req.body).length;
+    if (requestSize > 50000) { // 50KB limit
+      return res.status(400).json({
+        error: 'Request too large',
+        message: `Request size ${requestSize} bytes exceeds 50KB limit`,
+        suggestion: 'Reduce productDescription length or number of images'
+      });
+    }
+    
+    // Check required fields
+    if (!productTitle || !productImages || !Array.isArray(productImages) || productImages.length === 0) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        message: 'productTitle and productImages (at least one image URL) are required'
+      });
+    }
+    
+    // Check image URLs
+    const invalidImages = productImages.filter(url => !url || typeof url !== 'string' || !url.startsWith('http'));
+    if (invalidImages.length > 0) {
+      return res.status(400).json({
+        error: 'Invalid image URLs',
+        message: 'All image URLs must be valid HTTP/HTTPS URLs',
+        invalidImages: invalidImages.length
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Request validation passed',
+      details: {
+        requestSize: `${requestSize} bytes`,
+        imageCount: productImages.length,
+        titleLength: productTitle.length,
+        descriptionLength: productDescription?.length || 0
+      }
+    });
+    
+  } catch (error: any) {
+    console.error('Error in validate-image-request:', error.message);
+    res.status(500).json({ 
+      error: 'Validation failed',
+      message: error.message 
+    });
+  }
+});
+
+// Quick test API for debugging
+router.post('/generate-image-quick', async (req, res) => {
+  try {
+    const { productTitle, productImages } = req.body;
+    
+    console.log('🚀 Quick Image Generation - Product:', productTitle);
+    console.log('📥 Quick Request:', { productTitle, imageCount: productImages?.length || 0 });
+    
+    // Simple fallback response
+    const response = {
+      success: true,
+      data: {
+        product: productTitle,
+        analysis: `Quick analysis for ${productTitle}`,
+        bestImageUrl: productImages && productImages.length > 0 ? productImages[0] : null,
+        imageSelectionReason: "Quick selection - first image",
+        styles: {
+          studio: "Studio prompt for " + productTitle,
+          lifestyle: "Lifestyle prompt for " + productTitle,
+          infographic: "Infographic prompt for " + productTitle,
+          ugc: "UGC prompt for " + productTitle,
+          closeup: "Closeup prompt for " + productTitle,
+          motion: "Motion prompt for " + productTitle
+        },
+        tech_settings: {
+          img2img_strength: 0.3,
+          cfg_scale: 9,
+          lighting: "natural daylight or balanced studio light",
+          style: "photorealistic commercial product photography"
+        }
+      }
+    };
+    
+    console.log('📤 Quick Response:', { success: response.success, product: response.data.product });
+    res.json(response);
+    
+  } catch (error: any) {
+    console.error('Error in generate-image-quick:', error.message);
+    res.status(500).json({ 
+      error: 'Failed to generate quick image prompts',
+      message: error.message 
+    });
+  }
+});
+
+router.post('/generate-image-result', async (req, res) => {
+  try {
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    
+    const { 
+      prompt,
+      originalImageUrl,
+      style = 'studio', // studio, lifestyle, infographic, ugc, closeup, motion
+      techSettings = {
+        img2img_strength: 0.3,
+        cfg_scale: 9,
+        lighting: "natural daylight or balanced studio light",
+        style: "photorealistic commercial product photography"
+      }
+    } = req.body;
+
+    console.log('🎨 Image Generation Result - Style:', style);
+    console.log('📥 Request Body:', JSON.stringify({
+      prompt: prompt?.substring(0, 100) + '...',
+      originalImageUrl,
+      style,
+      techSettings
+    }, null, 2));
+
+    // Validate required fields
+    if (!prompt || !originalImageUrl) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: prompt and originalImageUrl' 
+      });
+    }
+
+    // Validate style
+    const validStyles = ['studio', 'lifestyle', 'infographic', 'ugc', 'closeup', 'motion'];
+    if (!validStyles.includes(style)) {
+      return res.status(400).json({ 
+        error: `Invalid style. Must be one of: ${validStyles.join(', ')}` 
+      });
+    }
+
+    // Prepare message content with image and prompt for Gemini
+    const messageContent: any[] = [
+      {
+        type: 'text',
+        text: `Create a professional e-commerce product photo. Use the provided image as reference and create a new image following this style: ${prompt}. Generate a high-quality, photorealistic result that looks authentic and appealing.`
+      },
+      {
+        type: 'image_url',
+        image_url: {
+          url: originalImageUrl
+        }
+      }
+    ];
+
+    // Call Gemini 2.5 Flash Image API for image generation
+    console.log('🤖 Calling Gemini 2.5 Flash Image for image generation...');
+    console.log('📊 AI Request Details:', {
+      model: 'google/gemini-2.5-flash-image',
+      messageCount: messageContent.length,
+      promptLength: prompt.length,
+      originalImageUrl,
+      style,
+      maxTokens: 4096,
+      temperature: 0.7
+    });
+    
+    const response = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
+        model: 'google/gemini-2.5-flash-image-preview',
+        messages: [
+          {
+            role: 'user',
+            content: messageContent
+          }
+        ],
+        max_tokens: 4096,
+        temperature: 0.7
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${openRouterApiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'http://localhost:3000',
+          'X-Title': 'Product Image Generator',
+        },
+        timeout: 120000 // 2 minutes
+      }
+    );
+
+    const apiResult = response.data;
+    console.log('✅ Image generated successfully');
+    console.log('📌 Style:', style);
+    console.log('📸 API Response:', JSON.stringify(apiResult, null, 2));
+    
+    // Extract the generated image URL from Gemini 2.5 Flash Image Preview response
+    let generatedImageUrl = null;
+    
+    console.log('🔍 Analyzing OpenRouter response structure...');
+    console.log('Result choices:', apiResult.choices);
+    
+    if (apiResult.choices && apiResult.choices[0] && apiResult.choices[0].message) {
+      const content = apiResult.choices[0].message.content;
+      console.log('Message content type:', typeof content);
+      console.log('Message content:', content);
+      
+      // Check if content is an array (multimodal response)
+      if (Array.isArray(content)) {
+        console.log('Content is array, looking for image_url...');
+        const imageContent = content.find((item: any) => item.type === 'image_url');
+        if (imageContent && imageContent.image_url) {
+          generatedImageUrl = imageContent.image_url.url;
+          console.log('Found image URL in array:', generatedImageUrl);
+        }
+      }
+      // Check if content is a string with URL or base64 data
+      else if (typeof content === 'string') {
+        console.log('Content is string, looking for URLs or base64 data...');
+        console.log('Content length:', content.length);
+        console.log('Content preview:', content.substring(0, 200) + '...');
+        
+        // Check for HTTP URLs first
+        if (content.includes('http')) {
+          const urlMatch = content.match(/https?:\/\/[^\s]+\.(jpg|jpeg|png|webp|gif)/i);
+          if (urlMatch) {
+            generatedImageUrl = urlMatch[0];
+            console.log('Found image URL in string:', generatedImageUrl);
+          }
+        }
+        
+        // Check for base64 data URLs - look for the pattern more carefully
+        if (!generatedImageUrl && content.includes('data:image/')) {
+          console.log('Found data:image/ in content, searching for base64...');
+          const base64Match = content.match(/data:image\/[^;]+;base64,[A-Za-z0-9+/=]+/);
+          if (base64Match) {
+            generatedImageUrl = base64Match[0];
+            console.log('Found base64 data URL in string:', generatedImageUrl.substring(0, 100) + '...');
+          } else {
+            console.log('No base64 match found, trying alternative pattern...');
+            // Try a more flexible pattern
+            const altMatch = content.match(/data:image\/[^;]+;base64,[A-Za-z0-9+/=]+/g);
+            if (altMatch && altMatch.length > 0) {
+              generatedImageUrl = altMatch[0];
+              console.log('Found base64 with alternative pattern:', generatedImageUrl.substring(0, 100) + '...');
+            }
+          }
+        }
+        
+        // If still no match, check if the entire content is a base64 string
+        if (!generatedImageUrl && content.length > 1000 && /^[A-Za-z0-9+/=]+$/.test(content.trim())) {
+          console.log('Content appears to be pure base64, converting to data URL...');
+          generatedImageUrl = `data:image/jpeg;base64,${content}`;
+          console.log('Created data URL from pure base64');
+        }
+      }
+      // Check if content is an object with image_url
+      else if (content && typeof content === 'object' && (content as any).image_url) {
+        generatedImageUrl = (content as any).image_url.url;
+        console.log('Found image URL in object:', generatedImageUrl);
+      }
+    }
+    
+    // Check if there are any other possible image sources in the response
+    if (!generatedImageUrl) {
+      console.log('🔍 Checking for alternative image sources...');
+      console.log('Full response structure:', JSON.stringify(apiResult, null, 2));
+      
+      // Check if there's a data field with images
+      if (apiResult.data && Array.isArray(apiResult.data)) {
+        const imageData = apiResult.data.find((item: any) => item.url);
+        if (imageData) {
+          generatedImageUrl = imageData.url;
+          console.log('Found image URL in data array:', generatedImageUrl);
+        }
+      }
+      
+      // Check the entire response string for base64 data URLs
+      if (!generatedImageUrl) {
+        const responseString = JSON.stringify(apiResult);
+        const base64Match = responseString.match(/data:image\/[^;]+;base64,[A-Za-z0-9+/=]+/);
+        if (base64Match) {
+          generatedImageUrl = base64Match[0];
+          console.log('Found base64 data URL in full response:', generatedImageUrl.substring(0, 100) + '...');
+        }
+      }
+    }
+    
+    // Fallback to original image if no image URL found
+    if (!generatedImageUrl) {
+      console.log('❌ No image URL found in response, using original image');
+      console.log('Response content:', apiResult.choices?.[0]?.message?.content);
+      console.log('This means the AI model did not generate an image, only returned text description');
+      generatedImageUrl = originalImageUrl;
+    } else {
+      console.log('✅ Generated image URL found:', generatedImageUrl);
+    }
+    
+    const responseData = {
+      success: true,
+      data: {
+        generatedImage: generatedImageUrl,
+        style: style,
+        originalImageUrl: originalImageUrl,
+        prompt: prompt,
+        techSettings: techSettings,
+        timestamp: new Date().toISOString(),
+        note: generatedImageUrl === originalImageUrl ? "AI image generation not supported via OpenRouter, returning original image" : "Image generated successfully"
+      }
+    };
+    
+    console.log('📤 Response:', JSON.stringify({
+      success: responseData.success,
+      style: responseData.data.style,
+      generatedImageLength: responseData.data.generatedImage?.length || 0,
+      originalImageUrl: responseData.data.originalImageUrl,
+      timestamp: responseData.data.timestamp,
+      note: responseData.data.note
+    }, null, 2));
+    
+    res.json(responseData);
+
+  } catch (error: any) {
+    console.error('Error in generate-image-result:', error.message);
+    res.status(500).json({ 
+      error: 'Failed to generate image result',
       message: error.message 
     });
   }

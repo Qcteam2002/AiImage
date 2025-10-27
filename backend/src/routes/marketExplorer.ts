@@ -755,6 +755,17 @@ async function analyzeMarketExplorer(marketExplorer: any) {
     console.log('✅ [MarketExplorer] Response status:', response.status);
     console.log('✅ [MarketExplorer] Response data keys:', Object.keys(response.data));
     
+    // Validate API response structure
+    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
+      console.error('❌ [MarketExplorer] Invalid API response structure:', JSON.stringify(response.data, null, 2));
+      throw new Error('Invalid API response: missing choices array');
+    }
+
+    if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
+      console.error('❌ [MarketExplorer] Invalid message structure:', JSON.stringify(response.data.choices[0], null, 2));
+      throw new Error('Invalid API response: missing message content');
+    }
+    
     const analysisResult = response.data.choices[0].message.content;
     console.log('✅ [MarketExplorer] Analysis result length:', analysisResult?.length);
     
