@@ -2358,8 +2358,9 @@ Nội dung cần phải kể một câu chuyện, khơi gợi cảm xúc và thu
 - **Loại giọng văn (Tone Type):** ${toneType}
 - **Hướng dẫn giọng văn (Voice Guideline):** ${voiceGuideline}
 - **Văn phong:** Sử dụng câu ngắn, gạch đầu dòng để dễ đọc
-- **Icons:** KHÔNG dùng emoji - Dùng SVG icons như trong template
-- **Font:** KHÔNG dùng font-family hoặc font-size - Chỉ dùng thẻ HTML semantic
+- **Icons:** KHÔNG dùng emoji - Dùng SVG icons sạch (no inline style)
+- **HTML SẠCH:** KHÔNG dùng style="..." trừ thẻ <img>
+- **Font:** Theme sẽ tự động style - Chỉ dùng thẻ semantic (<h2>, <h3>, <h4>, <strong>)
 - **Tránh dùng từ ngữ kỹ thuật phức tạp** - Tập trung vào LỢI ÍCH thay vì TÍNH NĂNG
 - **Không được:** Viết chung chung, sáo rỗng. Phải cá nhân hóa cho đúng persona "${personaName}"
 - **Ngôn ngữ:** ${language === 'vi-VN' ? 'Tiếng Việt' : 'English'}
@@ -2370,37 +2371,49 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
 {
   "title": "Tiêu đề mới cực kỳ hấp dẫn (50-80 ký tự)",
   "description": "<div class='product-description'>
-    <!-- Hero Section: Luôn hiển thị đầu tiên -->
+    <!-- Hero Section -->
     <div class='hero-section'>
       <h2>Tiêu đề chính đánh vào kết quả</h2>
       <p class='hook'>Câu chuyện hoặc câu hỏi chạm vào nỗi đau</p>
-      <img src='URL_HÌNH_ẢNH_HERO' alt='Product hero image' style='max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0;' />
+      <img src='URL_HÌNH_ẢNH_HERO' alt='Product hero image' style='max-width: 100%; height: auto;' />
     </div>
     
-    <!-- Benefits Section: Dùng SVG Icons -->
+    <!-- Benefits Section -->
     <div class='benefits-section'>
       <h3>Tại Sao Bạn Sẽ Yêu Thích Sản Phẩm Này?</h3>
       <ul class='benefits-list'>
-        <li>
-          <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' style='display: inline-block; vertical-align: middle; margin-right: 8px;'>
-            <path d='M20 6L9 17l-5-5'/>
-          </svg>
-          <strong>Lợi ích chính 1:</strong> Mô tả chi tiết lợi ích, không phải tính năng. Ví dụ: \"Mua Sắm An Tâm, Không Cảm Thấy Có Lỗi\" thay vì \"Minh Bạch Tuyệt Đối\"
+        <li class='benefit-item'>
+          <span class='benefit-icon'>
+            <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'>
+              <path d='M20 6L9 17l-5-5'/>
+            </svg>
+          </span>
+          <span class='benefit-text'>
+            <strong>Lợi ích chính 1:</strong> Mô tả chi tiết lợi ích, không phải tính năng. Ví dụ: \"Mua Sắm An Tâm, Không Cảm Thấy Có Lỗi\" thay vì \"Minh Bạch Tuyệt Đối\"
+          </span>
         </li>
-        <li>
-          <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' style='display: inline-block; vertical-align: middle; margin-right: 8px;'>
-            <path d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z'/>
-          </svg>
-          <strong>Lợi ích chính 2:</strong> Tập trung vào kết quả người dùng nhận được. Ví dụ: \"Đầu Tư Một Lần, Mặc Bền Bỉ Nhiều Năm\" thay vì \"Được Thiết Kế Để Tồn Tại\"
+        <li class='benefit-item'>
+          <span class='benefit-icon'>
+            <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'>
+              <path d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z'/>
+            </svg>
+          </span>
+          <span class='benefit-text'>
+            <strong>Lợi ích chính 2:</strong> Tập trung vào kết quả người dùng nhận được. Ví dụ: \"Đầu Tư Một Lần, Mặc Bền Bỉ Nhiều Năm\" thay vì \"Được Thiết Kế Để Tồn Tại\"
+          </span>
         </li>
-        <li>
-          <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' style='display: inline-block; vertical-align: middle; margin-right: 8px;'>
-            <path d='M12 2v20M2 12h20'/>
-          </svg>
-          <strong>Lợi ích chính 3:</strong> Nhấn mạnh sự chuyển đổi và cảm xúc tích cực
+        <li class='benefit-item'>
+          <span class='benefit-icon'>
+            <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'>
+              <path d='M12 2v20M2 12h20'/>
+            </svg>
+          </span>
+          <span class='benefit-text'>
+            <strong>Lợi ích chính 3:</strong> Nhấn mạnh sự chuyển đổi và cảm xúc tích cực
+          </span>
         </li>
       </ul>
-      <img src='URL_HÌNH_ẢNH_BENEFITS' alt='Product benefits' style='max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0;' />
+      <img src='URL_HÌNH_ẢNH_BENEFITS' alt='Product benefits' style='max-width: 100%; height: auto;' />
     </div>
     
     <!-- Transformation Section -->
@@ -2408,65 +2421,90 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
       <h3>Kết Quả Bạn Sẽ Đạt Được</h3>
       <p>Mô tả sự chuyển đổi (transformation) - nhấn mạnh phong cách và tính đa dụng</p>
       <p><strong>Hoàn hảo cho:</strong> [Nhóm người cụ thể] <strong>cần [sản phẩm] hoàn hảo, dễ dàng [tính năng đa dụng]</strong>, [nhóm người khác]...</p>
-      <img src='URL_HÌNH_ẢNH_LIFESTYLE' alt='Product in use' style='max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0;' />
+      <img src='URL_HÌNH_ẢNH_LIFESTYLE' alt='Product in use' style='max-width: 100%; height: auto;' />
     </div>
     
-    <!-- Specs Section: Dạng Accordion -->
-    <div class='specs-section' style='margin: 20px 0;'>
-      <details style='border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 10px;'>
-        <summary style='cursor: pointer; font-weight: bold; font-size: 1.1em;'>
-          <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' style='display: inline-block; vertical-align: middle; margin-right: 8px;'>
-            <path d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'/>
-          </svg>
-          Đặc Điểm Nổi Bật
+    <!-- Specs Section: Accordion -->
+    <div class='specs-section'>
+      <h3>Thông Tin Chi Tiết</h3>
+      <details class='specs-accordion'>
+        <summary>
+          <h4>
+            <span class='icon'>
+              <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'>
+                <path d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'/>
+              </svg>
+            </span>
+            Đặc Điểm Nổi Bật
+          </h4>
         </summary>
-        <ul style='margin-top: 15px; padding-left: 20px;'>
-          <li><strong>Chất liệu:</strong> [Trích xuất từ mô tả hoặc hình ảnh - VD: Cotton chải kỹ mềm mại, Thép không gỉ 316, Da thật cao cấp...]</li>
-          <li><strong>Thiết kế:</strong> [Trích xuất từ mô tả hoặc hình ảnh - VD: Cổ tròn basic, Khóa kéo kim loại bền chắc, Pattern hoa văn tinh tế...]</li>
-          <li><strong>Màu sắc:</strong> [Trích xuất từ hình ảnh - VD: Navy xanh đậm, Hồng pastel nhẹ nhàng, Vàng gold sang trọng...]</li>
-          <li><strong>Phù hợp với:</strong> [Suy ra từ Persona và sản phẩm - VD: Dạo phố, Công sở, Du lịch, Thể thao...]</li>
-          <li><strong>Lưu ý:</strong> [Suy ra từ mô tả hoặc là một đặc tính chung - VD: Giặt máy an toàn, Không phai màu, Dễ dàng bảo quản...]</li>
-        </ul>
+        <div class='specs-content'>
+          <ul>
+            <li><strong>Chất liệu:</strong> [Trích xuất từ mô tả hoặc hình ảnh - VD: Cotton chải kỹ mềm mại, Thép không gỉ 316, Da thật cao cấp...]</li>
+            <li><strong>Thiết kế:</strong> [Trích xuất từ mô tả hoặc hình ảnh - VD: Cổ tròn basic, Khóa kéo kim loại bền chắc, Pattern hoa văn tinh tế...]</li>
+            <li><strong>Màu sắc:</strong> [Trích xuất từ hình ảnh - VD: Navy xanh đậm, Hồng pastel nhẹ nhàng, Vàng gold sang trọng...]</li>
+            <li><strong>Phù hợp với:</strong> [Suy ra từ Persona và sản phẩm - VD: Dạo phố, Công sở, Du lịch, Thể thao...]</li>
+            <li><strong>Lưu ý:</strong> [Suy ra từ mô tả hoặc là một đặc tính chung - VD: Giặt máy an toàn, Không phai màu, Dễ dàng bảo quản...]</li>
+          </ul>
+        </div>
       </details>
     </div>
     
-    <!-- FAQ Section: Collapsible với <details> -->
-    <div class='faq-section' style='margin: 20px 0;'>
-      <h4>Những Câu Hỏi Thường Gặp</h4>
+    <!-- FAQ Section -->
+    <div class='faq-section'>
+      <h3>Những Câu Hỏi Thường Gặp</h3>
       
-      <details style='border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 10px;'>
-        <summary style='cursor: pointer; font-weight: bold;'>
-          <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' style='display: inline-block; vertical-align: middle; margin-right: 8px;'>
-            <circle cx='12' cy='12' r='10'/><path d='M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3'/><line x1='12' y1='17' x2='12.01' y2='17'/>
-          </svg>
-          [Câu hỏi 1 suy ra từ Pain Point - VD: Sản phẩm này có bền không? / Có phù hợp với tôi không?]
+      <details class='faq-item'>
+        <summary>
+          <h4>
+            <span class='icon'>
+              <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'>
+                <circle cx='12' cy='12' r='10'/><path d='M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3'/><line x1='12' y1='17' x2='12.01' y2='17'/>
+              </svg>
+            </span>
+            [Câu hỏi 1 suy ra từ Pain Point - VD: Sản phẩm này có bền không? / Có phù hợp với tôi không?]
+          </h4>
         </summary>
-        <p style='margin-top: 10px; padding-left: 26px;'>[Câu trả lời dựa trên lợi ích sản phẩm và thông tin thực tế từ hình ảnh]</p>
+        <div class='faq-answer'>
+          <p>[Câu trả lời dựa trên lợi ích sản phẩm và thông tin thực tế từ hình ảnh]</p>
+        </div>
       </details>
       
-      <details style='border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 10px;'>
-        <summary style='cursor: pointer; font-weight: bold;'>
-          <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' style='display: inline-block; vertical-align: middle; margin-right: 8px;'>
-            <circle cx='12' cy='12' r='10'/><path d='M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3'/><line x1='12' y1='17' x2='12.01' y2='17'/>
-          </svg>
-          [Câu hỏi 2 suy ra từ thắc mắc tiềm ẩn - VD: Có dễ phối đồ không? / Giặt như thế nào?]
+      <details class='faq-item'>
+        <summary>
+          <h4>
+            <span class='icon'>
+              <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'>
+                <circle cx='12' cy='12' r='10'/><path d='M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3'/><line x1='12' y1='17' x2='12.01' y2='17'/>
+              </svg>
+            </span>
+            [Câu hỏi 2 suy ra từ thắc mắc tiềm ẩn - VD: Có dễ phối đồ không? / Giặt như thế nào?]
+          </h4>
         </summary>
-        <p style='margin-top: 10px; padding-left: 26px;'>[Câu trả lời dựa trên đặc điểm sản phẩm và productBenefits]</p>
+        <div class='faq-answer'>
+          <p>[Câu trả lời dựa trên đặc điểm sản phẩm và productBenefits]</p>
+        </div>
       </details>
       
-      <details style='border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 10px;'>
-        <summary style='cursor: pointer; font-weight: bold;'>
-          <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' style='display: inline-block; vertical-align: middle; margin-right: 8px;'>
-            <circle cx='12' cy='12' r='10'/><path d='M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3'/><line x1='12' y1='17' x2='12.01' y2='17'/>
-          </svg>
-          [Câu hỏi 3 về giá trị - VD: Có đáng đầu tư không? / Khác gì sản phẩm khác?]
+      <details class='faq-item'>
+        <summary>
+          <h4>
+            <span class='icon'>
+              <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'>
+                <circle cx='12' cy='12' r='10'/><path d='M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3'/><line x1='12' y1='17' x2='12.01' y2='17'/>
+              </svg>
+            </span>
+            [Câu hỏi 3 về giá trị - VD: Có đáng đầu tư không? / Khác gì sản phẩm khác?]
+          </h4>
         </summary>
-        <p style='margin-top: 10px; padding-left: 26px;'>[Câu trả lời nhấn mạnh giá trị độc đáo và transformation]</p>
+        <div class='faq-answer'>
+          <p>[Câu trả lời nhấn mạnh giá trị độc đáo và transformation]</p>
+        </div>
       </details>
     </div>
     
     <!-- CTA Section -->
-    <div class='cta-section' style='text-align: center; margin-top: 30px; padding: 20px; background: #f9f9f9; border-radius: 8px;'>
+    <div class='cta-section'>
       <p class='cta'><strong>[Lời kêu gọi hành động mạnh mẽ]</strong></p>
     </div>
   </div>"
@@ -2479,11 +2517,26 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
 - SVG icons PHẢI có stroke='currentColor' để kế thừa màu từ theme
 - PHẢI tập trung vào EMOTION và TRANSFORMATION
 - KHÔNG viết chung chung - cá nhân hóa cho persona "${personaName}"
-- **CHUẨN HÓA FONT:**
-  * KHÔNG ĐƯỢC dùng font-family hoặc font-size trong CSS
-  * Chỉ dùng các thẻ HTML semantic: <h2>, <h3>, <h4>, <strong>, <em>
-  * Để theme Shopify tự động áp dụng font của họ
-  * Đây là cách làm CHUẨN và CHUYÊN NGHIỆP nhất
+
+**QUY TẮC VÀNG VỀ HTML & CSS:**
+1. **CẤM TUYỆT ĐỐI** sử dụng thuộc tính style="..." cho bất kỳ thẻ nào NGOẠI TRỪ thẻ <img>
+   - Thẻ <img> CHỈ được có: style='max-width: 100%; height: auto;'
+   - Tất cả định dạng khác phải kế thừa từ theme Shopify
+2. **CẤU TRÚC ACCORDION:**
+   - Dùng <details> và <summary>
+   - Bên trong <summary> PHẢI có thẻ <h4> chứa icon và tiêu đề
+   - Icon SVG bọc trong <span class='icon'>
+   - Content bên trong <details> bọc trong <div class='specs-content'> hoặc <div class='faq-answer'>
+3. **CẤU TRÚC BENEFITS LIST:**
+   - Mỗi <li> phải có class='benefit-item'
+   - Icon SVG bọc trong <span class='benefit-icon'>
+   - Nội dung bọc trong <span class='benefit-text'>
+4. **SVG ICONS SẠCH:**
+   - KHÔNG có thuộc tính style
+   - Chỉ có: width, height, viewBox, fill, stroke, stroke-width, aria-hidden='true'
+5. **NHẤT QUÁN TIÊU ĐỀ:**
+   - Tất cả section headers dùng <h3>
+   - Accordion headers dùng <h4> bên trong <summary>
 
 **QUY TẮC VIẾT SPECS (ĐẶC ĐIỂM NỔI BẬT):**
 - Mỗi item phải dựa trên SỰ THẬT từ mô tả hoặc hình ảnh
@@ -2505,6 +2558,7 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
 
 **QUY TẮC VỀ SVG ICONS:**
 - KHÔNG dùng emoji (✅💎🔥❓📋🌟✨🚀) - Dùng SVG icons
+- **KHÔNG có thuộc tính style trong SVG** - Để theme control
 - SVG cho Benefits (3 icons):
   * Icon 1: Checkmark - <path d='M20 6L9 17l-5-5'/>
   * Icon 2: Star - <path d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z'/>
@@ -2513,15 +2567,16 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
   * Clipboard icon - <path d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'/>
 - SVG cho FAQ items:
   * Help Circle icon - <circle cx='12' cy='12' r='10'/><path d='M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3'/><line x1='12' y1='17' x2='12.01' y2='17'/>
-- Tất cả SVG PHẢI có: width='18-20' height='18-20' stroke='currentColor' stroke-width='2'
-- SVG style PHẢI có: display: inline-block; vertical-align: middle; margin-right: 8px;
+- Tất cả SVG PHẢI có: width='24' height='24' stroke='currentColor' stroke-width='2' aria-hidden='true'
+- SVG PHẢI bọc trong <span class='benefit-icon'> hoặc <span class='icon'>
 
 **QUY TẮC VỀ COLLAPSIBLE SECTIONS:**
 - Specs và FAQ PHẢI dùng thẻ <details> và <summary>
-- Mỗi <details> phải có style: border, border-radius, padding, margin-bottom
-- <summary> phải có: cursor: pointer, font-weight: bold
-- Nội dung bên trong <details> phải có margin-top và padding-left phù hợp
+- **KHÔNG có thuộc tính style** trong <details>, <summary>, hoặc bất kỳ thẻ con nào
+- <summary> PHẢI chứa <h4> với icon và tiêu đề
+- Nội dung PHẢI bọc trong <div class='specs-content'> hoặc <div class='faq-answer'>
 - Đây là HTML5 semantic, không cần Javascript, tốt cho SEO
+- Theme sẽ tự động style cursor, font, spacing, borders
 
 **QUY TẮC VIẾT GẠCH ĐẦU DÒNG (BENEFITS):**
 - Phần in đậm PHẢI là LỢI ÍCH, không phải tính năng
