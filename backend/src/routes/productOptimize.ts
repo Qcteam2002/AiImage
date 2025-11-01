@@ -2459,24 +2459,32 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
       </figure>
     </section>
     
-    <!-- 5. FAQ: Accordion Style -->
+    <!-- 5. FAQ: Professional Q&A Format -->
     <section class='faq'>
       <h2>Câu Hỏi Thường Gặp</h2>
       
-      <details>
-        <summary>Câu hỏi 1 từ primary pain point?</summary>
-        <p>Câu trả lời chi tiết, dựa trên facts và benefits. 2-3 câu.</p>
-      </details>
-      
-      <details>
-        <summary>Câu hỏi 2 về practical concerns?</summary>
-        <p>Câu trả lời addressing concern, building trust.</p>
-      </details>
-      
-      <details>
-        <summary>Câu hỏi 3 về value proposition?</summary>
-        <p>Câu trả lời về unique value, differentiation.</p>
-      </details>
+      <div class='faq-list'>
+        <div class='faq-item'>
+          <h3 class='faq-question'>Câu hỏi 1 từ primary pain point?</h3>
+          <div class='faq-answer'>
+            <p>Câu trả lời chi tiết, dựa trên facts và benefits. 2-3 câu.</p>
+          </div>
+        </div>
+        
+        <div class='faq-item'>
+          <h3 class='faq-question'>Câu hỏi 2 về practical concerns?</h3>
+          <div class='faq-answer'>
+            <p>Câu trả lời addressing concern, building trust.</p>
+          </div>
+        </div>
+        
+        <div class='faq-item'>
+          <h3 class='faq-question'>Câu hỏi 3 về value proposition?</h3>
+          <div class='faq-answer'>
+            <p>Câu trả lời về unique value, differentiation.</p>
+          </div>
+        </div>
+      </div>
     </section>
     
     <!-- 6. Final CTA -->
@@ -2492,7 +2500,7 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
 - PHẢI có đầy đủ 6 sections: header (hero), benefits, specifications (table), use-case, faq, footer (cta)
 - Benefits dùng <dl> (definition list) với <dt> (term) và <dd> (description) - cấu trúc card-based
 - Table dùng <th> cho headers, <td> cho values - clean & scannable
-- FAQ đơn giản: <details> + <summary> (text only, no icons)
+- FAQ format: <div class='faq-list'> với <div class='faq-item'>, <h3 class='faq-question'>, <div class='faq-answer'>
 - Images wrap trong <figure> tag (semantic)
 
 **QUY TẮC VÀNG VỀ HTML & CSS:**
@@ -2505,10 +2513,12 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
 4. **TABLE:** Clean <table> với <th> và <td>, NO wrapper divs
    - <th> cho label column (bold)
    - <td> cho value column
-5. **FAQ:** Simple <details> + <summary> (text only)
-   - Summary chỉ có plain text question
-   - Answer trong <p> tag
-6. **HIERARCHY:** <h1> cho hero title, <h2> cho section titles
+5. **FAQ:** Professional Q&A format (NO <details>, NO accordion)
+   - Structure: <div class='faq-list'> → <div class='faq-item'> → <h3 class='faq-question'> + <div class='faq-answer'><p>
+   - Questions dùng <h3 class='faq-question'>
+   - Answers trong <div class='faq-answer'><p>
+   - Theme sẽ style đẹp với borders, spacing, colors
+6. **HIERARCHY:** <h1> cho hero title, <h2> cho section titles, <h3> cho FAQ questions
 
 **QUY TẮC VIẾT CONTENT:**
 - **Specs Table:** Trích xuất thông tin thật từ mô tả/hình ảnh
@@ -2562,7 +2572,7 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: "google/gemini-2.5-flash-preview-09-2025",//'x-ai/grok-4-fast',
+        model: "x-ai/grok-4-fast",//"google/gemini-2.5-flash-preview-09-2025",//'x-ai/grok-4-fast',
         messages: [
           {
             role: 'user',
