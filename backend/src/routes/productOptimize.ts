@@ -2384,7 +2384,7 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
       <ul class='benefits-list'>
         <li class='benefit-item'>
           <span class='benefit-icon'>
-            <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'>
+            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' opacity='0.5' aria-hidden='true'>
               <path d='M20 6L9 17l-5-5'/>
             </svg>
           </span>
@@ -2394,7 +2394,7 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
         </li>
         <li class='benefit-item'>
           <span class='benefit-icon'>
-            <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'>
+            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' opacity='0.5' aria-hidden='true'>
               <path d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z'/>
             </svg>
           </span>
@@ -2404,7 +2404,7 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
         </li>
         <li class='benefit-item'>
           <span class='benefit-icon'>
-            <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'>
+            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' opacity='0.5' aria-hidden='true'>
               <path d='M12 2v20M2 12h20'/>
             </svg>
           </span>
@@ -2424,46 +2424,49 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
       <img src='URL_HÌNH_ẢNH_LIFESTYLE' alt='Product in use' style='max-width: 100%; height: auto;' />
     </div>
     
-    <!-- Specs Section: Accordion -->
+    <!-- Specs Section: Table Format -->
     <div class='specs-section'>
       <h3>Thông Tin Chi Tiết</h3>
       <details class='specs-accordion'>
         <summary>
-          <h4>
-            <span class='icon'>
-              <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'>
-                <path d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'/>
-              </svg>
-            </span>
-            Đặc Điểm Nổi Bật
-          </h4>
+          <h4>Đặc Điểm Nổi Bật</h4>
         </summary>
         <div class='specs-content'>
-          <ul>
-            <li><strong>Chất liệu:</strong> [Trích xuất từ mô tả hoặc hình ảnh - VD: Cotton chải kỹ mềm mại, Thép không gỉ 316, Da thật cao cấp...]</li>
-            <li><strong>Thiết kế:</strong> [Trích xuất từ mô tả hoặc hình ảnh - VD: Cổ tròn basic, Khóa kéo kim loại bền chắc, Pattern hoa văn tinh tế...]</li>
-            <li><strong>Màu sắc:</strong> [Trích xuất từ hình ảnh - VD: Navy xanh đậm, Hồng pastel nhẹ nhàng, Vàng gold sang trọng...]</li>
-            <li><strong>Phù hợp với:</strong> [Suy ra từ Persona và sản phẩm - VD: Dạo phố, Công sở, Du lịch, Thể thao...]</li>
-            <li><strong>Lưu ý:</strong> [Suy ra từ mô tả hoặc là một đặc tính chung - VD: Giặt máy an toàn, Không phai màu, Dễ dàng bảo quản...]</li>
-          </ul>
+          <table class='specs-table'>
+            <tbody>
+              <tr>
+                <td><strong>Chất liệu</strong></td>
+                <td>[Trích xuất từ mô tả hoặc hình ảnh - VD: Cotton chải kỹ mềm mại, Thép không gỉ 316, Da thật cao cấp...]</td>
+              </tr>
+              <tr>
+                <td><strong>Thiết kế</strong></td>
+                <td>[Trích xuất từ mô tả hoặc hình ảnh - VD: Cổ tròn basic, Khóa kéo kim loại bền chắc, Pattern hoa văn tinh tế...]</td>
+              </tr>
+              <tr>
+                <td><strong>Màu sắc</strong></td>
+                <td>[Trích xuất từ hình ảnh - VD: Navy xanh đậm, Hồng pastel nhẹ nhàng, Vàng gold sang trọng...]</td>
+              </tr>
+              <tr>
+                <td><strong>Phù hợp với</strong></td>
+                <td>[Suy ra từ Persona và sản phẩm - VD: Dạo phố, Công sở, Du lịch, Thể thao...]</td>
+              </tr>
+              <tr>
+                <td><strong>Lưu ý</strong></td>
+                <td>[Suy ra từ mô tả hoặc là một đặc tính chung - VD: Giặt máy an toàn, Không phai màu, Dễ dàng bảo quản...]</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </details>
     </div>
     
-    <!-- FAQ Section -->
+    <!-- FAQ Section: Clean & Minimal -->
     <div class='faq-section'>
       <h3>Những Câu Hỏi Thường Gặp</h3>
       
       <details class='faq-item'>
         <summary>
-          <h4>
-            <span class='icon'>
-              <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'>
-                <circle cx='12' cy='12' r='10'/><path d='M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3'/><line x1='12' y1='17' x2='12.01' y2='17'/>
-              </svg>
-            </span>
-            [Câu hỏi 1 suy ra từ Pain Point - VD: Sản phẩm này có bền không? / Có phù hợp với tôi không?]
-          </h4>
+          <h4>[Câu hỏi 1 suy ra từ Pain Point - VD: Sản phẩm này có bền không? / Có phù hợp với tôi không?]</h4>
         </summary>
         <div class='faq-answer'>
           <p>[Câu trả lời dựa trên lợi ích sản phẩm và thông tin thực tế từ hình ảnh]</p>
@@ -2472,14 +2475,7 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
       
       <details class='faq-item'>
         <summary>
-          <h4>
-            <span class='icon'>
-              <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'>
-                <circle cx='12' cy='12' r='10'/><path d='M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3'/><line x1='12' y1='17' x2='12.01' y2='17'/>
-              </svg>
-            </span>
-            [Câu hỏi 2 suy ra từ thắc mắc tiềm ẩn - VD: Có dễ phối đồ không? / Giặt như thế nào?]
-          </h4>
+          <h4>[Câu hỏi 2 suy ra từ thắc mắc tiềm ẩn - VD: Có dễ phối đồ không? / Giặt như thế nào?]</h4>
         </summary>
         <div class='faq-answer'>
           <p>[Câu trả lời dựa trên đặc điểm sản phẩm và productBenefits]</p>
@@ -2488,14 +2484,7 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
       
       <details class='faq-item'>
         <summary>
-          <h4>
-            <span class='icon'>
-              <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'>
-                <circle cx='12' cy='12' r='10'/><path d='M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3'/><line x1='12' y1='17' x2='12.01' y2='17'/>
-              </svg>
-            </span>
-            [Câu hỏi 3 về giá trị - VD: Có đáng đầu tư không? / Khác gì sản phẩm khác?]
-          </h4>
+          <h4>[Câu hỏi 3 về giá trị - VD: Có đáng đầu tư không? / Khác gì sản phẩm khác?]</h4>
         </summary>
         <div class='faq-answer'>
           <p>[Câu trả lời nhấn mạnh giá trị độc đáo và transformation]</p>
@@ -2522,21 +2511,22 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
 1. **CẤM TUYỆT ĐỐI** sử dụng thuộc tính style="..." cho bất kỳ thẻ nào NGOẠI TRỪ thẻ <img>
    - Thẻ <img> CHỈ được có: style='max-width: 100%; height: auto;'
    - Tất cả định dạng khác phải kế thừa từ theme Shopify
-2. **CẤU TRÚC ACCORDION:**
-   - Dùng <details> và <summary>
-   - Bên trong <summary> PHẢI có thẻ <h4> chứa icon và tiêu đề
-   - Icon SVG bọc trong <span class='icon'>
-   - Content bên trong <details> bọc trong <div class='specs-content'> hoặc <div class='faq-answer'>
-3. **CẤU TRÚC BENEFITS LIST:**
-   - Mỗi <li> phải có class='benefit-item'
-   - Icon SVG bọc trong <span class='benefit-icon'>
-   - Nội dung bọc trong <span class='benefit-text'>
-4. **SVG ICONS SẠCH:**
-   - KHÔNG có thuộc tính style
-   - Chỉ có: width, height, viewBox, fill, stroke, stroke-width, aria-hidden='true'
+2. **SPECS DÙNG TABLE:**
+   - PHẢI dùng <table class='specs-table'> thay vì <ul>
+   - 2 cột: Label (bold) và Value (chi tiết)
+   - Theme tự động style borders, padding, colors
+3. **FAQ CLEAN & MINIMAL:**
+   - KHÔNG có icon SVG trong FAQ <summary>
+   - Chỉ có <h4> với câu hỏi text thuần
+   - Theme tự động thêm arrow indicator
+4. **SVG ICONS - NHỎ & NHẠT:**
+   - Chỉ dùng trong Benefits list
+   - Size: width='16' height='16' (KHÔNG phải 24px)
+   - Opacity: opacity='0.5' (NHẠT MÀU)
+   - Wrap trong <span class='benefit-icon'>
 5. **NHẤT QUÁN TIÊU ĐỀ:**
    - Tất cả section headers dùng <h3>
-   - Accordion headers dùng <h4> bên trong <summary>
+   - Accordion/FAQ headers dùng <h4> bên trong <summary>
 
 **QUY TẮC VIẾT SPECS (ĐẶC ĐIỂM NỔI BẬT):**
 - Mỗi item phải dựa trên SỰ THẬT từ mô tả hoặc hình ảnh
@@ -2559,24 +2549,28 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
 **QUY TẮC VỀ SVG ICONS:**
 - KHÔNG dùng emoji (✅💎🔥❓📋🌟✨🚀) - Dùng SVG icons
 - **KHÔNG có thuộc tính style trong SVG** - Để theme control
-- SVG cho Benefits (3 icons):
+- **Icons phải NHẠT và NHỎ:** width='16' height='16' opacity='0.5'
+- SVG cho Benefits (3 icons - NHẠT MÀU, NHỎ GỌNG):
   * Icon 1: Checkmark - <path d='M20 6L9 17l-5-5'/>
   * Icon 2: Star - <path d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z'/>
   * Icon 3: Plus/Cross - <path d='M12 2v20M2 12h20'/>
-- SVG cho Specs section:
-  * Clipboard icon - <path d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'/>
-- SVG cho FAQ items:
-  * Help Circle icon - <circle cx='12' cy='12' r='10'/><path d='M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3'/><line x1='12' y1='17' x2='12.01' y2='17'/>
-- Tất cả SVG PHẢI có: width='24' height='24' stroke='currentColor' stroke-width='2' aria-hidden='true'
-- SVG PHẢI bọc trong <span class='benefit-icon'> hoặc <span class='icon'>
+- Tất cả SVG PHẢI có: width='16' height='16' stroke='currentColor' stroke-width='2' opacity='0.5' aria-hidden='true'
+- SVG PHẢI bọc trong <span class='benefit-icon'>
 
-**QUY TẮC VỀ COLLAPSIBLE SECTIONS:**
-- Specs và FAQ PHẢI dùng thẻ <details> và <summary>
-- **KHÔNG có thuộc tính style** trong <details>, <summary>, hoặc bất kỳ thẻ con nào
-- <summary> PHẢI chứa <h4> với icon và tiêu đề
-- Nội dung PHẢI bọc trong <div class='specs-content'> hoặc <div class='faq-answer'>
-- Đây là HTML5 semantic, không cần Javascript, tốt cho SEO
-- Theme sẽ tự động style cursor, font, spacing, borders
+**QUY TẮC VỀ SPECS TABLE:**
+- Specs PHẢI dùng <table class='specs-table'> thay vì <ul>
+- Format table: <tbody> với các <tr> chứa 2 <td> (label và value)
+- Cột 1: <td><strong>Label</strong></td>
+- Cột 2: <td>Value chi tiết</td>
+- Table sẽ được theme tự động style (borders, padding, colors)
+- Không cần <thead>, chỉ cần <tbody>
+
+**QUY TẮC VỀ FAQ (CLEAN & MINIMAL):**
+- FAQ KHÔNG có icon SVG trong <summary>
+- <summary> chỉ chứa <h4> với câu hỏi text thuần
+- Format: <summary><h4>Câu hỏi?</h4></summary>
+- Giao diện sạch, tập trung vào nội dung
+- Theme sẽ tự động thêm arrow indicator cho collapsible
 
 **QUY TẮC VIẾT GẠCH ĐẦU DÒNG (BENEFITS):**
 - Phần in đậm PHẢI là LỢI ÍCH, không phải tính năng
