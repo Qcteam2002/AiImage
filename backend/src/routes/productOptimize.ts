@@ -2370,238 +2370,168 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
 
 {
   "title": "Tiêu đề mới cực kỳ hấp dẫn (50-80 ký tự)",
-  "description": "<div class='product-description'>
-    <!-- Hero Section -->
-    <div class='hero-section'>
-      <h2>Tiêu đề chính đánh vào kết quả</h2>
-      <p class='hook'>Câu chuyện hoặc câu hỏi chạm vào nỗi đau</p>
-      <img src='URL_HÌNH_ẢNH_HERO' alt='Product hero image' style='max-width: 100%; height: auto;' />
-    </div>
+  "description": "<article class='product-description'>
     
-    <!-- Benefits Section -->
-    <div class='benefits-section'>
-      <h3>Tại Sao Bạn Sẽ Yêu Thích Sản Phẩm Này?</h3>
-      <ul class='benefits-list'>
-        <li class='benefit-item'>
-          <span class='benefit-icon'>
-            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' opacity='0.5' aria-hidden='true'>
+    <!-- 1. Hero Section: Compelling headline + hook -->
+    <header class='product-hero'>
+      <h1>Tiêu đề chính đánh vào kết quả - compelling & benefit-driven</h1>
+      <p class='lead'>Câu hook chạm vào pain point, tạo kết nối cảm xúc ngay lập tức</p>
+      <figure>
+        <img src='URL_HÌNH_ẢNH_HERO' alt='Product hero image' style='max-width: 100%; height: auto;' />
+      </figure>
+    </header>
+    
+    <!-- 2. Key Benefits: Visual + Concise -->
+    <section class='benefits'>
+      <h2>Tại Sao Bạn Sẽ Yêu Thích Sản Phẩm Này</h2>
+      <dl class='benefits-grid'>
+        <div class='benefit-card'>
+          <dt>
+            <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'>
               <path d='M20 6L9 17l-5-5'/>
             </svg>
-          </span>
-          <span class='benefit-text'>
-            <strong>Lợi ích chính 1:</strong> Mô tả chi tiết lợi ích, không phải tính năng. Ví dụ: \"Mua Sắm An Tâm, Không Cảm Thấy Có Lỗi\" thay vì \"Minh Bạch Tuyệt Đối\"
-          </span>
-        </li>
-        <li class='benefit-item'>
-          <span class='benefit-icon'>
-            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' opacity='0.5' aria-hidden='true'>
+            <strong>Benefit Title 1</strong>
+          </dt>
+          <dd>Chi tiết lợi ích cụ thể, không phải tính năng. Focus vào outcome/result.</dd>
+        </div>
+        
+        <div class='benefit-card'>
+          <dt>
+            <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'>
               <path d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z'/>
             </svg>
-          </span>
-          <span class='benefit-text'>
-            <strong>Lợi ích chính 2:</strong> Tập trung vào kết quả người dùng nhận được. Ví dụ: \"Đầu Tư Một Lần, Mặc Bền Bỉ Nhiều Năm\" thay vì \"Được Thiết Kế Để Tồn Tại\"
-          </span>
-        </li>
-        <li class='benefit-item'>
-          <span class='benefit-icon'>
-            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' opacity='0.5' aria-hidden='true'>
+            <strong>Benefit Title 2</strong>
+          </dt>
+          <dd>Chi tiết lợi ích thứ hai, nhấn mạnh transformation.</dd>
+        </div>
+        
+        <div class='benefit-card'>
+          <dt>
+            <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'>
               <path d='M12 2v20M2 12h20'/>
             </svg>
-          </span>
-          <span class='benefit-text'>
-            <strong>Lợi ích chính 3:</strong> Nhấn mạnh sự chuyển đổi và cảm xúc tích cực
-          </span>
-        </li>
-      </ul>
-      <img src='URL_HÌNH_ẢNH_BENEFITS' alt='Product benefits' style='max-width: 100%; height: auto;' />
-    </div>
-    
-    <!-- Transformation Section -->
-    <div class='transformation-section'>
-      <h3>Kết Quả Bạn Sẽ Đạt Được</h3>
-      <p>Mô tả sự chuyển đổi (transformation) - nhấn mạnh phong cách và tính đa dụng</p>
-      <p><strong>Hoàn hảo cho:</strong> [Nhóm người cụ thể] <strong>cần [sản phẩm] hoàn hảo, dễ dàng [tính năng đa dụng]</strong>, [nhóm người khác]...</p>
-      <img src='URL_HÌNH_ẢNH_LIFESTYLE' alt='Product in use' style='max-width: 100%; height: auto;' />
-    </div>
-    
-    <!-- Specs Section: Table Format -->
-    <div class='specs-section'>
-      <h3>Thông Tin Chi Tiết</h3>
-      <details class='specs-accordion'>
-        <summary>
-          <h4>Đặc Điểm Nổi Bật</h4>
-        </summary>
-        <div class='specs-content'>
-          <table class='specs-table'>
-            <tbody>
-              <tr>
-                <td><strong>Chất liệu</strong></td>
-                <td>[Trích xuất từ mô tả hoặc hình ảnh - VD: Cotton chải kỹ mềm mại, Thép không gỉ 316, Da thật cao cấp...]</td>
-              </tr>
-              <tr>
-                <td><strong>Thiết kế</strong></td>
-                <td>[Trích xuất từ mô tả hoặc hình ảnh - VD: Cổ tròn basic, Khóa kéo kim loại bền chắc, Pattern hoa văn tinh tế...]</td>
-              </tr>
-              <tr>
-                <td><strong>Màu sắc</strong></td>
-                <td>[Trích xuất từ hình ảnh - VD: Navy xanh đậm, Hồng pastel nhẹ nhàng, Vàng gold sang trọng...]</td>
-              </tr>
-              <tr>
-                <td><strong>Phù hợp với</strong></td>
-                <td>[Suy ra từ Persona và sản phẩm - VD: Dạo phố, Công sở, Du lịch, Thể thao...]</td>
-              </tr>
-              <tr>
-                <td><strong>Lưu ý</strong></td>
-                <td>[Suy ra từ mô tả hoặc là một đặc tính chung - VD: Giặt máy an toàn, Không phai màu, Dễ dàng bảo quản...]</td>
-              </tr>
-            </tbody>
-          </table>
+            <strong>Benefit Title 3</strong>
+          </dt>
+          <dd>Chi tiết lợi ích thứ ba, emotional connection.</dd>
         </div>
-      </details>
-    </div>
+      </dl>
+      <figure>
+        <img src='URL_HÌNH_ẢNH_BENEFITS' alt='Product benefits showcase' style='max-width: 100%; height: auto;' />
+      </figure>
+    </section>
     
-    <!-- FAQ Section: Clean & Minimal -->
-    <div class='faq-section'>
-      <h3>Những Câu Hỏi Thường Gặp</h3>
+    <!-- 3. Product Details: Clean Table -->
+    <section class='specifications'>
+      <h2>Thông Tin Sản Phẩm</h2>
+      <table>
+        <tbody>
+          <tr>
+            <th>Chất liệu</th>
+            <td>Trích xuất từ mô tả/hình ảnh - cụ thể, chi tiết</td>
+          </tr>
+          <tr>
+            <th>Thiết kế</th>
+            <td>Mô tả thiết kế cụ thể nhìn thấy từ ảnh</td>
+          </tr>
+          <tr>
+            <th>Màu sắc</th>
+            <td>Tên màu cụ thể từ hình ảnh</td>
+          </tr>
+          <tr>
+            <th>Phù hợp với</th>
+            <td>Use cases cụ thể dựa trên persona</td>
+          </tr>
+          <tr>
+            <th>Bảo quản</th>
+            <td>Hướng dẫn care instructions</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    
+    <!-- 4. Social Proof / Use Case -->
+    <section class='use-case'>
+      <h2>Ai Nên Sở Hữu Sản Phẩm Này</h2>
+      <p>Mô tả chi tiết về ideal customer, use cases, và transformation. Nhấn mạnh versatility và value.</p>
+      <figure>
+        <img src='URL_HÌNH_ẢNH_LIFESTYLE' alt='Product in use' style='max-width: 100%; height: auto;' />
+        <figcaption>Lifestyle context caption (optional)</figcaption>
+      </figure>
+    </section>
+    
+    <!-- 5. FAQ: Accordion Style -->
+    <section class='faq'>
+      <h2>Câu Hỏi Thường Gặp</h2>
       
-      <details class='faq-item'>
-        <summary>
-          <h4>[Câu hỏi 1 suy ra từ Pain Point - VD: Sản phẩm này có bền không? / Có phù hợp với tôi không?]</h4>
-        </summary>
-        <div class='faq-answer'>
-          <p>[Câu trả lời dựa trên lợi ích sản phẩm và thông tin thực tế từ hình ảnh]</p>
-        </div>
+      <details>
+        <summary>Câu hỏi 1 từ primary pain point?</summary>
+        <p>Câu trả lời chi tiết, dựa trên facts và benefits. 2-3 câu.</p>
       </details>
       
-      <details class='faq-item'>
-        <summary>
-          <h4>[Câu hỏi 2 suy ra từ thắc mắc tiềm ẩn - VD: Có dễ phối đồ không? / Giặt như thế nào?]</h4>
-        </summary>
-        <div class='faq-answer'>
-          <p>[Câu trả lời dựa trên đặc điểm sản phẩm và productBenefits]</p>
-        </div>
+      <details>
+        <summary>Câu hỏi 2 về practical concerns?</summary>
+        <p>Câu trả lời addressing concern, building trust.</p>
       </details>
       
-      <details class='faq-item'>
-        <summary>
-          <h4>[Câu hỏi 3 về giá trị - VD: Có đáng đầu tư không? / Khác gì sản phẩm khác?]</h4>
-        </summary>
-        <div class='faq-answer'>
-          <p>[Câu trả lời nhấn mạnh giá trị độc đáo và transformation]</p>
-        </div>
+      <details>
+        <summary>Câu hỏi 3 về value proposition?</summary>
+        <p>Câu trả lời về unique value, differentiation.</p>
       </details>
-    </div>
+    </section>
     
-    <!-- CTA Section -->
-    <div class='cta-section'>
-      <p class='cta'><strong>[Lời kêu gọi hành động mạnh mẽ]</strong></p>
-    </div>
-  </div>"
+    <!-- 6. Final CTA -->
+    <footer class='product-cta'>
+      <p><strong>Lời kêu gọi hành động mạnh mẽ, rõ ràng, tạo urgency</strong></p>
+    </footer>
+    
+  </article>"
 }
 
-**LƯU Ý QUAN TRỌNG:**
-- Description PHẢI là HTML format với các class như trên
-- PHẢI có đầy đủ 6 sections: hero, benefits, transformation, specs (collapsible), faq (collapsible), cta
-- KHÔNG dùng emoji (✅💎🔥) - Thay bằng SVG icons như trong template
-- SVG icons PHẢI có stroke='currentColor' để kế thừa màu từ theme
-- PHẢI tập trung vào EMOTION và TRANSFORMATION
-- KHÔNG viết chung chung - cá nhân hóa cho persona "${personaName}"
+**LƯU Ý QUAN TRỌNG - SEMANTIC HTML:**
+- Description PHẢI dùng semantic HTML5: <article>, <header>, <section>, <footer>, <figure>, <dl>, <dt>, <dd>
+- PHẢI có đầy đủ 6 sections: header (hero), benefits, specifications (table), use-case, faq, footer (cta)
+- Benefits dùng <dl> (definition list) với <dt> (term) và <dd> (description) - cấu trúc card-based
+- Table dùng <th> cho headers, <td> cho values - clean & scannable
+- FAQ đơn giản: <details> + <summary> (text only, no icons)
+- Images wrap trong <figure> tag (semantic)
 
 **QUY TẮC VÀNG VỀ HTML & CSS:**
-1. **CẤM TUYỆT ĐỐI** sử dụng thuộc tính style="..." cho bất kỳ thẻ nào NGOẠI TRỪ thẻ <img>
-   - Thẻ <img> CHỈ được có: style='max-width: 100%; height: auto;'
-   - Tất cả định dạng khác phải kế thừa từ theme Shopify
-2. **SPECS DÙNG TABLE:**
-   - PHẢI dùng <table class='specs-table'> thay vì <ul>
-   - 2 cột: Label (bold) và Value (chi tiết)
-   - Theme tự động style borders, padding, colors
-3. **FAQ CLEAN & MINIMAL:**
-   - KHÔNG có icon SVG trong FAQ <summary>
-   - Chỉ có <h4> với câu hỏi text thuần
-   - Theme tự động thêm arrow indicator
-4. **SVG ICONS - NHỎ & NHẠT:**
-   - Chỉ dùng trong Benefits list
-   - Size: width='16' height='16' (KHÔNG phải 24px)
-   - Opacity: opacity='0.5' (NHẠT MÀU)
-   - Wrap trong <span class='benefit-icon'>
-5. **NHẤT QUÁN TIÊU ĐỀ:**
-   - Tất cả section headers dùng <h3>
-   - Accordion/FAQ headers dùng <h4> bên trong <summary>
+1. **CẤM TUYỆT ĐỐI** style="..." trừ <img> (style='max-width: 100%; height: auto;')
+2. **SEMANTIC TAGS:** <article>, <header>, <section>, <footer>, <figure>, <figcaption>, <dl>, <dt>, <dd>
+3. **BENEFITS:** Dùng <dl class='benefits-grid'> với benefit-card wrappers
+   - Icon: 20px, stroke-width 1.5, opacity 0.6 (subtle)
+   - <dt> chứa icon + benefit title (bold)
+   - <dd> chứa benefit description
+4. **TABLE:** Clean <table> với <th> và <td>, NO wrapper divs
+   - <th> cho label column (bold)
+   - <td> cho value column
+5. **FAQ:** Simple <details> + <summary> (text only)
+   - Summary chỉ có plain text question
+   - Answer trong <p> tag
+6. **HIERARCHY:** <h1> cho hero title, <h2> cho section titles
 
-**QUY TẮC VIẾT SPECS (ĐẶC ĐIỂM NỔI BẬT):**
-- Mỗi item phải dựa trên SỰ THẬT từ mô tả hoặc hình ảnh
-- Chất liệu: Trích xuất từ hình ảnh (cotton, linen, polyester, thép, da...) + mô tả cụ thể (mềm mại, bóng gương, thấm hút...)
-- Thiết kế: Mô tả chi tiết nhìn thấy được (cổ tròn, khóa kéo, pattern, logo...)
-- Màu sắc: Tên màu cụ thể từ ảnh (không viết "nhiều màu" mà phải "Navy xanh đậm, Hồng pastel, Be trung tính...")
-- Phù hợp với: Dựa trên persona profile và context sử dụng
-- Lưu ý: Hướng dẫn sử dụng/bảo quản thực tế
+**QUY TẮC VIẾT CONTENT:**
+- **Specs Table:** Trích xuất thông tin thật từ mô tả/hình ảnh
+  * Chất liệu: Cotton, thép, da... + chi tiết (mềm mại, bóng gương...)
+  * Thiết kế: Mô tả cụ thể nhìn thấy được (cổ tròn, khóa kéo, pattern...)
+  * Màu sắc: Tên màu cụ thể từ ảnh (Navy xanh đậm, Hồng pastel...)
+  * Phù hợp với: Use cases dựa trên persona
+  * Bảo quản: Hướng dẫn care thực tế
 
-**QUY TẮC VIẾT FAQ:**
-- Câu hỏi 1: Biến đổi primary pain point thành câu hỏi
-  * VD Pain point: "Lo lắng về chất lượng" → Câu hỏi: "Sản phẩm này có bền không? Dùng được bao lâu?"
-- Câu hỏi 2: Từ secondary pain points hoặc thắc mắc thực tế
-  * VD: "Có dễ bảo quản không?" / "Giặt như thế nào?" / "Có phù hợp với tôi không?"
-- Câu hỏi 3: Về giá trị và sự khác biệt
-  * VD: "Tại sao nên chọn sản phẩm này?" / "Khác gì sản phẩm khác trên thị trường?"
-- Câu trả lời: Ngắn gọn (2-3 câu), dựa trên productBenefits và specs, có số liệu nếu có
-- **QUAN TRỌNG:** Mỗi FAQ item PHẢI nằm trong thẻ <details> riêng biệt (xem template)
+- **Benefits:** Focus vào OUTCOMES, không phải features
+  * Title: Benefit headline (emotional/practical result)
+  * Description: Chi tiết cụ thể về transformation
+  * Example: "Tự Tin Tỏa Sáng" thay vì "Chất Lượng Cao"
 
-**QUY TẮC VỀ SVG ICONS:**
-- KHÔNG dùng emoji (✅💎🔥❓📋🌟✨🚀) - Dùng SVG icons
-- **KHÔNG có thuộc tính style trong SVG** - Để theme control
-- **Icons phải NHẠT và NHỎ:** width='16' height='16' opacity='0.5'
-- SVG cho Benefits (3 icons - NHẠT MÀU, NHỎ GỌNG):
-  * Icon 1: Checkmark - <path d='M20 6L9 17l-5-5'/>
-  * Icon 2: Star - <path d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z'/>
-  * Icon 3: Plus/Cross - <path d='M12 2v20M2 12h20'/>
-- Tất cả SVG PHẢI có: width='16' height='16' stroke='currentColor' stroke-width='2' opacity='0.5' aria-hidden='true'
-- SVG PHẢI bọc trong <span class='benefit-icon'>
+- **FAQ:** Từ pain points thành câu hỏi tự nhiên
+  * Q1: Primary pain point → question
+  * Q2: Secondary pain point/practical concern → question
+  * Q3: Value proposition/differentiation → question
+  * Answers: 2-3 câu, fact-based, trust-building
 
-**QUY TẮC VỀ SPECS TABLE:**
-- Specs PHẢI dùng <table class='specs-table'> thay vì <ul>
-- Format table: <tbody> với các <tr> chứa 2 <td> (label và value)
-- Cột 1: <td><strong>Label</strong></td>
-- Cột 2: <td>Value chi tiết</td>
-- Table sẽ được theme tự động style (borders, padding, colors)
-- Không cần <thead>, chỉ cần <tbody>
-
-**QUY TẮC VỀ FAQ (CLEAN & MINIMAL):**
-- FAQ KHÔNG có icon SVG trong <summary>
-- <summary> chỉ chứa <h4> với câu hỏi text thuần
-- Format: <summary><h4>Câu hỏi?</h4></summary>
-- Giao diện sạch, tập trung vào nội dung
-- Theme sẽ tự động thêm arrow indicator cho collapsible
-
-**QUY TẮC VIẾT GẠCH ĐẦU DÒNG (BENEFITS):**
-- Phần in đậm PHẢI là LỢI ÍCH, không phải tính năng
-- Ví dụ ĐÚNG: "Mua Sắm An Tâm, Không Cảm Thấy Có Lỗi" (lợi ích cảm xúc)
-- Ví dụ SAI: "Minh Bạch Tuyệt Đối" (chỉ là tính năng)
-- Ví dụ ĐÚNG: "Đầu Tư Một Lần, Mặc Bền Bỉ Nhiều Năm" (lợi ích dài hạn)
-- Ví dụ SAI: "Được Thiết Kế Để Tồn Tại" (chỉ là tính năng)
-- Sau phần in đậm, giải thích CHI TIẾT lợi ích đó mang lại gì cho người dùng
-
-**VÍ DỤ CỤ THỂ CHO SẢN PHẨM TRANG SỨC:**
-- ✅ **Tự Tin Tỏa Sáng Mọi Lúc:** Với thiết kế tinh tế và chất liệu cao cấp, bạn sẽ luôn cảm thấy tự tin và thu hút mọi ánh nhìn trong mọi dịp từ công sở đến dạo phố
-- 💎 **Phong Cách Đa Dạng, Một Bộ Đủ Dùng:** Dễ dàng phối với mọi trang phục từ casual đến formal, giúp bạn tiết kiệm thời gian suy nghĩ "hôm nay đeo gì" và luôn có vẻ ngoài hoàn hảo
-- 🔥 **Đầu Tư Một Lần, Sử Dụng Lâu Dài:** Chất liệu bền đẹp không bị phai màu hay biến dạng, giúp bạn thoát khỏi vòng lặp mua sắm liên tục và tiết kiệm chi phí trong dài hạn
-
-**QUY TẮC VIẾT PHẦN "HOÀN HẢO CHO":**
-- PHẢI nhấn mạnh tính đa dụng và phong cách
-- Ví dụ: "Những người theo đuổi phong cách tối giản **cần một chiếc áo phông hoàn hảo, dễ dàng phối với mọi trang phục**"
-- KHÔNG viết: "Những người theo đuổi phong cách tối giản" (thiếu tính đa dụng)
-
-**VÍ DỤ CỤ THỂ CHO TRANG SỨC:**
-- "Những cô gái yêu thích phong cách bohemian **cần bộ trang sức đa dụng, dễ dàng phối với mọi outfit từ váy maxi đến quần jeans**"
-- "Những người phụ nữ hiện đại **cần trang sức tinh tế, phù hợp cả công sở và dạo phố**"
-- "Những tín đồ thời trang **cần phụ kiện statement, giúp nổi bật trong mọi bức ảnh Instagram**"
-
-**QUY TẮC HÌNH ẢNH:**
-- PHẢI XEM và PHÂN TÍCH TẤT CẢ ${images.length} hình ảnh đã gửi kèm
-- PHẢI chọn 2-3 hình ảnh phù hợp từ ${images.length} hình có sẵn, dựa trên persona và nội dung
-- Thay thế URL_HÌNH_ẢNH_HERO, URL_HÌNH_ẢNH_BENEFITS, URL_HÌNH_ẢNH_LIFESTYLE bằng URL thật từ hình ảnh đã chọn
-- Mỗi persona khác nhau PHẢI chọn hình ảnh khác nhau phù hợp với persona đó
-- KHÔNG được chọn cùng 1 hình ảnh cho tất cả personas
-- AI có ${images.length} hình ảnh để lựa chọn - hãy chọn những hình phù hợp nhất!`;
+- **Use Case Section:** Mô tả ideal customer và transformation
+  * Versatility, value proposition
+  * Real-world usage scenarios`;
 
     // Prepare messages with images (if available)
     const messageContent: any[] = [
