@@ -344,3 +344,12 @@ Sau khi sửa, API sẽ trả về:
 
 *Hướng dẫn này sẽ giúp hệ thống bên kia tích hợp API thành công!*
 
+
+
+
+
+
+
+
+
+

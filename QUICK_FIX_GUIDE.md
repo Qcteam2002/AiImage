@@ -125,3 +125,12 @@ curl -X POST https://mayor-deer-designers-cho.trycloudflare.com/api/product-opti
 
 **Sau khi sửa xong, API sẽ trả về status 200 với dữ liệu segmentation!** 🎉
 
+
+
+
+
+
+
+
+
+

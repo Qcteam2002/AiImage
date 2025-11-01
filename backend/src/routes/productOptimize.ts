@@ -1653,7 +1653,14 @@ function createSegmentationPrompt(data: any) {
   // Ví dụ cụ thể trong prompt sẽ giúp AI hiểu rõ hơn là mô tả chung chung
   const examplePersona = {
     name: "Tín đồ thời trang hoài cổ (Vintage Fashion Enthusiast)",
-    painpoint: "Cảm thấy thất vọng khi outfit gần như hoàn hảo nhưng lại thiếu một món phụ kiện 'chốt hạ' đủ độc đáo. Sợ bị coi là nhàm chán hoặc không bắt kịp xu hướng. Rất khó tìm được phụ kiện vừa mang đậm cá tính riêng, vừa không bị lỗi thời sau một mùa.",
+    painpoints: {
+      primary: "Cảm thấy thất vọng khi outfit gần như hoàn hảo nhưng lại thiếu một món phụ kiện 'chốt hạ' đủ độc đáo. Sợ bị coi là nhàm chán hoặc không bắt kịp xu hướng.",
+      secondary: [
+        "Những phụ kiện độc lạ thường có giá rất cao, không phù hợp với túi tiền sinh viên/nhân viên văn phòng trẻ.",
+        "Chất lượng sản phẩm mua online không ổn định, dễ bị gỉ sét hoặc phai màu sau vài lần đeo.",
+        "Khó tìm được món đồ vừa thể hiện cá tính riêng, vừa có thể phối với nhiều phong cách và dùng trong nhiều dịp khác nhau."
+      ]
+    },
     winRate: 0.75,
     reason: "Sản phẩm có thiết kế punk và lấy cảm hứng từ một biểu tượng văn hóa đại chúng, đáp ứng trực tiếp nhu cầu thể hiện cá tính và sự khác biệt của nhóm này.",
     personaProfile: {
@@ -1738,11 +1745,40 @@ Bạn là một Giám đốc Chiến lược Marketing (Marketing Strategist) ch
 
 2. **Xây dựng Persona sống động cho thị trường ${marketName}:** Tạo ra 3 chân dung khách hàng **khác biệt** và **sắc nét**, phản ánh chính xác đặc điểm của người dùng tại ${marketName}.
 
-3. **Pain Point với Cảm xúc Tiêu cực (QUAN TRỌNG):**
-   - Pain point PHẢI gợi ra được **nỗi sợ** hoặc **sự thất vọng** cụ thể
+3. **Pain Points - Phân tầng Nỗi đau (QUAN TRỌNG):**
+   Với mỗi persona, hãy xác định rõ **2 tầng nỗi đau**:
+   
+   **A. Primary Pain Point (Nỗi đau chính - Emotional Core):**
+   - Đây là CẢM XÚC TIÊU CỰC cốt lõi, sâu sắc nhất
+   - PHẢI gợi ra được **nỗi sợ**, **sự thất vọng**, **lo lắng** hoặc **xấu hổ** cụ thể
    - Không chỉ mô tả hành động ("Tìm kiếm..."), mà phải thể hiện CẢM XÚC
+   - Đây là lý do sâu xa nhất khiến họ tìm kiếm sản phẩm - động lực mua hàng chính
    - Ví dụ TỐT: "Cảm thấy thất vọng khi outfit gần như hoàn hảo nhưng lại thiếu một món phụ kiện 'chốt hạ' đủ độc đáo. Sợ bị coi là nhàm chán hoặc không bắt kịp xu hướng."
    - Ví dụ KHÔNG TỐT: "Tìm kiếm các phụ kiện độc đáo" (quá chung chung, không có cảm xúc)
+   
+   **B. Secondary Pain Points (Nỗi đau thứ cấp - Functional/Practical Issues):**
+   - Liệt kê **2-4 vấn đề THỰC TẾ** hoặc **BẤT TIỆN** hàng ngày mà persona gặp phải
+   - Các vấn đề này mang tính chức năng, thực tiễn, cụ thể:
+     * Vấn đề về giá cả (quá đắt, không rõ giá trị)
+     * Vấn đề về chất lượng (dễ hỏng, không bền, không như mô tả)
+     * Vấn đề về tính năng (khó sử dụng, không linh hoạt, hạn chế)
+     * Vấn đề về trải nghiệm mua sắm (khó tìm, giao hàng lâu, không có chính sách đổi trả)
+     * Vấn đề về tính phù hợp (khó phối đồ, không đa dụng, chỉ dùng được trong một số trường hợp)
+   - Mỗi secondary pain point phải là một câu ngắn gọn, súc tích
+   - Ví dụ TỐT:
+     * "Những phụ kiện độc lạ thường có giá rất cao, không phù hợp với túi tiền sinh viên."
+     * "Chất lượng sản phẩm mua online không ổn định, dễ bị gỉ sét sau vài lần đeo."
+     * "Khó tìm được món đồ vừa thể hiện cá tính, vừa có thể phối với nhiều phong cách."
+   
+   **Định dạng trong JSON - OBJECT với 2 keys:**
+   - primary: string chứa nỗi đau cảm xúc cốt lõi
+   - secondary: array chứa 2-4 vấn đề thực tế
+   
+   **Tại sao phân tầng này quan trọng?**
+   - Primary pain point → Dùng cho tiêu đề quảng cáo, hook đầu video, emotional storytelling
+   - Secondary pain points → Dùng cho mô tả chi tiết, FAQ, feature highlights, comparison content
+   - Tạo ra nhiều ý tưởng content hơn (mỗi secondary pain = 1 chủ đề cho post/video/story)
+   - Thể hiện sự thấu hiểu toàn diện từ cảm xúc đến thực tế
 
 4. **Đánh giá tiềm năng (Win Rate):** Với mỗi persona, hãy tính toán một "tỷ lệ thắng" (từ 0.0 đến 1.0) dựa trên mức độ phù hợp giữa sản phẩm và nhu cầu của họ.
 
@@ -1849,7 +1885,9 @@ Cấu trúc JSON phải chính xác như ví dụ dưới đây. Chỉ thay đ�
 
 **⚠️ QUAN TRỌNG: MỖI PERSONA PHẢI CÓ ĐẦY ĐỦ CÁC TRƯỜNG SAU:**
 - name
-- painpoint
+- **painpoints** (OBJECT chứa 'primary' và 'secondary')
+  * **primary**: string - nỗi đau cảm xúc cốt lõi
+  * **secondary**: array of strings - 2-4 vấn đề thực tế
 - winRate
 - reason
 - personaProfile (bao gồm: demographics, behaviors, motivations, communicationChannels)
@@ -1893,7 +1931,9 @@ Cấu trúc JSON phải chính xác như ví dụ dưới đây. Chỉ thay đ�
 ✅ ĐÚNG: US market → behaviors "shop on Amazon, Etsy, Target"
 
 **YÊU CẦU BẮT BUỘC cho mỗi persona:**
-1. ✅ **painpoint**: Phải chứa cảm xúc tiêu cực (thất vọng, sợ hãi, lo lắng) và chi tiết cụ thể
+1. ✅ **painpoints**: Phải là OBJECT với 2 keys
+   - **primary** (string): Cảm xúc tiêu cực cốt lõi (thất vọng, sợ hãi, lo lắng, xấu hổ) với chi tiết cụ thể
+   - **secondary** (array): 2-4 vấn đề thực tế, chức năng (giá cả, chất lượng, tính năng, trải nghiệm, phù hợp)
 2. ✅ **communicationChannels**: Phải là ARRAY chứa 4-6 chiến lược chi tiết với format nội dung cụ thể (video, UGC, lookbook...)
 3. ✅ **locations**: Phải là ARRAY chứa 3-5 địa điểm cụ thể phù hợp với thị trường ${marketName}
 4. ✅ **keywordSuggestions**: Phải có ít nhất 6-8 từ khóa, bao gồm cả long-tail keywords (từ khóa đuôi dài)
@@ -1903,12 +1943,13 @@ Cấu trúc JSON phải chính xác như ví dụ dưới đây. Chỉ thay đ�
 8. ✅ **voiceGuideline**: Phải có 2 giai đoạn (đồng cảm → truyền cảm hứng), 2-4 câu, phù hợp với thị trường ${marketName}
 
 **CÁCH ĐÁNH GIÁ CHẤT LƯỢNG:**
-- Pain point có khiến bạn cảm thấy đồng cảm và hiểu rõ vấn đề không? ✅
+- Primary pain point có khiến bạn cảm thấy đồng cảm và hiểu rõ cảm xúc không? ✅
+- Secondary pain points có giải quyết các vấn đề thực tế cụ thể không? ✅
+- Product Benefits có đánh trúng cả primary và secondary pain points không? ✅
 - Communication channels có thể implement ngay được không? ✅
 - Locations có phản ánh đúng nơi khách hàng tập trung không? ✅
 - Keywords có giúp tìm đúng khách hàng đang tìm kiếm không? ✅
 - Seasonal trends có cung cấp insight timing marketing không? ✅
-- Product Benefits có đánh trúng pain point của persona không? ✅
 - Tone Type có phù hợp với persona không? ✅
 - Voice Guideline có thể dùng ngay để viết content không? ✅
 
@@ -2489,7 +2530,8 @@ router.post('/generate-image', async (req, res) => {
       tone,
       language = 'en',
       market,
-      segmentation
+      segmentation,
+      requestedStyle = 'studio' // NEW: style requested by user (studio, lifestyle, infographic, ugc, closeup, motion)
     } = req.body;
 
     console.log('🎨 Image Generation - Product:', productTitle);
@@ -2504,7 +2546,8 @@ router.post('/generate-image', async (req, res) => {
       tone,
       language,
       market,
-      hasSegmentation: !!segmentation
+      hasSegmentation: !!segmentation,
+      requestedStyle // NEW: log requested style
     }, null, 2));
 
     // Validate required fields
@@ -2527,130 +2570,122 @@ router.post('/generate-image', async (req, res) => {
       };
     }
 
+    // Get style definition based on requested style
+    const styleDefinitions: Record<string, string> = {
+      studio: `Studio Shot → pure white or light-gray seamless background, balanced soft studio lighting, eCommerce product catalog look. Clean, professional, high-end marketplace ready.`,
+      lifestyle: `Lifestyle Shot → real-life environment that resonates with the target persona. Natural daylight with warm soft shadows. Show product in authentic usage context that the persona can relate to.`,
+      infographic: `Infographic Style → clean light neutral background with product-centered composition, add simple text callouts, arrows, or icons highlighting key features or specs that matter most to the target persona.`,
+      ugc: `UGC (User Generated Content) → casual human context that matches the target persona's lifestyle, handheld or natural composition, slight imperfections, natural daylight, smartphone photo realism. Must feel authentic to the persona's daily life and usage patterns.`,
+      closeup: `Close-up → macro or detailed shot focusing on textures, materials, stitching, surface reflection that address the persona's concerns and pain points. Realistic depth of field, angled light to showcase quality.`,
+      motion: `Motion / Animated → 360° product rotation or looped showcase on a reflective white surface with consistent lighting and soft shadows. Comprehensive view for online shoppers.`
+    };
+
+    const selectedStyleDefinition = styleDefinitions[requestedStyle] || styleDefinitions.studio;
+
+    // Build persona-driven context
+    const personaContext = segmentationData ? `
+🎯 TARGET PERSONA PROFILE (CRITICAL - USE THIS TO GUIDE YOUR PROMPT):
+- Persona Name: ${segmentationData.name}
+- Core Pain Point: ${segmentationData.painpoint}
+- Demographics: ${segmentationData.personaProfile?.demographics || 'N/A'}
+- Behaviors: ${segmentationData.personaProfile?.behaviors || 'N/A'}
+- Preferred Tone: ${segmentationData.toneType || tone || 'N/A'}
+- Locations/Context: ${segmentationData.locations ? segmentationData.locations.join(', ') : 'N/A'}
+- Voice Guideline: ${segmentationData.voiceGuideline || 'N/A'}
+
+**IMPORTANT**: Your image prompt MUST reflect this persona's lifestyle, values, and usage context. 
+For example:
+- If persona is "busy working moms", show product in home office or kitchen setting
+- If persona is "outdoor adventurers", show product in camping or hiking context
+- If persona is "health-conscious millennials", use clean, minimal aesthetic with natural elements
+- Match the environment, props, and overall vibe to what resonates with THIS specific persona.
+` : (persona ? `
+🎯 TARGET PERSONA: ${persona}
+**IMPORTANT**: Create image prompt that speaks to this persona's lifestyle and values.
+` : '');
+
     // Build comprehensive prompt for AI
     const imagePrompt = `
 TASK:
-Bạn sẽ nhận các hình ảnh sản phẩm + thông tin sản phẩm.
-Bạn phải phân tích sản phẩm trong hình trước, sau đó tạo ra bộ prompt quảng cáo hình ảnh phục vụ thương mại.
-Bạn luôn trả về JSON đúng schema yêu cầu, không thêm markdown.
+You will receive product images + product information + target persona details.
+You must analyze the product in the images, then create an optimized image prompt for the REQUESTED STYLE: "${requestedStyle}".
+The prompt MUST be tailored to resonate with the target persona's lifestyle and pain points.
+Always return pure JSON according to the required schema, no markdown wrapper.
 
-STEP 1. PHÂN TÍCH HÌNH
-- Nhìn trực tiếp vào từng hình tôi gửi.
-- Mô tả sản phẩm thật sự nhìn thấy: chất liệu, màu, bề mặt, hình dáng, cấu trúc nắp / dây / họa tiết / logo / pattern / số lớp / các chi tiết đặc trưng không thể thay đổi.
-- Nếu có nhiều biến thể (ví dụ nhiều dung tích), mô tả sự khác nhau.
-- Xác định USP trực quan: ví dụ "nắp vặn chống rò", "thép không gỉ 316 bóng gương", "in hình rồng mosaic trên áo navy", v.v.
+STEP 1. ANALYZE IMAGES
+- Look directly at each image I send.
+- Describe what you actually see: material, color, surface, shape, structure (cap/strap/pattern/logo/layers/unique details that cannot be changed).
+- If there are multiple variants (e.g. different sizes), describe the differences.
+- Identify visual USP: e.g. "leak-proof screw cap", "316 mirror-finish stainless steel", "dragon mosaic print on navy shirt", etc.
 
-STEP 2. CHỌN 1 HÌNH CHUẨN
-Từ tất cả ảnh bạn nhận:
-- Chọn ảnh rõ nhất, ánh sáng ổn định nhất, thấy rõ sản phẩm đầy đủ nhất.
-- Ưu tiên ảnh mà sản phẩm không bị che.
-- Nếu có ảnh lộ rõ chi tiết vật liệu bề mặt → ưu tiên.
-=> Gọi ảnh đó là bestImageUrl.
-Giải thích tại sao chọn nó (imageSelectionReason).
+STEP 2. SELECT BEST IMAGE
+From all images you receive:
+- Choose the clearest image with the most stable lighting and complete product visibility.
+- Prioritize images where the product is not obscured.
+- If an image clearly shows material texture → prioritize it.
+=> Call this bestImageUrl.
+Explain why you selected it (imageSelectionReason).
 
-STEP 3. SINH 6 PROMPT (STRICT KEEP PRODUCT)
-Với sản phẩm trong bestImageUrl, tạo 6 prompt khác nhau, mỗi prompt phải giữ y nguyên sản phẩm gốc.
+STEP 3. GENERATE PROMPT FOR REQUESTED STYLE: "${requestedStyle}"
+With the product in bestImageUrl, create ONE prompt for the "${requestedStyle}" style that keeps the product exactly the same.
 
-STYLE DEFINITIONS:
-- Studio Shot → pure white or light-gray seamless background, balanced soft studio lighting, eCommerce product catalog look.
-- Lifestyle Shot → real-life environment such as desk, bedroom, outdoor picnic, or workspace. Natural daylight with warm soft shadows.
-- Infographic Style → clean light neutral background with product-centered composition, add simple text callouts, arrows, or icons highlighting key features or specs.
-- UGC (User Generated Content) → casual human context, handheld or natural composition, slight imperfections, natural daylight, smartphone photo realism.
-- Close-up → macro or detailed shot focusing on textures, materials, stitching, surface reflection, realistic depth of field, angled light.
-- Motion / Animated → 360° product rotation or looped showcase on a reflective white surface with consistent lighting and soft shadows.
+REQUESTED STYLE DEFINITION:
+${selectedStyleDefinition}
 
-
-RÀNG BUỘC BẮT BUỘC CHO MỌI PROMPT:
+MANDATORY CONSTRAINTS FOR THE PROMPT:
 - "Use the provided image as the exact product reference."
 - "The product must be pixel-identical to the reference image; treat its shape, material, texture, proportions, logo/print (if any), and color as locked geometry."
 - "Do not repaint or redesign any part of the product. No recolor. No added or removed elements. No modifying labels or details."
 - "Only replace background, camera angle, environment, lighting, or presentation style."
-- "no duplication, no resizing of the main product shape, no cartoon look, no illustration, photorealistic only."
+- "No duplication, no resizing of the main product shape, no cartoon look, no illustration, photorealistic only."
 
-ĐỊNH NGHĨA 6 STYLE (bạn phải dùng để tạo prompt cụ thể):
-1. "studio":
-   - Mục tiêu: ảnh sạch để dùng cho trang sản phẩm / marketplace.
-   - Bối cảnh: nền trắng hoặc xám nhạt liền mạch, ánh sáng studio mềm, bóng đổ nhẹ, cảm giác cao cấp.
-   - Không props lạ nếu sản phẩm không có props trong hình gốc.
-2. "lifestyle":
-   - Mục tiêu: làm người mua hình dung sản phẩm trong bối cảnh sử dụng.
-   - Bối cảnh ví dụ: bàn gỗ trong camping, bàn làm việc, phòng khách ấm, góc bếp sáng sớm... chọn 1 ngữ cảnh phù hợp với tính năng sản phẩm.
-   - Ánh sáng tự nhiên (daylight), bóng đổ mềm, depth of field nhẹ (hậu cảnh mờ).
-   - Tone cảm xúc: real life, warm, mua là xài liền.
-3. "infographic":
-   - Bối cảnh nền sáng sạch, bố cục thẳng chính diện.
-   - Có chèn text callout dạng bullet / label (ví dụ "316 stainless steel", "Leak-proof lid", "Keeps hot 24h", "4 sizes: 600/800/1200/1500ml").
-   - Phong cách quảng cáo shop/ecommerce.
-   - Vẫn photorealistic, không vẽ icon lòe loẹt kiểu cartoon.
-4. "ugc":
-   - User Generated Content style (kiểu khách tự chụp review thật).
-   - Góc chụp cầm tay, hơi nghiêng, hậu cảnh đời thường (ví dụ picnic, bàn làm việc lộn xộn nhẹ, ghế xe hơi, balo mở).
-   - Ánh sáng tự nhiên, kiểu chụp điện thoại, hơi imperfect => tăng niềm tin.
-5. "closeup":
-   - Zoom cận chi tiết then chốt bán hàng: chất liệu bề mặt, đường khâu, nắp chống rò, texture inox bóng, in vải, v.v.
-   - Ánh sáng xiên để thấy texture thật.
-   - Là macro shot / detail shot dùng để chứng minh chất lượng.
-6. "motion":
-   - Mô tả như thể sản phẩm quay 360° trên nền trắng/studio với bóng đổ mềm dưới chân.
-   - Dùng ngôn ngữ kiểu "clean 360-degree rotation product showcase".
-   - Vẫn phải là sản phẩm giống hệt ảnh gốc (không thay màu, không thay hình dáng).
+PERSONA-DRIVEN PROMPT REQUIREMENTS:
+- The environment, props, and overall aesthetic MUST align with the target persona's lifestyle
+- If persona has specific pain points, the image context should subtly address them
+- Use colors, lighting, and composition that appeal to this persona's preferences
+- The setting should be where this persona would naturally use or encounter this product
+- For UGC style especially: the image should look like it was taken by someone from this persona group
 
 STEP 4. TECH SETTINGS
-Luôn trả thêm block tech_settings:
-- img2img_strength = 0.3 (giữ form gốc, chỉ đổi bối cảnh)
-- cfg_scale = 9 (giảm sáng tạo quá mức)
-- lighting = "natural daylight or balanced studio light, soft realistic shadows"
+Always include tech_settings block:
+- img2img_strength = 0.3 (keep original form, only change context)
+- cfg_scale = 9 (reduce excessive creativity)
+- lighting = appropriate for the selected style and persona
 - style = "photorealistic commercial product photography, high detail, high conversion intent"
 
 OUTPUT FORMAT:
-Trả về JSON **thuần túy**, không markdown, không giải thích thêm ngoài JSON:
+Return pure JSON, no markdown, no additional explanation outside JSON:
 
 {
-  "product": "tên sản phẩm lấy từ ${productTitle}",
-  "analysis": "mô tả ngắn gọn sản phẩm nhìn từ hình, nêu chất liệu / cấu trúc / đặc điểm bán hàng chính",
-  "bestImageUrl": "URL hình tốt nhất bạn chọn từ danh sách ở dưới",
-  "imageSelectionReason": "vì sao chọn hình này để làm chuẩn",
-  "styles": {
-    "studio": "prompt studio đã khóa sản phẩm",
-    "lifestyle": "prompt lifestyle đã khóa sản phẩm và bối cảnh sử dụng thực tế",
-    "infographic": "prompt infographic có callout lợi ích / tính năng / size",
-    "ugc": "prompt ugc theo phong cách chụp tự nhiên của người dùng",
-    "closeup": "prompt closeup tập trung chất liệu / chi tiết",
-    "motion": "prompt motion mô tả quay 360° clean trên nền studio"
-  },
+  "product": "product name from ${productTitle}",
+  "analysis": "brief description of product as seen in images, noting material/structure/key selling features",
+  "bestImageUrl": "URL of best image you selected from the list below",
+  "imageSelectionReason": "why you chose this image as the reference",
+  "requestedStyle": "${requestedStyle}",
+  "prompt": "the detailed image generation prompt for ${requestedStyle} style, tailored to the target persona",
+  "personaAlignment": "brief explanation of how this prompt aligns with the target persona's lifestyle and preferences",
   "tech_settings": {
     "img2img_strength": 0.3,
     "cfg_scale": 9,
-    "lighting": "natural daylight or balanced studio light, soft realistic shadows",
+    "lighting": "appropriate lighting description for ${requestedStyle}",
     "style": "photorealistic commercial product photography, high detail, high conversion intent"
   }
 }
 
-DỮ LIỆU SẢN PHẨM ĐÃ CUNG CẤP:
+PRODUCT DATA PROVIDED:
 - Product Title: ${productTitle}
-- Product Description: ${productDescription || 'Chưa có mô tả'}
-- Key Feature: ${keyFeature || 'Chưa xác định'}
-- Persona (nếu có): ${persona || 'Chưa xác định'}
-- Pain points: ${painpoints ? painpoints.join(', ') : 'Chưa xác định'}
-- Keywords: ${keywords ? keywords.join(', ') : 'Chưa xác định'}
-- Tone: ${tone || 'Chưa xác định'}
-- Market: ${market || 'Chưa xác định'}
+- Product Description: ${productDescription || 'No description provided'}
+- Key Feature: ${keyFeature || 'Not specified'}
+- Pain points: ${painpoints ? painpoints.join(', ') : 'Not specified'}
+- Keywords: ${keywords ? keywords.join(', ') : 'Not specified'}
+- Tone: ${tone || 'Not specified'}
+- Market: ${market || 'Not specified'}
 - Language: ${language}
 
-${
-  segmentationData
-    ? `SEGMENTATION INSIGHT:
-- Persona Name: ${segmentationData.name}
-- Pain Point Core: ${segmentationData.painpoint}
-- Demographics: ${segmentationData.personaProfile?.demographics || 'N/A'}
-- Behaviors: ${segmentationData.personaProfile?.behaviors || 'N/A'}
-- Tone Type: ${segmentationData.toneType || 'N/A'}
-- Locations: ${segmentationData.locations ? segmentationData.locations.join(', ') : 'N/A'}`
-    : ''
-}
+${personaContext}
 
 IMAGE INPUTS:
-Tôi đã gửi kèm ${productImages.length} hình ảnh của sản phẩm ở các URL sau. Hãy dùng chúng để phân tích và chọn bestImageUrl duy nhất:
+I have sent ${productImages.length} product images at the following URLs. Use them to analyze and select the single bestImageUrl:
 ${productImages.map((u,i)=>`${i+1}. ${u}`).join('\n')}
 `;
 
@@ -2746,11 +2781,13 @@ ${productImages.map((u,i)=>`${i+1}. ${u}`).join('\n')}
       // Parse the JSON
       const result = JSON.parse(jsonString);
       
-      console.log('✅ Image prompts generated successfully');
+      console.log('✅ Image prompt generated successfully');
       console.log('📌 Product:', result.product);
-      console.log('🎨 Styles generated:', Object.keys(result.styles || {}).length);
+      console.log('🎨 Requested Style:', result.requestedStyle);
       console.log('🖼️ Best Image URL:', result.bestImageUrl);
       console.log('💭 Selection Reason:', result.imageSelectionReason);
+      console.log('🎯 Persona Alignment:', result.personaAlignment);
+      console.log('📝 Generated Prompt Preview:', result.prompt?.substring(0, 200) + '...');
       
       const response = {
         success: true,
@@ -2761,8 +2798,9 @@ ${productImages.map((u,i)=>`${i+1}. ${u}`).join('\n')}
         success: response.success,
         product: response.data.product,
         bestImageUrl: response.data.bestImageUrl,
-        imageSelectionReason: response.data.imageSelectionReason,
-        stylesCount: Object.keys(response.data.styles || {}).length
+        requestedStyle: response.data.requestedStyle,
+        hasPrompt: !!response.data.prompt,
+        personaAlignment: response.data.personaAlignment
       }, null, 2));
       
       res.json(response);
@@ -2771,7 +2809,17 @@ ${productImages.map((u,i)=>`${i+1}. ${u}`).join('\n')}
       console.error('❌ JSON parse error:', parseError.message);
       console.log('Raw content:', content);
       
-      // Return fallback response
+      // Get fallback prompt based on requested style
+      const fallbackPrompts: Record<string, string> = {
+        studio: `Use the provided image as the exact product reference. Keep the product identical — same structure, material, color, and geometry. Place the product centered on a white-to-light gray seamless background under soft balanced studio lighting. Emphasize realistic highlights and reflections for a premium look. photorealistic, commercial eCommerce ready.`,
+        lifestyle: `Use the provided image as the exact product reference. Keep the product identical — same structure, material, and proportions. Remove current background and place the product in a natural lifestyle setting with appropriate props and natural lighting that matches the target persona's daily environment. photorealistic, commercial-ready.`,
+        infographic: `Use the provided image as the exact product reference. Keep product identical in color, shape, and design. Center the product on a clean light background with soft shadow. Add minimalist infographic text and icons around it highlighting features that matter to the target persona. Use clean typography and subtle design elements.`,
+        ugc: `Use the provided image as the exact product reference. Keep the product unchanged. Place it naturally in a user context that matches the target persona's lifestyle with authentic lighting and slightly imperfect framing like a genuine smartphone photo taken by someone from this persona group. Emphasize authenticity and natural tones.`,
+        closeup: `Use the provided image as the exact product reference. Keep same texture, structure, and details. Zoom closely on key features that address the persona's concerns and demonstrate quality. Light source angled to reveal natural reflections and depth. photorealistic macro lens look.`,
+        motion: `Use the provided image as the exact product reference. Keep the product identical. Create a 360° rotating animation on a soft reflective base with smooth transitions and accurate perspective. Maintain consistent lighting and reflections across all frames. Comprehensive product showcase.`
+      };
+      
+      // Return fallback response with single prompt for requested style
       res.json({
         success: true,
         data: {
@@ -2779,19 +2827,14 @@ ${productImages.map((u,i)=>`${i+1}. ${u}`).join('\n')}
           analysis: `Product analysis for ${productTitle}`,
           bestImageUrl: productImages && productImages.length > 0 ? productImages[0] : null,
           imageSelectionReason: "Selected first image as fallback due to AI analysis failure",
-          styles: {
-            studio: `Use the provided image as the exact product reference. Keep the product identical — same structure, material, color, and geometry. Place the product centered on a white-to-light gray seamless background under soft balanced studio lighting. Emphasize realistic highlights and reflections for a premium look. photorealistic, commercial eCommerce ready.`,
-            lifestyle: `Use the provided image as the exact product reference. Keep the product identical — same structure, material, and proportions. Remove current background and place the product in a natural lifestyle setting with appropriate props and natural lighting. photorealistic, commercial-ready.`,
-            infographic: `Use the provided image as the exact product reference. Keep product identical in color, shape, and design. Center the product on a clean light background with soft shadow. Add minimalist infographic text and icons around it. Use clean typography and subtle design elements.`,
-            ugc: `Use the provided image as the exact product reference. Keep the product unchanged. Place it naturally in a user context with authentic lighting and slightly imperfect framing like a genuine smartphone photo. Emphasize authenticity and natural tones.`,
-            closeup: `Use the provided image as the exact product reference. Keep same texture, structure, and details. Zoom closely on key features to show craftsmanship and quality. Light source angled to reveal natural reflections and depth. photorealistic macro lens look.`,
-            motion: `Use the provided image as the exact product reference. Keep the product identical. Create a 360° rotating animation on a soft reflective base with smooth transitions and accurate perspective. Maintain consistent lighting and reflections across all frames.`
-          },
+          requestedStyle: requestedStyle,
+          prompt: fallbackPrompts[requestedStyle] || fallbackPrompts.studio,
+          personaAlignment: persona || segmentationData ? `Fallback prompt includes persona considerations for ${segmentationData?.name || persona}` : 'General purpose prompt',
           tech_settings: {
             img2img_strength: 0.3,
             cfg_scale: 9,
-            lighting: "natural daylight or balanced studio light",
-            style: "photorealistic commercial product photography"
+            lighting: requestedStyle === 'studio' ? "balanced studio light" : "natural daylight with soft shadows",
+            style: "photorealistic commercial product photography, high detail, high conversion intent"
           }
         }
       });
