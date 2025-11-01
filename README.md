@@ -280,6 +280,22 @@ cd frontend && npm run build
 4. Push to the branch
 5. Create a Pull Request
 
+## 📚 Documentation
+
+Comprehensive documentation is available in the `/docs` directory:
+
+- **[Complete Documentation Index](./docs/README.md)** - Start here
+- **[API Documentation](./docs/api/README.md)** - All API references
+- **[Deployment Guide](./docs/deployment/README.md)** - ⚠️ Read before deploying
+- **[Developer Guides](./docs/guides/README.md)** - Quick start & troubleshooting
+- **[Feature Documentation](./docs/features/README.md)** - Feature-specific guides
+
+### Quick Links
+- [Quick Start Guide](./docs/guides/quick-start.md)
+- [⚠️ Deployment Warning](./docs/deployment/DEPLOY_WARNING.md) - MUST READ
+- [Product Analysis Guide](./docs/guides/product-analysis.md)
+- [API Integration Fixes](./docs/guides/api-integration-fixes.md)
+
 ## 📄 License
 
 This project is licensed under the MIT License.
