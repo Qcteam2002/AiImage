@@ -14,6 +14,7 @@ Complete API reference for all AIImage services.
 - **[Image Generation - Optimized](./image-generation-optimized.md)** - ⭐ NEW: Persona-driven prompts
 - **[Image Generation - Complete](./image-generation-complete.md)** - Full workflow guide
 - **[Content Generation](./content-generation.md)** - AI content creation
+- **[Alt Text Generation](./alt-text-generation.md)** - 🆕 AI-powered alt text generation with image analysis
 
 ### Segmentation
 - **[Segmentation API](./segmentation.md)** - Customer segmentation endpoints
@@ -40,13 +41,14 @@ const data = await response.json();
 
 ## 🔄 Latest Updates
 
+### January 2025
+- **Alt Text Generation API** - 🆕 NEW: AI-powered alt text generation with direct image analysis
+- **Product Optimize** - Enhanced with market-specific features
+- **Content Generation** - Added tone and voice guidelines
+
 ### November 2025
 - **Image Generation API** - Optimized with persona-driven single-style prompts
 - **Segmentation API** - Pain points split into primary + secondary
-
-### January 2025
-- **Product Optimize** - Enhanced with market-specific features
-- **Content Generation** - Added tone and voice guidelines
 
 ## 📚 Related Docs
 
