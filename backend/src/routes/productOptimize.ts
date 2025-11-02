@@ -2016,7 +2016,7 @@ router.post('/suggestDataSegmentation', async (req, res) => {
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: 'google/gemini-2.5-flash-preview-09-2025',
+        model: 'x-ai/grok-4-fast',//'google/gemini-2.5-flash-preview-09-2025',
         messages: [
           {
             role: 'system',
@@ -2226,13 +2226,18 @@ router.post('/generate-content-from-segmentation', async (req, res) => {
     const { 
       title, 
       description, 
-      images, 
+      images,
+      productImages, // Frontend sends this
       segmentation,
       targetMarket = 'vi',
       language = 'vi-VN'
     } = req.body;
 
+    // Use productImages if images is not provided (support both formats)
+    const imageUrls = images || productImages || [];
+
     console.log('🎨 Content Generation - Segmentation:', segmentation?.name);
+    console.log('🖼️ Images received:', imageUrls.length, 'images');
 
     // Validate required fields
     if (!title || !segmentation) {
@@ -2290,7 +2295,7 @@ Tôi đang cần bạn viết nội dung cho một sản phẩm trên Shopify. D
 - **Tên sản phẩm:** ${title}
 - **Mô tả hiện tại:** ${description || 'Chưa có mô tả'}
 - **Thị trường mục tiêu:** ${targetMarket === 'us' ? 'United States' : 'Vietnam'}
-- **Hình ảnh sản phẩm có sẵn:** ${images && images.length > 0 ? images.map((url: string, index: number) => `${index + 1}. ${url}`).join('\n') : 'Không có hình ảnh'}
+- **Hình ảnh sản phẩm có sẵn:** ${imageUrls && imageUrls.length > 0 ? imageUrls.map((url: string, index: number) => `${index + 1}. ${url}`).join('\n') : 'Không có hình ảnh'}
 
 **Đối tượng khách hàng mục tiêu (Segmentation):**
 - **Tên Persona:** ${personaName}
@@ -2330,7 +2335,7 @@ Dựa vào tất cả thông tin trên, hãy viết:
   * Câu trả lời phải dựa trên dữ liệu thật (từ productBenefits, mô tả, hình ảnh)
 
 **QUAN TRỌNG VỀ HÌNH ẢNH:**
-- Tôi đã gửi kèm ${images.length} hình ảnh sản phẩm trong message này. Nhiệm vụ của bạn là phải XEM và PHÂN TÍCH KỸ LƯỠNG TỪNG HÌNH ẢNH để trích xuất các thông tin THỰC TẾ về sản phẩm.
+- Tôi đã gửi kèm ${imageUrls.length} hình ảnh sản phẩm trong message này. Nhiệm vụ của bạn là phải XEM và PHÂN TÍCH KỸ LƯỠNG TỪNG HÌNH ẢNH để trích xuất các thông tin THỰC TẾ về sản phẩm.
 
 - **Trích xuất thông tin sau từ hình ảnh:**
   1. **Chất liệu & Bề mặt:** Vải trơn, vải gân, bề mặt bóng, mờ, chất liệu da, gỗ, kim loại, nhựa, thép không gỉ...?
@@ -2343,10 +2348,10 @@ Dựa vào tất cả thông tin trên, hãy viết:
 
 - **Ví dụ:** Thay vì viết "chất liệu cao cấp", hãy viết "chất liệu cotton chải kỹ mềm mại có thể thấy rõ trong ảnh" hoặc "bề mặt thép không gỉ 316 bóng gương như trong hình".
 
-- TỰ CHỌN 2-3 hình ảnh phù hợp nhất từ ${images.length} hình ảnh có sẵn, dựa trên nội dung và persona "${personaName}" và pain points
+- TỰ CHỌN 2-3 hình ảnh phù hợp nhất từ ${imageUrls.length} hình ảnh có sẵn, dựa trên nội dung và persona "${personaName}" và pain points
 - CHÈN trực tiếp URL hình ảnh đã chọn vào HTML description bằng thẻ <img>
 - Chọn hình ảnh phù hợp với từng section:
-  * Hero section: Hình ảnh đẹp nhất, thu hút nhất từ ${images.length} hình có sẵn
+  * Hero section: Hình ảnh đẹp nhất, thu hút nhất từ ${imageUrls.length} hình có sẵn
   * Benefits section: Hình ảnh minh họa tính năng/lợi ích tốt nhất
   * Lifestyle section: Hình ảnh sản phẩm trong context sử dụng phù hợp nhất
 - Đảm bảo hình ảnh tăng tính thuyết phục và phù hợp với persona
@@ -2552,9 +2557,9 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
     ];
 
     // Add ALL images to context - let AI choose the best ones
-    if (images && images.length > 0) {
-      console.log('🖼️ Sending ALL images to AI for analysis:', images.length);
-      images.forEach((imageUrl: string, index: number) => {
+    if (imageUrls && imageUrls.length > 0) {
+      console.log('🖼️ Sending ALL images to AI for analysis:', imageUrls.length);
+      imageUrls.forEach((imageUrl: string, index: number) => {
         console.log(`📸 Image ${index + 1}:`, imageUrl);
         messageContent.push({
           type: 'image_url',
@@ -2886,7 +2891,7 @@ ${productImages.map((u,i)=>`${i+1}. ${u}`).join('\n')}
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: 'openai/gpt-4o-mini',
+        model: 'x-ai/grok-4-fast',//'openai/gpt-4o-mini',
         messages: [
           {
             role: 'user',
