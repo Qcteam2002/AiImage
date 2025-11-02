@@ -2226,7 +2226,7 @@ router.post('/generate-content-from-segmentation', async (req, res) => {
     const { 
       title, 
       description, 
-      images,
+      images, 
       productImages, // Frontend sends this
       segmentation,
       targetMarket = 'vi',
@@ -2245,6 +2245,9 @@ router.post('/generate-content-from-segmentation', async (req, res) => {
         error: 'Missing required fields: title and segmentation' 
       });
     }
+
+    // Simple: Just pass language and targetMarket to AI - let AI handle it
+    console.log('🌍 Content Generation - Market:', targetMarket, 'Language:', language);
 
     // Extract segmentation data
     const {
@@ -2275,106 +2278,108 @@ router.post('/generate-content-from-segmentation', async (req, res) => {
 
     // Format pain points for prompt
     const painPointText = secondaryPainPoints.length > 0
-      ? `**Nỗi đau chính (Primary Pain Point):**
+      ? `**Primary Pain Point:**
 ${primaryPainPoint}
 
-**Các vấn đề thực tế (Secondary Pain Points):**
+**Secondary Pain Points:**
 ${secondaryPainPoints.map((p, i) => `${i + 1}. ${p}`).join('\n')}`
-      : `**Nỗi đau & Vấn đề:**
+      : `**Pain Points & Issues:**
 ${primaryPainPoint}`;
 
+    // Build prompt - simple: just pass language and targetMarket to AI
+    const contentPrompt = `[ROLE]
+You are a world-class e-commerce copywriter specializing in Direct Response marketing. Your ability to deeply understand customer psychology and create emotionally compelling content that drives purchase action is unmatched.
 
-    // Build prompt theo cấu trúc "Bất Bại"
-    const contentPrompt = `[ĐÓNG VAI]
-Hãy đóng vai một chuyên gia copywriter chuyên viết quảng cáo bán hàng theo phương pháp Direct Response, có khả năng thấu hiểu sâu sắc tâm lý khách hàng và viết nội dung chạm đến cảm xúc, thúc đẩy hành động mua hàng mạnh mẽ.
+[CONTEXT]
+I need you to write product content for a Shopify store. Below is all the strategic information:
 
-[BỐI CẢNH]
-Tôi đang cần bạn viết nội dung cho một sản phẩm trên Shopify. Dưới đây là toàn bộ thông tin chiến lược:
+**Product Information:**
+- **Product Title:** ${title}
+- **Current Description:** ${description || 'No description provided'}
+- **Target Market:** ${targetMarket}
+- **Output Language:** ${language} - **CRITICAL: ALL content (title, description, headings, text) MUST be written in ${language}**
+- **Available Product Images:** ${imageUrls && imageUrls.length > 0 ? imageUrls.map((url: string, index: number) => `${index + 1}. ${url}`).join('\n') : 'No images provided'}
 
-**Thông tin sản phẩm:**
-- **Tên sản phẩm:** ${title}
-- **Mô tả hiện tại:** ${description || 'Chưa có mô tả'}
-- **Thị trường mục tiêu:** ${targetMarket === 'us' ? 'United States' : 'Vietnam'}
-- **Hình ảnh sản phẩm có sẵn:** ${imageUrls && imageUrls.length > 0 ? imageUrls.map((url: string, index: number) => `${index + 1}. ${url}`).join('\n') : 'Không có hình ảnh'}
-
-**Đối tượng khách hàng mục tiêu (Segmentation):**
-- **Tên Persona:** ${personaName}
+**Target Customer Segment (Segmentation):**
+- **Persona Name:** ${personaName}
 - **Demographics:** ${personaProfile?.demographics || 'N/A'}
 - **Behaviors:** ${personaProfile?.behaviors || 'N/A'}
 - **Motivations:** ${personaProfile?.motivations || 'N/A'}
 - **Locations:** ${locations?.join(', ') || 'N/A'}
 
-**Nỗi đau & Vấn đề của họ:**
+**Their Pain Points & Issues:**
 ${painPointText}
 
-**Lợi ích sản phẩm (Product Benefits) - Sự chuyển đổi mong muốn:**
+**Product Benefits - Desired Transformation:**
 ${productBenefits?.map((benefit: string, index: number) => `${index + 1}. ${benefit}`).join('\n') || 'N/A'}
 
-**Xu hướng theo mùa (Seasonal Trends):**
+**Seasonal Trends:**
 ${seasonalTrends || 'N/A'}
 
-**Từ khóa SEO cần tích hợp:**
+**SEO Keywords to Integrate:**
 ${keywordSuggestions?.slice(0, 5).join(', ') || 'N/A'}
 
-[NHIỆM VỤ]
-Dựa vào tất cả thông tin trên, hãy viết:
-1. **Title mới** (50-80 ký tự): Hấp dẫn, có từ khóa SEO, đánh thẳng vào kết quả mong muốn
-2. **Description đầy đủ** (format HTML): Một bài mô tả sản phẩm hoàn chỉnh để đăng lên trang Shopify
+[TASK]
+Based on all the information above, write:
+1. **New Title** (50-80 characters): Compelling, SEO-optimized, hitting the desired outcome directly - MUST be in ${language}
+2. **Complete Description** (HTML format): A complete product description ready to publish on Shopify - MUST be in ${language}
 
-**Trong Description, phải bao gồm:**
-- **Bảng "Đặc Điểm Nổi Bật"** (hoặc "Thông Số Kỹ Thuật" nếu là sản phẩm công nghệ)
-  * Nhiệm vụ của bạn là đọc kỹ Mô tả hiện tại và phân tích hình ảnh để điền thông tin vào bảng này
-  * Nếu sản phẩm là thời trang/gia dụng/phụ kiện, dùng format "Đặc Điểm Nổi Bật"
-  * Nếu sản phẩm là đồ công nghệ, dùng format "Thông Số Kỹ Thuật"
-  * Các thông tin trong bảng phải là SỰ THẬT, được trích xuất từ mô tả hoặc suy ra từ hình ảnh
+**Description Must Include:**
+- **"Key Features" Table** (or "Technical Specifications" if it's a tech product)
+  * Your task is to carefully read the current description and analyze images to fill this table with accurate information
+  * For fashion/home/accessories products, use "Key Features" format
+  * For technology products, use "Technical Specifications" format
+  * All information in the table must be FACTUAL, extracted from description or inferred from images
+  * **All table headers and values MUST be in ${language}**
 
-- **Mục FAQ ngắn (2-3 câu hỏi)** ngay trước phần CTA
-  * Biến đổi Nỗi đau (Pain Point) và các vấn đề tiềm ẩn của Persona thành các câu hỏi
-  * Sử dụng thông tin sản phẩm và lợi ích để viết câu trả lời ngắn gọn, thuyết phục
-  * Câu hỏi phải tự nhiên, như người dùng thực sự sẽ hỏi
-  * Câu trả lời phải dựa trên dữ liệu thật (từ productBenefits, mô tả, hình ảnh)
+- **FAQ Section (2-3 questions)** right before CTA section
+  * Transform Pain Points and Persona's hidden concerns into questions
+  * Use product information and benefits to write concise, persuasive answers
+  * Questions must be natural, as real users would ask
+  * Answers must be based on real data (from productBenefits, description, images)
+  * **All FAQ questions and answers MUST be in ${language}**
 
-**QUAN TRỌNG VỀ HÌNH ẢNH:**
-- Tôi đã gửi kèm ${imageUrls.length} hình ảnh sản phẩm trong message này. Nhiệm vụ của bạn là phải XEM và PHÂN TÍCH KỸ LƯỠNG TỪNG HÌNH ẢNH để trích xuất các thông tin THỰC TẾ về sản phẩm.
+**CRITICAL ABOUT IMAGES:**
+- I have sent ${imageUrls.length} product images with this message. You MUST LOOK AT AND ANALYZE EACH IMAGE THOROUGHLY to extract REAL information about the product.
 
-- **Trích xuất thông tin sau từ hình ảnh:**
-  1. **Chất liệu & Bề mặt:** Vải trơn, vải gân, bề mặt bóng, mờ, chất liệu da, gỗ, kim loại, nhựa, thép không gỉ...?
-  2. **Chi tiết thiết kế:** Cổ áo tròn hay tim, có túi hay không, khóa kéo, nút gài, chi tiết khắc laser, pattern, logo, in hình...?
-  3. **Màu sắc:** Mô tả chính xác các màu sắc có trong ảnh (ví dụ: navy xanh đậm, hồng pastel, vàng gold...).
-  4. **Kích thước/Hình dáng:** To, nhỏ, dài, ngắn, tròn, vuông, oval... (nếu nhìn thấy được từ ảnh).
-  5. **Bối cảnh sử dụng (nếu có):** Sản phẩm được chụp ở đâu? Trong nhà, ngoài trời, văn phòng, bãi biển, phòng ngủ...?
+- **Extract the following information from images:**
+  1. **Material & Surface:** Smooth fabric, ribbed fabric, glossy surface, matte, leather material, wood, metal, plastic, stainless steel...?
+  2. **Design Details:** Round or V-neck collar, pockets or not, zipper, buttons, laser-engraved details, patterns, logos, prints...?
+  3. **Colors:** Accurately describe colors visible in images (e.g., navy blue, pastel pink, gold...)
+  4. **Size/Shape:** Large, small, long, short, round, square, oval... (if visible in images)
+  5. **Usage Context (if any):** Where is the product photographed? Indoors, outdoors, office, beach, bedroom...?
 
-- **Sử dụng các thông tin thực tế vừa trích xuất được** để làm cho phần mô tả lợi ích và sự chuyển đổi trở nên cụ thể và đáng tin cậy hơn. KHÔNG được bịa đặt các chi tiết không có trong ảnh.
+- **Use the real information you extracted** to make benefit descriptions and transformations more specific and trustworthy. DO NOT fabricate details not visible in images.
 
-- **Ví dụ:** Thay vì viết "chất liệu cao cấp", hãy viết "chất liệu cotton chải kỹ mềm mại có thể thấy rõ trong ảnh" hoặc "bề mặt thép không gỉ 316 bóng gương như trong hình".
+- **Example:** Instead of writing "premium material", write "brushed cotton material that's soft to the touch, clearly visible in the image" or "316 stainless steel surface with mirror finish as shown in the photo".
 
-- TỰ CHỌN 2-3 hình ảnh phù hợp nhất từ ${imageUrls.length} hình ảnh có sẵn, dựa trên nội dung và persona "${personaName}" và pain points
-- CHÈN trực tiếp URL hình ảnh đã chọn vào HTML description bằng thẻ <img>
-- Chọn hình ảnh phù hợp với từng section:
-  * Hero section: Hình ảnh đẹp nhất, thu hút nhất từ ${imageUrls.length} hình có sẵn
-  * Benefits section: Hình ảnh minh họa tính năng/lợi ích tốt nhất
-  * Lifestyle section: Hình ảnh sản phẩm trong context sử dụng phù hợp nhất
-- Đảm bảo hình ảnh tăng tính thuyết phục và phù hợp với persona
-- KHÔNG được chọn hình ảnh giống nhau cho các personas khác nhau
+- SELF-SELECT 2-3 most suitable images from ${imageUrls.length} available images, based on content, persona "${personaName}" and pain points
+- INSERT selected image URLs directly into HTML description using <img> tags
+- Choose images suitable for each section:
+  * Hero section: Most beautiful, attractive image from ${imageUrls.length} available images
+  * Benefits section: Best image illustrating features/benefits
+  * Lifestyle section: Best image showing product in suitable usage context
+- Ensure images enhance persuasiveness and match persona
+- DO NOT choose same images for different personas
 
-Nội dung cần phải kể một câu chuyện, khơi gợi cảm xúc và thuyết phục khách hàng rằng đây chính là giải pháp họ đang tìm kiếm.
+Content must tell a story, evoke emotion, and convince customers this is exactly the solution they're looking for.
 
-[YÊU CẦU & RÀNG BUỘC]
-- **Loại giọng văn (Tone Type):** ${toneType}
-- **Hướng dẫn giọng văn (Voice Guideline):** ${voiceGuideline}
-- **Văn phong:** Sử dụng câu ngắn, gạch đầu dòng để dễ đọc
-- **Icons:** KHÔNG dùng emoji - Dùng SVG icons sạch (no inline style)
-- **HTML SẠCH:** KHÔNG dùng style="..." trừ thẻ <img>
-- **Font:** Theme sẽ tự động style - Chỉ dùng thẻ semantic (<h2>, <h3>, <h4>, <strong>)
-- **Tránh dùng từ ngữ kỹ thuật phức tạp** - Tập trung vào LỢI ÍCH thay vì TÍNH NĂNG
-- **Không được:** Viết chung chung, sáo rỗng. Phải cá nhân hóa cho đúng persona "${personaName}"
-- **Ngôn ngữ:** ${language === 'vi-VN' ? 'Tiếng Việt' : 'English'}
+[REQUIREMENTS & CONSTRAINTS]
+- **Tone Type:** ${toneType}
+- **Voice Guideline:** ${voiceGuideline}
+- **Writing Style:** Use short sentences, bullet points for easy reading
+- **Icons:** DO NOT use emojis - Use clean SVG icons (no inline style)
+- **CLEAN HTML:** DO NOT use style="..." except for <img> tags
+- **Font:** Theme will auto-style - Only use semantic tags (<h2>, <h3>, <h4>, <strong>)
+- **Avoid complex technical terms** - Focus on BENEFITS instead of FEATURES
+- **DO NOT:** Write generic, cliché content. Must personalize for persona "${personaName}"
+- **CRITICAL:** ALL content (title, description, headings, text, FAQ questions and answers, table headers and values) MUST be written in ${language}. Do NOT mix languages.
 
-[ĐỊNH DẠNG ĐẦU RA]
-Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text ngoài JSON):
+[OUTPUT FORMAT]
+Return JSON with the following structure (NO markdown, NO additional text outside JSON):
 
 {
-  "title": "Tiêu đề mới cực kỳ hấp dẫn (50-80 ký tự)",
+  "title": "New highly compelling title (50-80 characters) - MUST be in ${language}",
   "description": "<article class='product-description'>
     
     <!-- 1. Hero Section: Compelling headline + hook -->
@@ -2398,8 +2403,8 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
             <strong>Benefit Title 1</strong>
           </dt>
           <dd>Chi tiết lợi ích cụ thể, không phải tính năng. Focus vào outcome/result.</dd>
-        </div>
-        
+    </div>
+    
         <div class='benefit-card'>
           <dt>
             <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'>
@@ -2408,8 +2413,8 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
             <strong>Benefit Title 2</strong>
           </dt>
           <dd>Chi tiết lợi ích thứ hai, nhấn mạnh transformation.</dd>
-        </div>
-        
+    </div>
+    
         <div class='benefit-card'>
           <dt>
             <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'>
@@ -2418,7 +2423,7 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
             <strong>Benefit Title 3</strong>
           </dt>
           <dd>Chi tiết lợi ích thứ ba, emotional connection.</dd>
-        </div>
+    </div>
       </dl>
       <figure>
         <img src='URL_HÌNH_ẢNH_BENEFITS' alt='Product benefits showcase' style='max-width: 100%; height: auto;' />
@@ -2473,7 +2478,7 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
           <h3 class='faq-question'>Câu hỏi 1 từ primary pain point?</h3>
           <div class='faq-answer'>
             <p>Câu trả lời chi tiết, dựa trên facts và benefits. 2-3 câu.</p>
-          </div>
+    </div>
         </div>
         
         <div class='faq-item'>
@@ -2544,9 +2549,190 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
   * Q3: Value proposition/differentiation → question
   * Answers: 2-3 câu, fact-based, trust-building
 
-- **Use Case Section:** Mô tả ideal customer và transformation
+- **Use Case Section:** Describe ideal customer and transformation
   * Versatility, value proposition
-  * Real-world usage scenarios`;
+  * Real-world usage scenarios
+
+[OUTPUT FORMAT]
+Return JSON with the following structure (NO markdown, NO additional text outside JSON):
+
+{
+  "title": "New highly compelling title (50-80 characters)",
+  "description": "<article class='product-description'>
+    
+    <!-- 1. Hero Section: Compelling headline + hook -->
+    <header class='product-hero'>
+      <h1>Main headline hitting result - compelling & benefit-driven</h1>
+      <p class='lead'>Hook sentence touching pain point, creating emotional connection instantly</p>
+      <figure>
+        <img src='HERO_IMAGE_URL' alt='Product hero image' style='max-width: 100%; height: auto;' />
+      </figure>
+    </header>
+    
+    <!-- 2. Key Benefits: Visual + Concise -->
+    <section class='benefits'>
+      <h2>Why You'll Love This Product</h2>
+      <dl class='benefits-grid'>
+        <div class='benefit-card'>
+          <dt>
+            <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'>
+              <path d='M20 6L9 17l-5-5'/>
+            </svg>
+            <strong>Benefit Title 1</strong>
+          </dt>
+          <dd>Specific benefit details, not features. Focus on outcome/result.</dd>
+        </div>
+        
+        <div class='benefit-card'>
+          <dt>
+            <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'>
+              <path d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z'/>
+            </svg>
+            <strong>Benefit Title 2</strong>
+          </dt>
+          <dd>Second benefit detail, emphasizing transformation.</dd>
+        </div>
+        
+        <div class='benefit-card'>
+          <dt>
+            <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'>
+              <path d='M12 2v20M2 12h20'/>
+            </svg>
+            <strong>Benefit Title 3</strong>
+          </dt>
+          <dd>Third benefit detail, emotional connection.</dd>
+        </div>
+      </dl>
+      <figure>
+        <img src='BENEFITS_IMAGE_URL' alt='Product benefits showcase' style='max-width: 100%; height: auto;' />
+      </figure>
+    </section>
+    
+    <!-- 3. Product Details: Clean Table -->
+    <section class='specifications'>
+      <h2>Product Information</h2>
+      <table>
+        <tbody>
+          <tr>
+            <th>Material</th>
+            <td>Extracted from description/images - specific, detailed</td>
+          </tr>
+          <tr>
+            <th>Design</th>
+            <td>Specific design description visible from images</td>
+          </tr>
+          <tr>
+            <th>Colors</th>
+            <td>Specific color names from images</td>
+          </tr>
+          <tr>
+            <th>Suitable For</th>
+            <td>Specific use cases based on persona</td>
+          </tr>
+          <tr>
+            <th>Care Instructions</th>
+            <td>Actual care guidance</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    
+    <!-- 4. Social Proof / Use Case -->
+    <section class='use-case'>
+      <h2>Who Should Own This Product</h2>
+      <p>Detailed description of ideal customer, use cases, and transformation. Emphasize versatility and value.</p>
+      <figure>
+        <img src='LIFESTYLE_IMAGE_URL' alt='Product in use' style='max-width: 100%; height: auto;' />
+        <figcaption>Lifestyle context caption (optional)</figcaption>
+      </figure>
+    </section>
+    
+    <!-- 5. FAQ: Professional Q&A Format -->
+    <section class='faq'>
+      <h2>Frequently Asked Questions</h2>
+      
+      <div class='faq-list'>
+        <div class='faq-item'>
+          <h3 class='faq-question'>Question 1 from primary pain point?</h3>
+          <div class='faq-answer'>
+            <p>Detailed answer based on facts and benefits. 2-3 sentences.</p>
+          </div>
+        </div>
+        
+        <div class='faq-item'>
+          <h3 class='faq-question'>Question 2 about practical concerns?</h3>
+          <div class='faq-answer'>
+            <p>Answer addressing concern, building trust.</p>
+          </div>
+        </div>
+        
+        <div class='faq-item'>
+          <h3 class='faq-question'>Question 3 about value proposition?</h3>
+          <div class='faq-answer'>
+            <p>Answer about unique value, differentiation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 6. Final CTA -->
+    <footer class='product-cta'>
+      <p><strong>Strong, clear call-to-action creating urgency</strong></p>
+    </footer>
+    
+  </article>"
+}
+
+**IMPORTANT NOTES - SEMANTIC HTML:**
+- Description MUST use semantic HTML5: <article>, <header>, <section>, <footer>, <figure>, <dl>, <dt>, <dd>
+- MUST have all 6 sections: header (hero), benefits, specifications (table), use-case, faq, footer (cta)
+- Benefits use <dl> (definition list) with <dt> (term) and <dd> (description) - card-based structure
+- Table uses <th> for headers, <td> for values - clean & scannable
+- FAQ format: <div class='faq-list'> with <div class='faq-item'>, <h3 class='faq-question'>, <div class='faq-answer'>
+- Images wrap in <figure> tag (semantic)
+
+**GOLDEN RULES FOR HTML & CSS:**
+1. **ABSOLUTELY FORBIDDEN** style="..." except <img> (style='max-width: 100%; height: auto;')
+2. **SEMANTIC TAGS:** <article>, <header>, <section>, <footer>, <figure>, <figcaption>, <dl>, <dt>, <dd>
+3. **BENEFITS:** Use <dl class='benefits-grid'> with benefit-card wrappers
+   - Icon: 20px, stroke-width 1.5, opacity 0.6 (subtle)
+   - <dt> contains icon + benefit title (bold)
+   - <dd> contains benefit description
+4. **TABLE:** Clean <table> with <th> and <td>, NO wrapper divs
+   - <th> for label column (bold)
+   - <td> for value column
+5. **FAQ:** Professional Q&A format (NO <details>, NO accordion)
+   - Structure: <div class='faq-list'> → <div class='faq-item'> → <h3 class='faq-question'> + <div class='faq-answer'><p>
+   - Questions use <h3 class='faq-question'>
+   - Answers in <div class='faq-answer'><p>
+   - Theme will style beautifully with borders, spacing, colors
+6. **HIERARCHY:** <h1> for hero title, <h2> for section titles, <h3> for FAQ questions
+
+**CONTENT WRITING RULES:**
+- **Specs Table:** Extract real information from description/images
+  * Material: Cotton, steel, leather... + details (soft, mirror finish...)
+  * Design: Specific visible design (round collar, zipper, pattern...)
+  * Colors: Specific color names from images (Navy blue, Pastel pink...)
+  * Suitable For: Use cases based on persona
+  * Care: Actual care instructions
+
+- **Benefits:** Focus on OUTCOMES, not features
+  * Title: Benefit headline (emotional/practical result)
+  * Description: Specific details about transformation
+  * Example: "Confident Shine" instead of "High Quality"
+
+- **FAQ:** Transform pain points into natural questions
+  * Q1: Primary pain point → question
+  * Q2: Secondary pain point/practical concern → question
+  * Q3: Value proposition/differentiation → question
+  * Answers: 2-3 sentences, fact-based, trust-building
+
+- **Use Case Section:** Describe ideal customer and transformation
+  * Versatility, value proposition
+  * Real-world usage scenarios
+
+**CRITICAL LANGUAGE REQUIREMENT:**
+ALL content including title, headings, descriptions, FAQ questions and answers, table headers and values MUST be written in ${language}. Do NOT mix languages.`;
 
     // Prepare messages with images (if available)
     const messageContent: any[] = [
@@ -2574,11 +2760,20 @@ Trả về JSON với cấu trúc SAU (KHÔNG thêm markdown, KHÔNG thêm text 
 
     // Call Grok-4-fast API
     console.log('🤖 Calling Grok-4-fast for content generation...');
+    console.log(`🌍 Language: ${language}, Market: ${targetMarket}`);
+    
+    // Simple system message - just tell AI to use the specified language
+    const systemMessage = `You are an e-commerce copywriter expert. Create content in ${language}. Return ONLY JSON, no markdown. ALL text in title and description MUST be in ${language}.`;
+    
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
         model: "x-ai/grok-4-fast",//"google/gemini-2.5-flash-preview-09-2025",//'x-ai/grok-4-fast',
         messages: [
+          {
+            role: 'system',
+            content: systemMessage
+          },
           {
             role: 'user',
             content: messageContent
@@ -3359,6 +3554,275 @@ router.post('/generate-image-result', async (req, res) => {
     res.status(500).json({ 
       error: 'Failed to generate image result',
       message: error.message 
+    });
+  }
+});
+
+// 🖼️ API: POST /api/product-optimize/generate-alt-text
+// 🎯 Mục tiêu: Tạo alt text cho các ảnh sản phẩm sử dụng x-ai/grok-4-fast
+router.post('/generate-alt-text', async (req, res) => {
+  try {
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    if (!openRouterApiKey) {
+      return res.status(500).json({ error: 'OpenRouter API key not configured' });
+    }
+
+    const {
+      productTitle,
+      images,
+      selectedSegment,
+      targetMarket = 'vi',
+      tone = 'friendly',
+      language = 'vi-VN' // Language for output: 'vi-VN', 'en-US', 'vi', 'en', etc.
+    } = req.body;
+
+    console.log('🖼️ Generating Alt Text - Product:', productTitle);
+    console.log('📥 Images count:', images?.length || 0);
+    console.log('🌍 Market:', targetMarket, 'Language:', language);
+
+    // Validate required fields
+    if (!productTitle) {
+      return res.status(400).json({ error: 'productTitle is required' });
+    }
+
+    if (!images || !Array.isArray(images) || images.length === 0) {
+      return res.status(400).json({ error: 'images array is required and must not be empty' });
+    }
+
+    // Extract keyword suggestions from selectedSegment
+    const keywordSuggestions = selectedSegment?.keywordSuggestions || [];
+    const primaryKeywords = keywordSuggestions.slice(0, 3).join(', ');
+    const secondaryKeywords = keywordSuggestions.slice(3).join(', ') || primaryKeywords;
+    
+    // Get persona name for target audience
+    const targetAudience = selectedSegment?.name || 'E-commerce customers';
+    
+    // Extract image URLs from images array
+    const imageUrls: string[] = [];
+    images.forEach((image: any) => {
+      const url = image.url || image.src || image.imageUrl || null;
+      if (url && typeof url === 'string' && url.trim()) {
+        imageUrls.push(url.trim());
+      }
+    });
+
+    console.log(`📸 Found ${imageUrls.length} image URLs out of ${images.length} images`);
+    
+    // Simple prompt - just pass language and targetMarket directly to AI
+    const prompt = `# BACKGROUND & ROLE
+
+You are a Search Engine Optimization (SEO) and Artificial Intelligence (AI) expert for e-commerce. Your task is to ANALYZE THE PROVIDED IMAGES DIRECTLY and create accurate alt text based on the actual content of each image.
+
+# IMPORTANT - IMAGE ANALYSIS
+
+**YOU MUST:**
+1. **LOOK AT AND ANALYZE** each image sent with this message
+2. **ACCURATELY DESCRIBE** what you see in each image (angle, context, product details, colors, etc.)
+3. **CREATE ALT TEXT** based on the actual content of the image, not assumptions
+4. **WRITE ALL ALT TEXT IN THE LANGUAGE SPECIFIED:** ${language}
+
+# OBJECTIVE
+
+Analyze ${images.length} product images and write ${images.length} unique, accurate alt texts in ${language}, optimized for Google Images and enhanced AI recognition.
+
+# INPUT DATA
+
+*   **Product Title:** ${productTitle}
+*   **Image Count:** ${images.length}
+*   **Primary Keywords:** ${primaryKeywords || 'elegant product'}
+*   **Secondary Keywords:** ${secondaryKeywords || primaryKeywords || 'elegant product'}
+*   **Target Audience:** ${targetAudience}
+*   **Tone:** ${tone}
+*   **Target Market:** ${targetMarket}
+*   **Output Language:** ${language} - **CRITICAL: All alt text MUST be written in this language**
+
+# DETAILED REQUIREMENTS
+
+1.  **ANALYZE EACH IMAGE:** 
+    - Carefully examine each image sent with this message
+    - Identify the photography angle (studio, close-up, lifestyle, model wearing, packaging, etc.)
+    - Describe what you see: colors, details, context, models (if any)
+
+2.  **CREATE ACCURATE ALT TEXT:**
+    - Based on the actual content of the image, not assumptions
+    - Naturally integrate keywords
+    - Direct description, don't start with "Image of..." or "Picture of..."
+    - Keep reasonable length (under 125 characters)
+    - **MUST BE WRITTEN IN ${language}**
+
+# OUTPUT FORMAT
+
+Present results as a numbered list from 1 to ${images.length}, corresponding to the order of images sent:
+
+1. [alt text for first image in ${language} - accurately describe the image content]
+2. [alt text for second image in ${language} - accurately describe the image content]
+...
+${images.length}. [alt text for last image in ${language} - accurately describe the image content]
+
+Return only the numbered list, no additional text before or after. All alt text MUST be in ${language}.`;
+
+    console.log('🤖 Calling x-ai/grok-4-fast for alt text generation with image analysis...');
+
+    // Prepare message content with images
+    const messageContent: any[] = [
+      {
+        type: 'text',
+        text: prompt
+      }
+    ];
+
+    // Add all images to the message for AI to analyze
+    if (imageUrls.length > 0) {
+      console.log(`🖼️ Adding ${imageUrls.length} images to AI context for analysis...`);
+      imageUrls.forEach((imageUrl: string, index: number) => {
+        console.log(`   📸 Image ${index + 1}: ${imageUrl.substring(0, 80)}...`);
+        messageContent.push({
+          type: 'image_url',
+          image_url: {
+            url: imageUrl
+          }
+        });
+      });
+    } else {
+      console.log('⚠️ No image URLs found - AI will generate based on product metadata only');
+    }
+
+    let response;
+    try {
+      response = await axios.post(
+        'https://openrouter.ai/api/v1/chat/completions',
+        {
+          model: 'x-ai/grok-4-fast',
+          messages: [
+            {
+              role: 'system',
+              content: `You are an SEO and AI optimization expert. Analyze the provided images directly and create accurate alt text in ${language} based on the actual content of each image. Return only the numbered list of alt texts, one per line, starting with "1." All alt text MUST be in ${language}.`
+            },
+            {
+              role: 'user',
+              content: messageContent
+            }
+          ],
+          max_tokens: 2000,
+          temperature: 0.7
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${openRouterApiKey}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'http://localhost:3000',
+            'X-Title': 'Alt Text Generator',
+          },
+          timeout: 120000 // 2 minutes for image analysis
+        }
+      );
+    } catch (apiError: any) {
+      console.error('❌ OpenRouter API error:', apiError.response?.status, apiError.response?.data);
+      
+      // If error is due to invalid image URLs, fallback to text-only generation
+      if (apiError.response?.status === 400 && imageUrls.length > 0) {
+        console.log('⚠️ API rejected image URLs, falling back to text-only generation...');
+        
+        // Remove images from message and try again with text-only
+        const textOnlyPrompt = `Create ${images.length} alt texts in ${language} for product "${productTitle}" based on keywords: ${primaryKeywords}. Each alt text should describe a different photography angle (studio, close-up, lifestyle, etc.). All alt text MUST be in ${language}.\n\n1. [alt text 1]\n2. [alt text 2]\n...\n${images.length}. [alt text ${images.length}]`;
+        
+        try {
+          response = await axios.post(
+            'https://openrouter.ai/api/v1/chat/completions',
+            {
+              model: 'x-ai/grok-4-fast',
+              messages: [
+                {
+                  role: 'system',
+                  content: `You are an SEO expert. Create alt text in ${language}. Return only the numbered list. All alt text MUST be in ${language}.`
+                },
+                {
+                  role: 'user',
+                  content: textOnlyPrompt
+                }
+              ],
+              max_tokens: 2000,
+              temperature: 0.7
+            },
+            {
+              headers: {
+                'Authorization': `Bearer ${openRouterApiKey}`,
+                'Content-Type': 'application/json',
+                'HTTP-Referer': 'http://localhost:3000',
+                'X-Title': 'Alt Text Generator',
+              },
+              timeout: 60000
+            }
+          );
+        } catch (fallbackError: any) {
+          throw new Error(`OpenRouter API failed: ${fallbackError.response?.data?.error?.message || fallbackError.message}`);
+        }
+      } else {
+        throw new Error(`OpenRouter API error: ${apiError.response?.data?.error?.message || apiError.message}`);
+      }
+    }
+
+    // Validate API response structure
+    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
+      console.error('Invalid API response structure:', JSON.stringify(response.data, null, 2));
+      throw new Error('Invalid API response: missing choices array');
+    }
+
+    if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
+      console.error('Invalid message structure:', JSON.stringify(response.data.choices[0], null, 2));
+      throw new Error('Invalid API response: missing message content');
+    }
+
+    let content = response.data.choices[0].message.content.trim();
+    console.log('📝 Raw AI response:', content.substring(0, 200) + '...');
+
+    // Parse the numbered list of alt texts
+    const altTexts: string[] = [];
+    const lines = content.split('\n').filter((line: string) => line.trim().length > 0);
+    
+    for (const line of lines) {
+      // Extract alt text from numbered lines like "1. Alt text here" or "1) Alt text here"
+      const match = line.match(/^\d+[.)]\s*(.+)$/);
+      if (match && match[1]) {
+        altTexts.push(match[1].trim());
+      } else if (!line.match(/^\d+/) && line.trim().length > 0) {
+        // If line doesn't start with number but has content, include it
+        altTexts.push(line.trim());
+      }
+    }
+
+    // Ensure we have the correct number of alt texts
+    while (altTexts.length < images.length) {
+      altTexts.push(`${productTitle} - Image ${altTexts.length + 1}`);
+    }
+
+    // Take only the number we need
+    const finalAltTexts = altTexts.slice(0, images.length);
+
+    // Pair alt text with image IDs
+    const result = images.map((image: any, index: number) => ({
+      imageId: image.id || `image-${index + 1}`,
+      altText: finalAltTexts[index] || `${productTitle} - Image ${index + 1}`,
+      imageUrl: image.url || image.src || null
+    }));
+
+    console.log('✅ Alt text generated successfully for', result.length, 'images');
+
+    res.json({
+      success: true,
+      data: {
+        productTitle,
+        images: result,
+        count: result.length
+      }
+    });
+
+  } catch (error: any) {
+    console.error('Error in generate-alt-text:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate alt text',
+      message: error.message
     });
   }
 });
