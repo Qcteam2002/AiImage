@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client';
 import multer from 'multer';
 import axios from 'axios';
 import { v2 as cloudinary } from 'cloudinary';
-import { AI_MODELS_CONFIG, getModelConfig } from '../config/aiModels';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -408,13 +407,10 @@ You are a market research expert. Analyze the following product and return sugge
 
 Please analyze and return results in the exact JSON structure above.`;
 
-    // Get model config for suggest-data API
-    const modelConfig = AI_MODELS_CONFIG.suggestData;
-    
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: modelConfig.model,
+        model: 'google/gemini-2.5-flash-preview-09-2025',
         messages: [
           {
             role: 'system',
@@ -425,8 +421,8 @@ Please analyze and return results in the exact JSON structure above.`;
             content: prompt
           }
         ],
-        max_tokens: modelConfig.maxTokens,
-        temperature: modelConfig.temperature,
+        max_tokens: 4000,
+        temperature: 0.7,
       },
       {
         headers: {
@@ -435,7 +431,7 @@ Please analyze and return results in the exact JSON structure above.`;
           'HTTP-Referer': 'http://localhost:3000',
           'X-Title': 'Product Optimize Suggest',
         },
-        timeout: modelConfig.timeout
+        timeout: 30000
       }
     );
 
@@ -787,13 +783,10 @@ Trả về JSON:
 
     console.log('🤖 Sending request to OpenRouter AI...');
     
-    // Get model config for optimize API
-    const modelConfig = AI_MODELS_CONFIG.optimize;
-    
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: modelConfig.model,
+        model: 'openai/gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -804,8 +797,8 @@ Trả về JSON:
             content: prompt
           }
         ],
-        temperature: modelConfig.temperature,
-        max_tokens: modelConfig.maxTokens,
+        temperature: 0.7,
+        max_tokens: 2000,
       },
       {
         headers: {
@@ -1008,10 +1001,6 @@ router.post('/generate-ads/:productId', async (req, res) => {
 
 Hãy tạo quảng cáo hấp dẫn và hiệu quả!`;
 
-    // Get model config for generate-ads API
-    const modelConfig = AI_MODELS_CONFIG.generateAds;
-    const selectedModel = model || modelConfig.model; // Allow override from request
-
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -1021,7 +1010,7 @@ Hãy tạo quảng cáo hấp dẫn và hiệu quả!`;
         'X-Title': 'Product Optimize Ads Generator',
       },
       body: JSON.stringify({
-        model: selectedModel,
+        model: model || 'openai/gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -1032,8 +1021,8 @@ Hãy tạo quảng cáo hấp dẫn và hiệu quả!`;
             content: prompt
           }
         ],
-        temperature: modelConfig.temperature,
-        max_tokens: modelConfig.maxTokens,
+        temperature: 0.7,
+        max_tokens: 3000,
       })
     });
 
@@ -1151,14 +1140,11 @@ ${include_hashtags ? `- "hashtags": Array of ${main_keywords && main_keywords.le
 
 { "variants": [{ "variant_name": "name", "optimization_focus": "focus", "new_title": "title", "new_description": "HTML description" }] }`;
 
-    // Get model config for optimize-advanced API
-    const modelConfig = AI_MODELS_CONFIG.optimizeAdvanced;
-
     // Call OpenRouter API
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: modelConfig.model,
+        model: 'openai/gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -1182,8 +1168,8 @@ Return ONLY valid JSON, no markdown code blocks, no extra text. Make every word 
             content: prompt
           }
         ],
-        temperature: modelConfig.temperature,
-        max_tokens: modelConfig.maxTokens,
+        temperature: 0.95, // High temperature for maximum creativity
+        max_tokens: 5000, // Increased for more detailed content
       },
       {
         headers: {
@@ -1547,10 +1533,8 @@ ${include_testimonials ? '**Testimonials:** 3 customer reviews with 5-star ratin
 
 **Return ONLY complete HTML.** No markdown. Apply colors exactly. Professional Suxnix-style design.`;
 
-    // Get model config for generate-landing-page API
-    const modelConfig = AI_MODELS_CONFIG.generateLandingPage;
-    // Use selected model from request or default from config
-    const selectedModel = ai_model || modelConfig.model;
+    // Use selected model or default to DeepSeek V3.2
+    const selectedModel = ai_model || 'deepseek/deepseek-v3.2-exp';
     console.log(`🤖 Generating landing page with model: ${selectedModel}`);
 
     // Call OpenRouter API with dynamic model selection
@@ -1568,8 +1552,8 @@ ${include_testimonials ? '**Testimonials:** 3 customer reviews with 5-star ratin
             content: prompt
           }
         ],
-        temperature: modelConfig.temperature,
-        max_tokens: modelConfig.maxTokens,
+        temperature: 0.85,
+        max_tokens: 8000, // DeepSeek can handle more tokens
       },
       {
         headers: {
@@ -1578,7 +1562,7 @@ ${include_testimonials ? '**Testimonials:** 3 customer reviews with 5-star ratin
           'HTTP-Referer': 'http://localhost:3000',
           'X-Title': 'Landing Page Generator',
         },
-        timeout: modelConfig.timeout
+        timeout: 180000, // 3 minutes timeout for complex HTML generation
       }
     );
 
@@ -2029,13 +2013,10 @@ router.post('/suggestDataSegmentation', async (req, res) => {
     };
     const prompt = createSegmentationPrompt(promptData);
 
-    // Get model config for suggest-data-segmentation API
-    const modelConfig = AI_MODELS_CONFIG.suggestDataSegmentation;
-
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: modelConfig.model,
+        model: 'x-ai/grok-4-fast',//'google/gemini-2.5-flash-preview-09-2025',
         messages: [
           {
             role: 'system',
@@ -2073,8 +2054,8 @@ WRONG: \`\`\`json { ... } \`\`\` (markdown)`
             content: prompt
           }
         ],
-        max_tokens: modelConfig.maxTokens,
-        temperature: modelConfig.temperature
+        max_tokens: 8192,
+        temperature: 0.5
       },
       {
         headers: {
@@ -2083,7 +2064,7 @@ WRONG: \`\`\`json { ... } \`\`\` (markdown)`
           'HTTP-Referer': 'http://localhost:3000',
           'X-Title': 'Product Segmentation Suggest',
         },
-        timeout: modelConfig.timeout
+        timeout: 200000 // Increased to 120 seconds for complex prompts
       }
     );
 
@@ -2777,12 +2758,8 @@ ALL content including title, headings, descriptions, FAQ questions and answers, 
       console.log('⚠️ No images provided for AI analysis');
     }
 
-    // Get model config for generate-content-from-segmentation API
-    const modelConfig = AI_MODELS_CONFIG.generateContentFromSegmentation;
-    
-    // Call AI API for content generation
-    console.log('🤖 Calling AI for content generation...');
-    console.log(`🤖 Model: ${modelConfig.model}`);
+    // Call Grok-4-fast API
+    console.log('🤖 Calling Grok-4-fast for content generation...');
     console.log(`🌍 Language: ${language}, Market: ${targetMarket}`);
     
     // Simple system message - just tell AI to use the specified language
@@ -2791,7 +2768,7 @@ ALL content including title, headings, descriptions, FAQ questions and answers, 
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: modelConfig.model,
+        model: "x-ai/grok-4-fast",//"google/gemini-2.5-flash-preview-09-2025",//'x-ai/grok-4-fast',
         messages: [
           {
             role: 'system',
@@ -2802,8 +2779,8 @@ ALL content including title, headings, descriptions, FAQ questions and answers, 
             content: messageContent
           }
         ],
-        max_tokens: modelConfig.maxTokens,
-        temperature: modelConfig.temperature
+        max_tokens: 4096,
+        temperature: 0.7
       },
       {
         headers: {
@@ -2812,7 +2789,7 @@ ALL content including title, headings, descriptions, FAQ questions and answers, 
           'HTTP-Referer': 'http://localhost:3000',
           'X-Title': 'Product Content Generator',
         },
-        timeout: modelConfig.timeout
+        timeout: 60000 // 60 seconds
       }
     );
 
@@ -3020,6 +2997,11 @@ MANDATORY CONSTRAINTS FOR THE PROMPT:
 - "Do not repaint or redesign any part of the product. No recolor. No added or removed elements. No modifying labels or details."
 - "Only replace background, camera angle, environment, lighting, or presentation style."
 - "No duplication, no resizing of the main product shape, no cartoon look, no illustration, photorealistic only."
+- "The product region must remain unchanged pixel-for-pixel from the reference image."
+- "Only generate or modify background pixels and lighting to match the requested style."
+- "If you need to simulate shadows or reflections, apply them subtly without altering product geometry."
+- "No new jewelry or product variants may be generated."
+- "This is a background replacement task, not a repaint task. The product must be directly composited from the reference image without regeneration."
 
 PERSONA-DRIVEN PROMPT REQUIREMENTS:
 - The environment, props, and overall aesthetic MUST align with the target persona's lifestyle
@@ -3095,32 +3077,29 @@ ${productImages.map((u,i)=>`${i+1}. ${u}`).join('\n')}
       console.log('⚠️ No product images provided for AI analysis');
     }
 
-    // Get model config for generate-image-prompt API
-    const modelConfig = AI_MODELS_CONFIG.generateImagePrompt;
-    
-    // Call AI API for image analysis and prompt generation
-    console.log('🤖 Calling AI for image analysis and prompt generation...');
+    // Call GPT-4o API for image analysis and prompt generation
+    console.log('🤖 Calling GPT-4o for image analysis and prompt generation...');
     console.log('📊 AI Request Details:', {
-      model: modelConfig.model,
+      model: 'openai/gpt-4o-mini',
       messageCount: messageContent.length,
       imageCount: productImages?.length || 0,
       promptLength: imagePrompt.length,
-      maxTokens: modelConfig.maxTokens,
-      temperature: modelConfig.temperature
+      maxTokens: 2048,
+      temperature: 0.7
     });
     
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: modelConfig.model,
+        model: 'x-ai/grok-4-fast',//'openai/gpt-4o-mini',
         messages: [
           {
             role: 'user',
             content: messageContent
           }
         ],
-        max_tokens: modelConfig.maxTokens,
-        temperature: modelConfig.temperature
+        max_tokens: 2048,
+        temperature: 0.7
       },
       {
         headers: {
@@ -3129,7 +3108,7 @@ ${productImages.map((u,i)=>`${i+1}. ${u}`).join('\n')}
           'HTTP-Referer': 'http://localhost:3000',
           'X-Title': 'Product Image Generator',
         },
-        timeout: modelConfig.timeout
+        timeout: 60000 // 1 minute
       }
     );
 
@@ -3408,33 +3387,30 @@ router.post('/generate-image-result', async (req, res) => {
       }
     ];
 
-    // Get model config for generate-image-result API
-    const modelConfig = AI_MODELS_CONFIG.generateImageResult;
-    
-    // Call AI API for image generation
-    console.log('🤖 Calling AI for image generation...');
+    // Call Gemini 2.5 Flash Image API for image generation
+    console.log('🤖 Calling Gemini 2.5 Flash Image for image generation...');
     console.log('📊 AI Request Details:', {
-      model: modelConfig.model,
+      model: 'google/gemini-2.5-flash-image',
       messageCount: messageContent.length,
       promptLength: prompt.length,
       originalImageUrl,
       style,
-      maxTokens: modelConfig.maxTokens,
-      temperature: modelConfig.temperature
+      maxTokens: 4096,
+      temperature: 0.7
     });
     
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: modelConfig.model,
+        model: 'google/gemini-2.5-flash-image-preview',
         messages: [
           {
             role: 'user',
             content: messageContent
           }
         ],
-        max_tokens: modelConfig.maxTokens,
-        temperature: modelConfig.temperature
+        max_tokens: 4096,
+        temperature: 0.7
       },
       {
         headers: {
@@ -3443,7 +3419,7 @@ router.post('/generate-image-result', async (req, res) => {
           'HTTP-Referer': 'http://localhost:3000',
           'X-Title': 'Product Image Generator',
         },
-        timeout: modelConfig.timeout
+        timeout: 120000 // 2 minutes
       }
     );
 
@@ -3690,11 +3666,7 @@ ${images.length}. [alt text for last image in ${language} - accurately describe 
 
 Return only the numbered list, no additional text before or after. All alt text MUST be in ${language}.`;
 
-    // Get model config for generate-alt-text API
-    const modelConfig = AI_MODELS_CONFIG.generateAltText;
-    
-    console.log('🤖 Calling AI for alt text generation with image analysis...');
-    console.log(`🤖 Model: ${modelConfig.model}`);
+    console.log('🤖 Calling x-ai/grok-4-fast for alt text generation with image analysis...');
 
     // Prepare message content with images
     const messageContent: any[] = [
@@ -3725,7 +3697,7 @@ Return only the numbered list, no additional text before or after. All alt text 
       response = await axios.post(
         'https://openrouter.ai/api/v1/chat/completions',
         {
-          model: modelConfig.model,
+          model: 'x-ai/grok-4-fast',
           messages: [
             {
               role: 'system',
@@ -3736,8 +3708,8 @@ Return only the numbered list, no additional text before or after. All alt text 
               content: messageContent
             }
           ],
-          max_tokens: modelConfig.maxTokens,
-          temperature: modelConfig.temperature
+          max_tokens: 2000,
+          temperature: 0.7
         },
         {
           headers: {
@@ -3746,7 +3718,7 @@ Return only the numbered list, no additional text before or after. All alt text 
             'HTTP-Referer': 'http://localhost:3000',
             'X-Title': 'Alt Text Generator',
           },
-          timeout: modelConfig.timeout
+          timeout: 120000 // 2 minutes for image analysis
         }
       );
     } catch (apiError: any) {
@@ -3784,7 +3756,7 @@ Return only the numbered list, no additional text before or after. All alt text 
                 'HTTP-Referer': 'http://localhost:3000',
                 'X-Title': 'Alt Text Generator',
               },
-              timeout: modelConfig.timeout
+              timeout: 60000
             }
           );
         } catch (fallbackError: any) {

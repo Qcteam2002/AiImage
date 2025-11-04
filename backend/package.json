@@ -1,7 +1,7 @@
 {
   "name": "aiimage-backend",
-  "version": "1.0.0",
-  "description": "AI Image Processing Backend API - Unified Architecture",
+  "version": "2.0.0",
+  "description": "AI Image Processing Backend API - Unified Architecture with Centralized AI Models Config",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
