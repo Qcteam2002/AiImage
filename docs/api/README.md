@@ -14,6 +14,10 @@ Complete API reference for all AIImage services.
 - **[Image Generation - Optimized](./image-generation-optimized.md)** - ⭐ NEW: Persona-driven prompts
 - **[Image Generation - Complete](./image-generation-complete.md)** - Full workflow guide
 - **[Content Generation](./content-generation.md)** - AI content creation
+- **[Content Generation Retry](./content-generation-retry.md)** - 🔄 NEW: Retry/Optimize content generation
+- **[Content Generation Retry (Quick)](./content-generation-retry-quick.md)** - Quick reference for retry feature
+- **[Feature Highlights API](./feature-highlights-api.md)** - 🆕 NEW: Generate feature highlights with images
+- **[Feature Highlights API (Quick)](./feature-highlights-api-quick.md)** - Quick reference for feature highlights
 - **[Alt Text Generation](./alt-text-generation.md)** - 🆕 AI-powered alt text generation with image analysis
 
 ### Segmentation
@@ -42,7 +46,9 @@ const data = await response.json();
 ## 🔄 Latest Updates
 
 ### January 2025
-- **Alt Text Generation API** - 🆕 NEW: AI-powered alt text generation with direct image analysis
+- **Feature Highlights API** - 🆕 NEW: Generate feature highlights (title, description, image) for products
+- **Content Generation Retry** - 🔄 NEW: Retry/Optimize feature to generate improved content versions
+- **Alt Text Generation API** - 🆕 AI-powered alt text generation with direct image analysis
 - **Product Optimize** - Enhanced with market-specific features
 - **Content Generation** - Added tone and voice guidelines
 

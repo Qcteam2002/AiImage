@@ -20,7 +20,7 @@ export const AI_MODELS_CONFIG = {
    */
   suggestData: {
     model: 'google/gemini-2.5-flash-preview-09-2025',
-    temperature: 0.7,
+    temperature: 1,
     maxTokens: 4000,
     timeout: 30000,
     description: 'Market analysis and keyword suggestion'
@@ -32,7 +32,7 @@ export const AI_MODELS_CONFIG = {
    */
   optimize: {
     model: 'openai/gpt-4o-mini',
-    temperature: 0.7,
+    temperature: 1,
     maxTokens: 2000,
     timeout: 60000,
     description: 'Content optimization for keywords'
@@ -44,7 +44,7 @@ export const AI_MODELS_CONFIG = {
    */
   generateAds: {
     model: 'openai/gpt-4o-mini',
-    temperature: 0.7,
+    temperature: 1,
     maxTokens: 3000,
     timeout: 60000,
     description: 'Generate ads for social media platforms'
@@ -80,8 +80,8 @@ export const AI_MODELS_CONFIG = {
    * Mục đích: Phân tích và tạo 3 segmentation personas chi tiết
    */
   suggestDataSegmentation: {
-    model: 'x-ai/grok-4-fast',
-    temperature: 0.5,
+    model: 'google/gemini-2.5-flash-preview-09-2025',//'x-ai/grok-4-fast',
+    temperature: 1,
     maxTokens: 8192,
     timeout: 200000, // 200 seconds for complex prompts
     description: 'Generate 3 detailed customer personas'
@@ -93,7 +93,7 @@ export const AI_MODELS_CONFIG = {
    */
   generateContentFromSegmentation: {
     model: 'x-ai/grok-4-fast',
-    temperature: 0.7,
+    temperature: 1,
     maxTokens: 4096,
     timeout: 60000,
     description: 'Generate optimized content from segmentation data'
@@ -105,7 +105,7 @@ export const AI_MODELS_CONFIG = {
    */
   generateImagePrompt: {
     model: 'x-ai/grok-4-fast',
-    temperature: 0.7,
+    temperature: 1,
     maxTokens: 2048,
     timeout: 60000,
     description: 'Analyze product images and generate prompt for requested style'
@@ -117,7 +117,7 @@ export const AI_MODELS_CONFIG = {
    */
   generateImageResult: {
     model: 'google/gemini-2.5-flash-image',
-    temperature: 0.7,
+    temperature: 1,
     maxTokens: 4096,
     timeout: 120000, // 2 minutes
     description: 'Generate new product image from prompt'
@@ -129,10 +129,22 @@ export const AI_MODELS_CONFIG = {
    */
   generateAltText: {
     model: 'x-ai/grok-4-fast',
-    temperature: 0.7,
+    temperature: 1,
     maxTokens: 2000,
     timeout: 120000, // 2 minutes for image analysis
     description: 'Generate SEO-optimized alt text for product images'
+  } as AIModelConfig,
+
+  /**
+   * API: /generate-feature-highlights
+   * Mục đích: Tạo feature highlights (title, description, image) cho sản phẩm
+   */
+  generateFeatureHighlights: {
+    model: 'x-ai/grok-4-fast',
+    temperature: 1,
+    maxTokens: 3000,
+    timeout: 60000,
+    description: 'Generate feature highlights with images for product showcase'
   } as AIModelConfig,
 } as const;
 
