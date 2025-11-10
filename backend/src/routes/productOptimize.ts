@@ -2275,8 +2275,396 @@ router.post('/generate-content-from-segmentation', async (req, res) => {
       previousContent // Optional: { title: string, description: string } - for retry/optimize
     } = req.body;
 
-    // Use productImages if images is not provided (support both formats)
-    const imageUrls = images || productImages || [];
+    // Support both formats: string[] or object[]
+    const rawImages = images || productImages || [];
+    const imageUrls = rawImages
+      .map((img: any) => {
+        if (typeof img === 'string') return img;
+        if (typeof img === 'object' && img !== null) return img.url || img.src || img;
+        return null;
+      })
+      .filter((url: any): url is string => Boolean(url) && typeof url === 'string');
+
+    console.log('🎨 Content Generation - Segmentation:', segmentation?.name);
+    console.log('🖼️ Images received:', imageUrls.length, 'images');
+    console.log('🔄 Is Retry/Optimize:', !!previousContent);
+
+    // Validate required fields
+    if (!title || !segmentation) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: title and segmentation' 
+      });
+    }
+
+    // Simple: Just pass language and targetMarket to AI - let AI handle it
+    console.log('🌍 Content Generation - Market:', targetMarket, 'Language:', language);
+
+    // Extract segmentation data
+    const {
+      name: personaName,
+      painpoints,
+      painpoint, // Old format for backward compatibility
+      personaProfile,
+      productBenefits,
+      toneType,
+      voiceGuideline,
+      keywordSuggestions,
+      seasonalTrends,
+      locations
+    } = segmentation;
+
+    // Handle both old and new painpoints structure
+    let primaryPainPoint = '';
+    let secondaryPainPoints: string[] = [];
+    
+    if (painpoints && typeof painpoints === 'object') {
+      // New structure
+      primaryPainPoint = painpoints.primary || '';
+      secondaryPainPoints = painpoints.secondary || [];
+    } else if (painpoint && typeof painpoint === 'string') {
+      // Old structure - use as primary
+      primaryPainPoint = painpoint;
+    }
+
+    // Format pain points for prompt
+    const painPointText = secondaryPainPoints.length > 0
+      ? `**Primary Pain Point:**
+${primaryPainPoint}
+
+**Secondary Pain Points:**
+${secondaryPainPoints.map((p, i) => `${i + 1}. ${p}`).join('\n')}`
+      : `**Pain Points & Issues:**
+${primaryPainPoint}`;
+
+    // Build previous content section if retry/optimize
+    const previousContentSection = previousContent 
+    ? `
+      
+  [CRITICAL TASK: RE-GENERATION MODE]
+  You are in optimization mode. The previous version was rejected. Your primary goal is to generate a COMPLETELY NEW and SUPERIOR version.
+  
+  [PREVIOUSLY GENERATED CONTENT - AVOID THIS AT ALL COSTS]
+  **Previous Title:**
+  ${previousContent.title}
+  **Previous Description:**
+  ${previousContent.description}
+  
+  [YOUR NEW INSTRUCTIONS - FOLLOW THESE STRICTLY]
+  - **New Angle:** You MUST create a fresh, creative angle. Do not reuse the old one.
+  - **New Phrasing:** You MUST use different vocabulary and sentence structures.
+  - **Be Better:** You MUST make this version more persuasive and emotionally engaging.
+  - **NO REPETITION:** Do NOT repeat headlines, benefit descriptions, or key phrases from the previous version.
+  `
+    : '';
+
+    // List all image URLs in the prompt so AI knows exactly which URLs are available
+    const imageUrlsList = imageUrls.length > 0 
+      ? imageUrls.map((url: string, index: number) => `${index + 1}. ${url}`).join('\n')
+      : 'No images provided';
+
+    // Build prompt - simple: just pass language and targetMarket to AI
+    const contentPrompt = `[ROLE]
+    You are an expert copywriter who specializes in CLEAR, CONCISE, and PUNCHY e-commerce content. Your goal is to get information to the customer as quickly as possible.
+
+    [CONTEXT]
+    I need you to write product content for a Shopify store. Below is all the strategic information:
+    
+    **Product Information:**
+    - **Product Title:** ${title}
+    - **Current Description:** ${description || 'No description provided'}
+    - **Target Market:** ${targetMarket}
+    - **Output Language:** ${language} - **CRITICAL: ALL content MUST be written in ${language}**
+    
+    **AVAILABLE IMAGE URLs (YOU MUST USE ONE OF THESE EXACT URLs):**
+    ${imageUrlsList}
+    
+    **Target Customer Segment (Persona):**
+    - **Persona Name:** ${personaName}
+    
+    **Their Pain Points & Issues:**
+    ${painPointText}
+    
+    **Product Benefits - Desired Transformation:**
+    ${productBenefits?.map((benefit: string, index: number) => `${index + 1}. ${benefit}`).join('\n') || 'N/A'}
+    
+    **SEO Keywords to Integrate:**
+    ${keywordSuggestions?.slice(0, 5).join(', ') || 'N/A'}${previousContentSection}
+    
+    [TASK & CONTENT REQUIREMENTS]
+    Your task is to write a new **Title** and a complete **HTML Description**. The main goal is EXTREME CLARITY and BREVITY.
+    
+    **1. Image Analysis & Insertion (CRITICAL TASK):**
+    - **Analyze all ${imageUrls.length} images** provided above to extract FACTUAL details: Material, Color, Design specifics.
+    - **You MUST select the single best image** from the list of ${imageUrls.length} URLs above that represents the product well.
+    - **You MUST insert its EXACT URL** into the \`<img src='...'>\` tag in the 'Chi Tiết' tab. 
+    - **Replace the 'URL_CHO_HERO_IMAGE' placeholder** with the real URL you selected from the list above.
+    - **Copy the EXACT URL** - do not modify or create new URLs.
+    
+    [FORMATTING & HTML RULES]
+    - **CRITICAL WRITING STYLE: BE DIRECT AND CONCISE.**
+    - **Use short sentences. MAXIMUM 15 words per sentence.**
+    - **NO marketing fluff. NO long paragraphs.** Get straight to the point.
+    - **Language:** ALL content MUST be in **${language}**.
+    - **Focus:** Emphasize BENEFITS (the outcome) over features.
+    
+    [OUTPUT FORMAT]
+    Return a single, clean JSON object. NO markdown or extra text outside the JSON.
+    
+    {
+      "title": "New direct, benefit-focused title (50-70 characters) - MUST be in ${language}",
+      "description": "<article class='product-description-tabs'>
+
+        <!-- MINIMAL CSS FOR TAB LAYOUT - DESIGNED TO INHERIT THEME STYLES -->
+        <style>
+          .product-tabs-wrapper { max-width: 100%; }
+          .product-tabs-nav { display: flex; align-items: center; border-bottom: 1px solid #e0e0e0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          .product-tab-link {
+            font-family: inherit; font-size: inherit; color: inherit;
+            background-color: transparent; border: none; border-bottom: 2px solid transparent;
+            padding: 12px 16px; cursor: pointer; margin-bottom: -1px; white-space: nowrap; transition: border-color 0.2s ease, opacity 0.2s ease;
+            opacity: 0.7;
+          }
+          .product-tab-link.active { border-bottom-color: currentColor; opacity: 1; font-weight: 600; }
+          .product-tab-content { display: none; padding: 24px 4px; }
+          .product-tab-content.active { display: block; }
+          .product-tab-content table { border: none; width: 100%; border-collapse: collapse; }
+          .product-tab-content th, .product-tab-content td { border: none; border-bottom: 1px solid #f0f0f0; padding: 10px 0; text-align: left; }
+          .product-tab-content ul { list-style-position: inside; padding-left: 0; }
+        </style>
+
+        <div class='product-tabs-wrapper'>
+          <!-- Tab Navigation -->
+          <nav class='product-tabs-nav'>
+            <button class='product-tab-link active' onclick='switchProductTab(event, \"overview\")'>Tổng Quan</button>
+            <button class='product-tab-link' onclick='switchProductTab(event, \"details\")'>Chi Tiết</button>
+            <button class='product-tab-link' onclick='switchProductTab(event, \"specs\")'>Thông Số</button>
+          </nav>
+
+          <!-- Tab Content Panels -->
+          <!-- Tab 1: Overview (TEXT-ONLY KEY HIGHLIGHTS) -->
+          <div id='overview' class='product-tab-content active'>
+            <h2>Điểm Nổi Bật Chính</h2>
+            <ul>
+              <!-- MANDATORY: Write 3-4 bullet points. Each bullet point MUST follow the format: '<strong>Benefit Title:</strong> Short fragment explaining the result. MAX 12 WORDS TOTAL.' -->
+              <li><strong>[Lợi Ích 1]:</strong> [Kết quả trực tiếp. Tối đa 10 từ].</li>
+              <li><strong>[Lợi Ích 2]:</strong> [Kết quả trực tiếp. Tối đa 10 từ].</li>
+              <li><strong>[Lợi Ích 3]:</strong> [Kết quả trực tiếp. Tối đa 10 từ].</li>
+            </ul>
+          </div>
+
+          <!-- Tab 2: Product Details (DETAILED TEXT + IMAGES) -->
+          <div id='details' class='product-tab-content'>
+            <h2>Đây Là Cách [Tên Sản Phẩm] Dành Cho Bạn</h2>
+            <p>Mở đầu ngắn gọn (1-2 câu) kết nối với '${personaName}'.</p>
+            <figure style='margin: 16px 0;'>
+              <img src='URL_CHO_HERO_IMAGE' alt='Product main image' style='max-width: 100%; height: auto; border-radius: 8px;' />
+            </figure>
+            <h3>[Diễn Giải Chi Tiết Lợi Ích 1]</h3>
+            <p>Giải thích lợi ích 1. Tối đa 2-3 câu ngắn.</p>
+            <h3>[Diễn Giải Chi Tiết Lợi Ích 2]</h3>
+            <p>Giải thích lợi ích 2. Tối đa 2-3 câu ngắn.</p>
+          </div>
+
+          <!-- Tab 3: Specifications -->
+          <div id='specs' class='product-tab-content'>
+            <h2>Thông Số Kỹ Thuật</h2>
+            <table>
+              <tbody>
+                <tr><th>Chất liệu</th><td>Factual data from images.</td></tr>
+                <tr><th>Thiết kế</th><td>Factual data from images.</td></tr>
+                <tr><th>Màu sắc</th><td>Factual data from images.</td></tr>
+                <tr><th>Phù hợp cho</th><td>Use case for '${personaName}'.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div> 
+
+        <!-- SELF-CONTAINED JAVASCRIPT - NO EXTERNAL FILES NEEDED -->
+        <script>
+          function switchProductTab(evt, tabId) {
+            const wrapper = evt.currentTarget.closest('.product-tabs-wrapper');
+            if (!wrapper) return;
+            const contents = wrapper.querySelectorAll('.product-tab-content');
+            const links = wrapper.querySelectorAll('.product-tab-link');
+            
+            contents.forEach(content => content.classList.remove('active'));
+            links.forEach(link => link.classList.remove('active'));
+            
+            const targetContent = wrapper.querySelector('#' + tabId);
+            if (targetContent) { targetContent.classList.add('active'); }
+            evt.currentTarget.classList.add('active');
+          }
+        </script>
+
+      </article>"
+    }
+    `;
+    const messageContent: any[] = [
+      {
+        type: 'text',
+        text: contentPrompt
+      }
+    ];
+
+    // Add ALL images to context - let AI choose the best ones
+    if (imageUrls && imageUrls.length > 0) {
+      console.log('🖼️ Sending ALL images to AI for analysis:', imageUrls.length);
+      imageUrls.forEach((imageUrl: string, index: number) => {
+        console.log(`📸 Image ${index + 1}:`, imageUrl);
+        messageContent.push({
+          type: 'image_url',
+          image_url: {
+            url: imageUrl
+          }
+        });
+      });
+    } else {
+      console.log('⚠️ No images provided for AI analysis');
+    }
+
+    // Get model config for generate-content-from-segmentation API
+    const modelConfig = AI_MODELS_CONFIG.generateContentFromSegmentation;
+    
+    // Call AI API for content generation
+    console.log('🤖 Calling AI for content generation...');
+    console.log(`🤖 Model: ${modelConfig.model}`);
+    console.log(`🌍 Language: ${language}, Market: ${targetMarket}`);
+    
+    // Simple system message - just tell AI to use the specified language
+    const systemMessage = `You are an e-commerce copywriter expert. Create content in ${language}. Return ONLY JSON, no markdown. ALL text in title and description MUST be in ${language}.`;
+    
+    const response = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
+        model: modelConfig.model,
+        messages: [
+          {
+            role: 'system',
+            content: systemMessage
+          },
+          {
+            role: 'user',
+            content: messageContent
+          }
+        ],
+        max_tokens: modelConfig.maxTokens,
+        temperature: modelConfig.temperature
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${openRouterApiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'http://localhost:3000',
+          'X-Title': 'Product Content Generator',
+        },
+        timeout: modelConfig.timeout
+      }
+    );
+
+    // Validate API response structure
+    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
+      console.error('Invalid API response structure:', JSON.stringify(response.data, null, 2));
+      throw new Error('Invalid API response: missing choices array');
+    }
+
+    if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
+      console.error('Invalid message structure:', JSON.stringify(response.data.choices[0], null, 2));
+      throw new Error('Invalid API response: missing message content');
+    }
+
+    let content = response.data.choices[0].message.content;
+    console.log('📝 Raw AI response length:', content.length);
+    console.log('🖼️ Response contains images:', content.includes('<img'));
+    console.log('📊 Number of <img> tags:', (content.match(/<img/g) || []).length);
+
+    // Parse JSON response
+    try {
+      // Clean up markdown if present
+      content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+      
+      // Find JSON boundaries
+      let jsonStart = content.indexOf('{');
+      let jsonEnd = content.lastIndexOf('}');
+      
+      if (jsonStart === -1 || jsonEnd === -1) {
+        throw new Error('No valid JSON found in response');
+      }
+      
+      let jsonString = content.substring(jsonStart, jsonEnd + 1);
+      
+      // Parse the JSON
+      const result = JSON.parse(jsonString);
+      
+      console.log('✅ Content generated successfully');
+      console.log('📌 New title:', result.title);
+      
+      res.json({
+        success: true,
+        data: {
+          title: result.title,
+          description: result.description
+        }
+      });
+      
+    } catch (parseError: any) {
+      console.error('❌ JSON parse error:', parseError.message);
+      console.log('Raw content:', content);
+      
+      // Return fallback response
+      res.json({
+        success: true,
+        data: {
+          title: title, // Keep original title
+          description: `<div class="product-description">
+            <div class="hero-section">
+              <h2>✨ ${title}</h2>
+              <p>${description || ''}</p>
+            </div>
+            <div class="benefits-section">
+              <h3>🌟 Lợi Ích Nổi Bật:</h3>
+              <ul class="benefits-list">
+                ${productBenefits?.map((benefit: string) => `<li>✅ ${benefit}</li>`).join('\n                ') || ''}
+              </ul>
+            </div>
+          </div>`
+        }
+      });
+    }
+
+  } catch (error: any) {
+    console.error('Error in generate-content-from-segmentation:', error.message);
+    res.status(500).json({ 
+      error: 'Failed to generate content',
+      message: error.message 
+    });
+  }
+});
+
+router.post('/generate-content-from-segmentation-old', async (req, res) => {
+  try {
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    
+    const { 
+      title, 
+      description, 
+      images, 
+      productImages, // Frontend sends this
+      segmentation,
+      targetMarket = 'vi',
+      language = 'vi-VN',
+      previousContent // Optional: { title: string, description: string } - for retry/optimize
+    } = req.body;
+
+    // Support both formats: string[] or object[]
+    const rawImages = images || productImages || [];
+    const imageUrls = rawImages
+      .map((img: any) => {
+        if (typeof img === 'string') return img;
+        if (typeof img === 'object' && img !== null) return img.url || img.src || img;
+        return null;
+      })
+      .filter((url: any): url is string => Boolean(url) && typeof url === 'string');
 
     console.log('🎨 Content Generation - Segmentation:', segmentation?.name);
     console.log('🖼️ Images received:', imageUrls.length, 'images');
@@ -2640,8 +3028,7 @@ ${primaryPainPoint}`;
   }
 });
 
-router.post('/generate-content-from-segmentation1', async (req, res) => {
-  console.log('API NÀY NÉ');
+router.post('/generate-content-from-segmentation-cofaq', async (req, res) => {
   try {
     const openRouterApiKey = process.env.OPENROUTER_API_KEY;
     
@@ -2652,14 +3039,23 @@ router.post('/generate-content-from-segmentation1', async (req, res) => {
       productImages, // Frontend sends this
       segmentation,
       targetMarket = 'vi',
-      language = 'vi-VN'
+      language = 'vi-VN',
+      previousContent // Optional: { title: string, description: string } - for retry/optimize
     } = req.body;
 
-    // Use productImages if images is not provided (support both formats)
-    const imageUrls = images || productImages || [];
+    // Support both formats: string[] or object[]
+    const rawImages = images || productImages || [];
+    const imageUrls = rawImages
+      .map((img: any) => {
+        if (typeof img === 'string') return img;
+        if (typeof img === 'object' && img !== null) return img.url || img.src || img;
+        return null;
+      })
+      .filter((url: any): url is string => Boolean(url) && typeof url === 'string');
 
     console.log('🎨 Content Generation - Segmentation:', segmentation?.name);
     console.log('🖼️ Images received:', imageUrls.length, 'images');
+    console.log('🔄 Is Retry/Optimize:', !!previousContent);
 
     // Validate required fields
     if (!title || !segmentation) {
@@ -2708,10 +3104,36 @@ ${secondaryPainPoints.map((p, i) => `${i + 1}. ${p}`).join('\n')}`
       : `**Pain Points & Issues:**
 ${primaryPainPoint}`;
 
+    // Build previous content section if retry/optimize
+    const previousContentSection = previousContent 
+    ? `
+      
+  [CRITICAL TASK: RE-GENERATION MODE]
+  You are in optimization mode. The previous version was rejected. Your primary goal is to generate a COMPLETELY NEW and SUPERIOR version.
+  
+  [PREVIOUSLY GENERATED CONTENT - AVOID THIS AT ALL COSTS]
+  **Previous Title:**
+  ${previousContent.title}
+  **Previous Description:**
+  ${previousContent.description}
+  
+  [YOUR NEW INSTRUCTIONS - FOLLOW THESE STRICTLY]
+  - **New Angle:** You MUST create a fresh, creative angle. Do not reuse the old one.
+  - **New Phrasing:** You MUST use different vocabulary and sentence structures.
+  - **Be Better:** You MUST make this version more persuasive and emotionally engaging.
+  - **NO REPETITION:** Do NOT repeat headlines, benefit descriptions, or key phrases from the previous version.
+  `
+    : '';
+
+    // List all image URLs in the prompt so AI knows exactly which URLs are available
+    const imageUrlsList = imageUrls.length > 0 
+      ? imageUrls.map((url: string, index: number) => `${index + 1}. ${url}`).join('\n')
+      : 'No images provided';
+
     // Build prompt - simple: just pass language and targetMarket to AI
     const contentPrompt = `[ROLE]
-    You are a world-class e-commerce copywriter specializing in Direct Response marketing. Your ability to deeply understand customer psychology and create emotionally compelling content that drives purchase action is unmatched.
-    
+    You are an expert copywriter who specializes in CLEAR, CONCISE, and PUNCHY e-commerce content. Your goal is to get information to the customer as quickly as possible.
+
     [CONTEXT]
     I need you to write product content for a Shopify store. Below is all the strategic information:
     
@@ -2720,14 +3142,12 @@ ${primaryPainPoint}`;
     - **Current Description:** ${description || 'No description provided'}
     - **Target Market:** ${targetMarket}
     - **Output Language:** ${language} - **CRITICAL: ALL content MUST be written in ${language}**
-    - **Available Product Images:** ${imageUrls && imageUrls.length > 0 ? imageUrls.map((url: string, index: number) => `${index + 1}. ${url}`).join('\n') : 'No images provided'}
+    
+    **AVAILABLE IMAGE URLs (YOU MUST USE ONE OF THESE EXACT URLs):**
+    ${imageUrlsList}
     
     **Target Customer Segment (Persona):**
     - **Persona Name:** ${personaName}
-    - **Demographics:** ${personaProfile?.demographics || 'N/A'}
-    - **Behaviors:** ${personaProfile?.behaviors || 'N/A'}
-    - **Motivations:** ${personaProfile?.motivations || 'N/A'}
-    - **Locations:** ${locations?.join(', ') || 'N/A'}
     
     **Their Pain Points & Issues:**
     ${painPointText}
@@ -2736,124 +3156,124 @@ ${primaryPainPoint}`;
     ${productBenefits?.map((benefit: string, index: number) => `${index + 1}. ${benefit}`).join('\n') || 'N/A'}
     
     **SEO Keywords to Integrate:**
-    ${keywordSuggestions?.slice(0, 5).join(', ') || 'N/A'}
+    ${keywordSuggestions?.slice(0, 5).join(', ') || 'N/A'}${previousContentSection}
     
     [TASK & CONTENT REQUIREMENTS]
-    Based on all the provided information, your task is to write a new **Title** and a complete **HTML Description**.
+    Your task is to write a new **Title** and a complete **HTML Description**. The main goal is EXTREME CLARITY and BREVITY.
     
-    **1. KEY STRATEGIC CHANGE: Integrate Persona into Benefits**
-    - Instead of a separate "Who Should Own This Product" section, you MUST weave the persona "${personaName}" and their specific life situations directly into the description of each benefit.
-    - Frame each benefit as a direct solution for them. This makes the content far more personal and compelling.
-    
-    **2. Image Analysis is CRITICAL**
-    - You MUST thoroughly analyze all ${imageUrls.length} images to extract REAL factual details: Material, Surface, Design Details, Colors, Usage Context.
-    - Use this information to make the copy specific and trustworthy. Example: Instead of "durable material", write "crafted from 316L stainless steel with a matte finish, as seen in the photos".
-    - SELF-SELECT the 3 best images (for Hero, Benefits, and an illustrative detail shot) and insert their URLs into the HTML.
-    
-    **3. Content Sections**
-    - **"Key Features" Table:** Fill this with FACTUAL information extracted from the description and images.
-    - **FAQ Section (2-3 questions):** Convert the persona's pain points and practical concerns into natural questions with reassuring, fact-based answers.
+    **1. Image Analysis & Insertion (CRITICAL TASK):**
+    - **Analyze all ${imageUrls.length} images** provided above to extract FACTUAL details: Material, Color, Design specifics.
+    - **You MUST select the single best image** from the list of ${imageUrls.length} URLs above that represents the product well.
+    - **You MUST insert its EXACT URL** into the \`<img src='...'>\` tag in the 'Chi Tiết' tab. 
+    - **Replace the 'URL_CHO_HERO_IMAGE' placeholder** with the real URL you selected from the list above.
+    - **Copy the EXACT URL** - do not modify or create new URLs.
     
     [FORMATTING & HTML RULES]
-    - **Language:** ALL content (titles, headings, text, tables, FAQs) MUST be in **${language}**.
-    - **Tone & Voice:** Use a **${toneType}** tone and follow the **${voiceGuideline}** guideline. Use short sentences.
-    - **Focus:** Emphasize BENEFITS (the transformation/outcome) over features.
-    - **Personalization:** All content must be highly personalized for the persona "${personaName}".
-    - **Semantic HTML:** You MUST use semantic tags: <article>, <header>, <section>, <footer>, <figure>, <dl>, <dt>, <dd>.
-    - **NO Inline Styles:** DO NOT use \`style="..."\` attribute, EXCEPT for \`<img>\` tags (\`style='max-width: 100%; height: auto;'\`).
-    - **Hierarchy:** Use <h1> for the main title, <h2> for section titles, and <h3> for FAQ questions.
-    - **Icons:** Use the provided clean SVG icons. DO NOT use emojis.
+    - **CRITICAL WRITING STYLE: BE DIRECT AND CONCISE.**
+    - **Use short sentences. MAXIMUM 15 words per sentence.**
+    - **NO marketing fluff. NO long paragraphs.** Get straight to the point.
+    - **Language:** ALL content MUST be in **${language}**.
+    - **Focus:** Emphasize BENEFITS (the outcome) over features.
     
     [OUTPUT FORMAT]
-    Return a single, clean JSON object with the following structure. NO markdown or extra text outside the JSON.
+    Return a single, clean JSON object. NO markdown or extra text outside the JSON.
     
     {
-      "title": "New highly compelling title (50-80 characters) - MUST be in ${language}",
-      "description": "<article class='product-description'>
-        
-        <!-- 1. Hero Section: Headline + Hook -->
-        <header class='product-hero'>
-          <h1>Headline that hits the desired result for '${personaName}'</h1>
-          <p class='lead'>Hook sentence that touches on their core pain point, creating an immediate emotional connection.</p>
-          <figure>
-            <img src='URL_CHO_HERO_IMAGE' alt='Product hero image' style='max-width: 100%; height: auto;' />
-          </figure>
-        </header>
-        
-        <!-- 2. Personalized Benefits: Weaving Persona and Use Case -->
-        <section class='benefits'>
-          <h2>Đây Là Cách [Tên Sản Phẩm] Giải Quyết Vấn Đề Của Bạn</h2>
-          <dl class='benefits-grid'>
-            <div class='benefit-card'>
-              <dt>
-                <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'><path d='M20 6L9 17l-5-5'/></svg>
-                <strong>Benefit Title 1 (Outcome-focused)</strong>
-              </dt>
-              <dd>Describe the benefit by directly addressing '${personaName}'. How does this product fit into their specific life? E.g., 'Là một [nghề nghiệp/vai trò của persona], bạn hiểu rằng... Sản phẩm này giúp bạn...'</dd>
-            </div>
-            
-            <div class='benefit-card'>
-              <dt>
-                <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'><path d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z'/></svg>
-                <strong>Benefit Title 2 (Transformation)</strong>
-              </dt>
-              <dd>Explain the emotional transformation. Connect the product's use to the persona's motivations. E.g., 'Hãy tưởng tượng cảm giác tự tin/thư thái/năng suất hơn khi bạn không còn phải lo lắng về [pain_point]... '</dd>
-            </div>
-          </dl>
-          <figure>
-            <img src='URL_CHO_BENEFITS_IMAGE' alt='Image showcasing product benefits' style='max-width: 100%; height: auto;' />
-          </figure>
-        </section>
-        
-        <!-- 3. Product Details: Clean Table -->
-        <section class='specifications'>
-          <h2>Thông Tin Chi Tiết</h2>
-          <table>
-            <tbody>
-              <tr>
-                <th>Chất liệu</th>
-                <td>Extracted from description/images - be specific, e.g., 'Vải cotton thoáng khí với bề mặt mềm mại'.</td>
-              </tr>
-              <tr>
-                <th>Thiết kế</th>
-                <td>Specific design details visible from images, e.g., 'Cổ tròn, có túi hai bên tiện lợi'.</td>
-              </tr>
-              <tr>
-                <th>Màu sắc</th>
-                <td>Specific color name from images, e.g., 'Xanh navy đậm'.</td>
-              </tr>
-              <tr>
-                <th>Phù hợp cho</th>
-                <td>Specific use cases for '${personaName}', e.g., 'Những buổi họp quan trọng, sự kiện networking'.</td>
-              </tr>
-              <tr>
-                <th>Hướng dẫn bảo quản</th>
-                <td>Simple, practical care instructions.</td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
-        
-        <!-- 4. FAQ: Addressing Concerns -->
-        <section class='faq'>
-          <h2>Câu Hỏi Thường Gặp</h2>
-          <div class='faq-list'>
-            <div class='faq-item'>
-              <h3 class='faq-question'>Question 1 based on a primary pain point?</h3>
-              <div class='faq-answer'><p>Detailed answer based on facts and benefits to build trust.</p></div>
-            </div>
-            <div class='faq-item'>
-              <h3 class='faq-question'>Question 2 about a practical concern for '${personaName}'?</h3>
-              <div class='faq-answer'><p>Answer that addresses the concern and reinforces value.</p></div>
-            </div>
+      "title": "New direct, benefit-focused title (50-70 characters) - MUST be in ${language}",
+      "description": "<article class='product-description-tabs'>
+
+        <!-- MINIMAL CSS FOR TAB LAYOUT - DESIGNED TO INHERIT THEME STYLES -->
+        <style>
+          .product-tabs-wrapper { max-width: 100%; }
+          .product-tabs-nav { display: flex; align-items: center; border-bottom: 1px solid #e0e0e0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          .product-tab-link {
+            font-family: inherit; font-size: inherit; color: inherit;
+            background-color: transparent; border: none; border-bottom: 2px solid transparent;
+            padding: 12px 16px; cursor: pointer; margin-bottom: -1px; white-space: nowrap; transition: border-color 0.2s ease, opacity 0.2s ease;
+            opacity: 0.7;
+          }
+          .product-tab-link.active { border-bottom-color: currentColor; opacity: 1; font-weight: 600; }
+          .product-tab-content { display: none; padding: 24px 4px; }
+          .product-tab-content.active { display: block; }
+          .product-tab-content table { border: none; width: 100%; border-collapse: collapse; }
+          .product-tab-content th, .product-tab-content td { border: none; border-bottom: 1px solid #f0f0f0; padding: 10px 0; text-align: left; }
+          .product-tab-content ul { list-style-position: inside; padding-left: 0; }
+        </style>
+
+        <div class='product-tabs-wrapper'>
+          <!-- Tab Navigation -->
+          <nav class='product-tabs-nav'>
+            <button class='product-tab-link active' onclick='switchProductTab(event, \"overview\")'>Tổng Quan</button>
+            <button class='product-tab-link' onclick='switchProductTab(event, \"details\")'>Chi Tiết</button>
+            <button class='product-tab-link' onclick='switchProductTab(event, \"specs\")'>Thông Số</button>
+            <!--  <button class='product-tab-link' onclick='switchProductTab(event, \"faq\")'>Hỏi & Đáp</button> -->
+          </nav>
+
+          <!-- Tab Content Panels -->
+          <!-- Tab 1: Overview (TEXT-ONLY KEY HIGHLIGHTS) -->
+          <div id='overview' class='product-tab-content active'>
+            <h2>Điểm Nổi Bật Chính</h2>
+            <ul>
+              <!-- MANDATORY: Write 3-4 bullet points. Each bullet point MUST follow the format: '<strong>Benefit Title:</strong> Short fragment explaining the result. MAX 12 WORDS TOTAL.' -->
+              <li><strong>[Lợi Ích 1]:</strong> [Kết quả trực tiếp. Tối đa 10 từ].</li>
+              <li><strong>[Lợi Ích 2]:</strong> [Kết quả trực tiếp. Tối đa 10 từ].</li>
+              <li><strong>[Lợi Ích 3]:</strong> [Kết quả trực tiếp. Tối đa 10 từ].</li>
+            </ul>
           </div>
-        </section>
-        
-        <!-- 5. Final CTA -->
-        <footer class='product-cta'>
-          <p><strong>Strong, clear call-to-action that creates urgency for '${personaName}'.</strong></p>
-        </footer>
-        
+
+          <!-- Tab 2: Product Details (DETAILED TEXT + IMAGES) -->
+          <div id='details' class='product-tab-content'>
+            <h2>Đây Là Cách [Tên Sản Phẩm] Dành Cho Bạn</h2>
+            <p>Mở đầu ngắn gọn (1-2 câu) kết nối với '${personaName}'.</p>
+            <figure style='margin: 16px 0;'>
+              <img src='URL_CHO_HERO_IMAGE' alt='Product main image' style='max-width: 100%; height: auto; border-radius: 8px;' />
+            </figure>
+            <h3>[Diễn Giải Chi Tiết Lợi Ích 1]</h3>
+            <p>Giải thích lợi ích 1. Tối đa 2-3 câu ngắn.</p>
+            <h3>[Diễn Giải Chi Tiết Lợi Ích 2]</h3>
+            <p>Giải thích lợi ích 2. Tối đa 2-3 câu ngắn.</p>
+          </div>
+
+          <!-- Tab 3: Specifications -->
+          <div id='specs' class='product-tab-content'>
+            <h2>Thông Số Kỹ Thuật</h2>
+            <table>
+              <tbody>
+                <tr><th>Chất liệu</th><td>Factual data from images.</td></tr>
+                <tr><th>Thiết kế</th><td>Factual data from images.</td></tr>
+                <tr><th>Màu sắc</th><td>Factual data from images.</td></tr>
+                <tr><th>Phù hợp cho</th><td>Use case for '${personaName}'.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Tab 4: FAQ -->
+          <div id='faq' class='product-tab-content'>
+            <h2>Câu Hỏi Thường Gặp</h2>
+            <h4>Câu hỏi 1 dựa trên nỗi đau chính?</h4>
+            <p>Trả lời thẳng, ngắn gọn, đáng tin cậy.</p>
+            <h4>Câu hỏi 2 về một lo ngại thực tế?</h4>
+            <p>Trả lời thẳng, ngắn gọn, đáng tin cậy.</p>
+          </div> 
+        </div> 
+
+        <!-- SELF-CONTAINED JAVASCRIPT - NO EXTERNAL FILES NEEDED -->
+        <script>
+          function switchProductTab(evt, tabId) {
+            const wrapper = evt.currentTarget.closest('.product-tabs-wrapper');
+            if (!wrapper) return;
+            const contents = wrapper.querySelectorAll('.product-tab-content');
+            const links = wrapper.querySelectorAll('.product-tab-link');
+            
+            contents.forEach(content => content.classList.remove('active'));
+            links.forEach(link => link.classList.remove('active'));
+            
+            const targetContent = wrapper.querySelector('#' + tabId);
+            if (targetContent) { targetContent.classList.add('active'); }
+            evt.currentTarget.classList.add('active');
+          }
+        </script>
+
       </article>"
     }
     `;
