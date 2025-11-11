@@ -2441,42 +2441,43 @@ ${primaryPainPoint}`;
           </nav>
 
           <!-- Tab Content Panels -->
-          <!-- Tab 1: Overview (TEXT-ONLY KEY HIGHLIGHTS) -->
-          <div id='overview' class='product-tab-content active'>
-            <h2>Điểm Nổi Bật Chính</h2>
-            <ul>
-              <!-- MANDATORY: Write 3-4 bullet points. Each bullet point MUST follow the format: '<strong>Benefit Title:</strong> Short fragment explaining the result. MAX 12 WORDS TOTAL.' -->
-              <li><strong>[Lợi Ích 1]:</strong> [Kết quả trực tiếp. Tối đa 10 từ].</li>
-              <li><strong>[Lợi Ích 2]:</strong> [Kết quả trực tiếp. Tối đa 10 từ].</li>
-              <li><strong>[Lợi Ích 3]:</strong> [Kết quả trực tiếp. Tối đa 10 từ].</li>
-            </ul>
-          </div>
+<!-- Tab 1: Overview (Key Highlights) -->
+<div id='overview' class='product-tab-content active'>
+  <h2>Điểm Nổi Bật Chính</h2>
+  <ul>
+    <!-- Write 3–4 concise bullet points capturing emotional + functional value.
+         Format: '<strong>Benefit Title:</strong> Short, vivid phrase (max 12 words).' -->
+    <li><strong>[Lợi Ích 1]:</strong> [Kết quả rõ ràng, cảm xúc tích cực].</li>
+    <li><strong>[Lợi Ích 2]:</strong> [Tác động thực tế hoặc tiện ích dễ cảm nhận].</li>
+    <li><strong>[Lợi Ích 3]:</strong> [Cảm giác hoặc lợi ích dài hạn người dùng nhận được].</li>
+  </ul>
+</div>
 
-          <!-- Tab 2: Product Details (DETAILED TEXT + IMAGES) -->
-          <div id='details' class='product-tab-content'>
-            <h2>Đây Là Cách [Tên Sản Phẩm] Dành Cho Bạn</h2>
-            <p>Mở đầu ngắn gọn (1-2 câu) kết nối với '${personaName}'.</p>
-            <figure style='margin: 16px 0;'>
-              <img src='URL_CHO_HERO_IMAGE' alt='Product main image' style='max-width: 100%; height: auto; border-radius: 8px;' />
-            </figure>
-            <h3>[Diễn Giải Chi Tiết Lợi Ích 1]</h3>
-            <p>Giải thích lợi ích 1. Tối đa 2-3 câu ngắn.</p>
-            <h3>[Diễn Giải Chi Tiết Lợi Ích 2]</h3>
-            <p>Giải thích lợi ích 2. Tối đa 2-3 câu ngắn.</p>
-          </div>
+<!-- Tab 2: Product Details -->
+<div id='details' class='product-tab-content'>
+  <h2>[Tên Sản Phẩm] — Giải Pháp Dành Cho ${personaName}</h2>
+  <p><em>Mở đầu 1–2 câu cảm xúc</em>, thể hiện sự thấu hiểu nhu cầu của ${personaName} và dẫn vào sản phẩm.</p>
+  <figure style='margin:16px 0;'>
+    <img src='URL_CHO_HERO_IMAGE' alt='Product main image' style='max-width:100%;height:auto;border-radius:8px;' />
+  </figure>
+  <h3>[Lợi Ích 1 - Diễn Giải Chi Tiết]</h3>
+  <p>Mô tả ngắn (2–3 câu) về cách lợi ích này giúp ${personaName} đạt kết quả mong muốn.</p>
+  <h3>[Lợi Ích 2 - Diễn Giải Chi Tiết]</h3>
+  <p>Mô tả thực tế, ví dụ hoặc cảm xúc khi sử dụng sản phẩm.</p>
+  <p><strong>Kết luận:</strong> Câu kêu gọi hành động tự nhiên (CTA nhẹ, khuyến khích khám phá hoặc trải nghiệm).</p>
+</div>
 
-          <!-- Tab 3: Specifications -->
-          <div id='specs' class='product-tab-content'>
-            <h2>Thông Số Kỹ Thuật</h2>
-            <table>
-              <tbody>
-                <tr><th>Chất liệu</th><td>Factual data from images.</td></tr>
-                <tr><th>Thiết kế</th><td>Factual data from images.</td></tr>
-                <tr><th>Màu sắc</th><td>Factual data from images.</td></tr>
-                <tr><th>Phù hợp cho</th><td>Use case for '${personaName}'.</td></tr>
-              </tbody>
-            </table>
-          </div>
+<!-- Tab 3: Specifications -->
+<div id='specs' class='product-tab-content'>
+  <h2>Thông Tin Chi Tiết</h2>
+  <ul class='product-specs'>
+    <li><strong>Chất liệu:</strong> Lõi gỗ ép composite cao cấp với lớp fiberglass bền bỉ, base sintered chống mài mòn.</li>
+    <li><strong>Thiết kế:</strong> Graphic mặt trên với họa tiết núi non tím hồng, mặt dưới xanh navy cùng logo Oxygen trắng.</li>
+    <li><strong>Màu sắc:</strong> Tím hồng gradient và xanh navy đậm.</li>
+    <li><strong>Phù hợp cho:</strong> Người mới nghiêm túc ở Salt Lake City, Boulder, Reno, Buffalo – từ beginner đến intermediate.</li>
+    <li><strong>Hướng dẫn bảo quản:</strong> Lưu trữ nơi khô ráo, wax base định kỳ, kiểm tra bindings sau mỗi lần sử dụng.</li>
+  </ul>
+</div>
 
         </div> 
 
