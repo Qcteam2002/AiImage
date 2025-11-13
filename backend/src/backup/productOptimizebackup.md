@@ -8,28 +8,6 @@ import { AI_MODELS_CONFIG, getModelConfig } from '../config/aiModels';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Helper function to get season from date
-function getSeason(date: Date): string {
-  const month = date.getMonth() + 1; // getMonth() returns 0-11, so add 1
-  const day = date.getDate();
-  
-  // Northern Hemisphere seasons
-  // Spring: March 20 - June 20
-  // Summer: June 21 - September 22
-  // Fall: September 23 - December 20
-  // Winter: December 21 - March 19
-  
-  if ((month === 3 && day >= 20) || month === 4 || month === 5 || (month === 6 && day <= 20)) {
-    return 'Spring';
-  } else if ((month === 6 && day >= 21) || month === 7 || month === 8 || (month === 9 && day <= 22)) {
-    return 'Summer';
-  } else if ((month === 9 && day >= 23) || month === 10 || month === 11 || (month === 12 && day <= 20)) {
-    return 'Fall';
-  } else {
-    return 'Winter';
-  }
-}
-
 // Single prompt generator for all content types
 // function generateContentPrompt1(data: any, bestImageUrl: string | null, product: any, type: string) {
 //   return `# Content Creation - ${type.toUpperCase()}
@@ -1820,14 +1798,7 @@ Bạn là một Giám đốc Chiến lược Marketing (Marketing Strategist) ch
 
 4. **Đánh giá tiềm năng (Win Rate):** Với mỗi persona, hãy tính toán một "tỷ lệ thắng" (từ 0.0 đến 1.0) dựa trên mức độ phù hợp giữa sản phẩm và nhu cầu của họ.
 
-5. **Lý giải chiến lược (Reason): Phân tích Insight Cốt lõi
-Đây là phần quan trọng nhất để thể hiện tư duy chiến lược. Yêu cầu của bạn không chỉ là giải thích "tại sao nhóm này phù hợp", mà là phải tìm ra insight chiến lược (strategic insight) đằng sau.
-Quy trình tư duy yêu cầu cho AI:
-Đào sâu Insight, không chỉ mô tả bề mặt: KHÔNG chỉ lặp lại pain point. Hãy trả lời câu hỏi: Động lực sâu xa thực sự đằng sau nhu cầu của họ là gì? Họ mua sản phẩm này để giải quyết vấn đề cảm xúc hay thể hiện điều gì về bản thân?
-Kết nối với Xu hướng thị trường: Insight đó có đang được thúc đẩy bởi một xu hướng văn hóa, xã hội hoặc thị trường lớn hơn không? (Ví dụ: xu hướng Y2K, chủ nghĩa cá nhân, sự trỗi dậy của micro-influencer...).
-Định vị Sản phẩm như Giải pháp Hoàn hảo: Dựa trên insight và xu hướng đó, sản phẩm của chúng ta được định vị như thế nào? Nó đóng vai trò gì trong cuộc sống của họ? (Ví dụ: "công cụ thể hiện bản sắc", "món đồ điểm nhấn giá phải chăng", "cầu nối với một cộng đồng").
-Yêu cầu đầu ra:
-Một đoạn văn ngắn (2-4 câu) sắc bén, giải thích insight chiến lược cốt lõi, kết nối nó với một xu hướng thị trường có liên quan, và tóm tắt lại đề xuất giá trị độc nhất (Unique Value Proposition) của sản phẩm dành riêng cho nhóm này.
+5. **Lý giải chiến lược:** Đưa ra lý do ngắn gọn, sắc bén giải thích tại sao mỗi nhóm là một lựa chọn tốt.
 
 6. **Kênh Giao Tiếp với Định dạng Nội dung Cụ thể (QUAN TRỌNG):**
    - Không chỉ liệt kê kênh (TikTok, Instagram...), mà phải đề xuất **FORMAT** nội dung cụ thể
@@ -2278,23 +2249,14 @@ router.post('/generate-content-from-segmentation', async (req, res) => {
       productImages, // Frontend sends this
       segmentation,
       targetMarket = 'vi',
-      language = 'vi-VN',
-      previousContent // Optional: { title: string, description: string } - for retry/optimize
+      language = 'vi-VN'
     } = req.body;
 
-    // Support both formats: string[] or object[]
-    const rawImages = images || productImages || [];
-    const imageUrls = rawImages
-      .map((img: any) => {
-        if (typeof img === 'string') return img;
-        if (typeof img === 'object' && img !== null) return img.url || img.src || img;
-        return null;
-      })
-      .filter((url: any): url is string => Boolean(url) && typeof url === 'string');
+    // Use productImages if images is not provided (support both formats)
+    const imageUrls = images || productImages || [];
 
     console.log('🎨 Content Generation - Segmentation:', segmentation?.name);
     console.log('🖼️ Images received:', imageUrls.length, 'images');
-    console.log('🔄 Is Retry/Optimize:', !!previousContent);
 
     // Validate required fields
     if (!title || !segmentation) {
@@ -2343,978 +2305,455 @@ ${secondaryPainPoints.map((p, i) => `${i + 1}. ${p}`).join('\n')}`
       : `**Pain Points & Issues:**
 ${primaryPainPoint}`;
 
-    // Build previous content section if retry/optimize
-    const previousContentSection = previousContent 
-    ? `
-      
-  [CRITICAL TASK: RE-GENERATION MODE]
-  You are in optimization mode. The previous version was rejected. Your primary goal is to generate a COMPLETELY NEW and SUPERIOR version.
-  
-  [PREVIOUSLY GENERATED CONTENT - AVOID THIS AT ALL COSTS]
-  **Previous Title:**
-  ${previousContent.title}
-  **Previous Description:**
-  ${previousContent.description}
-  
-  [YOUR NEW INSTRUCTIONS - FOLLOW THESE STRICTLY]
-  - **New Angle:** You MUST create a fresh, creative angle. Do not reuse the old one.
-  - **New Phrasing:** You MUST use different vocabulary and sentence structures.
-  - **Be Better:** You MUST make this version more persuasive and emotionally engaging.
-  - **NO REPETITION:** Do NOT repeat headlines, benefit descriptions, or key phrases from the previous version.
-  `
-    : '';
-
-    // List all image URLs in the prompt so AI knows exactly which URLs are available
-    const imageUrlsList = imageUrls.length > 0 
-      ? imageUrls.map((url: string, index: number) => `${index + 1}. ${url}`).join('\n')
-      : 'No images provided';
-
     // Build prompt - simple: just pass language and targetMarket to AI
     const contentPrompt = `[ROLE]
-    You are an expert copywriter who specializes in CLEAR, CONCISE, and PUNCHY e-commerce content. Your goal is to get information to the customer as quickly as possible.
+You are a world-class e-commerce copywriter specializing in Direct Response marketing. Your ability to deeply understand customer psychology and create emotionally compelling content that drives purchase action is unmatched.
 
-    [CONTEXT]
-    I need you to write product content for a Shopify store. Below is all the strategic information:
+[CONTEXT]
+I need you to write product content for a Shopify store. Below is all the strategic information:
+
+**Product Information:**
+- **Product Title:** ${title}
+- **Current Description:** ${description || 'No description provided'}
+- **Target Market:** ${targetMarket}
+- **Output Language:** ${language} - **CRITICAL: ALL content (title, description, headings, text) MUST be written in ${language}**
+- **Available Product Images:** ${imageUrls && imageUrls.length > 0 ? imageUrls.map((url: string, index: number) => `${index + 1}. ${url}`).join('\n') : 'No images provided'}
+
+**Target Customer Segment (Segmentation):**
+- **Persona Name:** ${personaName}
+- **Demographics:** ${personaProfile?.demographics || 'N/A'}
+- **Behaviors:** ${personaProfile?.behaviors || 'N/A'}
+- **Motivations:** ${personaProfile?.motivations || 'N/A'}
+- **Locations:** ${locations?.join(', ') || 'N/A'}
+
+**Their Pain Points & Issues:**
+${painPointText}
+
+**Product Benefits - Desired Transformation:**
+${productBenefits?.map((benefit: string, index: number) => `${index + 1}. ${benefit}`).join('\n') || 'N/A'}
+
+**Seasonal Trends:**
+${seasonalTrends || 'N/A'}
+
+**SEO Keywords to Integrate:**
+${keywordSuggestions?.slice(0, 5).join(', ') || 'N/A'}
+
+[TASK]
+Based on all the information above, write:
+1. **New Title** (50-80 characters): Compelling, SEO-optimized, hitting the desired outcome directly - MUST be in ${language}
+2. **Complete Description** (HTML format): A complete product description ready to publish on Shopify - MUST be in ${language}
+
+**Description Must Include:**
+- **"Key Features" Table** (or "Technical Specifications" if it's a tech product)
+  * Your task is to carefully read the current description and analyze images to fill this table with accurate information
+  * For fashion/home/accessories products, use "Key Features" format
+  * For technology products, use "Technical Specifications" format
+  * All information in the table must be FACTUAL, extracted from description or inferred from images
+  * **All table headers and values MUST be in ${language}**
+
+- **FAQ Section (2-3 questions)** right before CTA section
+  * Transform Pain Points and Persona's hidden concerns into questions
+  * Use product information and benefits to write concise, persuasive answers
+  * Questions must be natural, as real users would ask
+  * Answers must be based on real data (from productBenefits, description, images)
+  * **All FAQ questions and answers MUST be in ${language}**
+
+**CRITICAL ABOUT IMAGES:**
+- I have sent ${imageUrls.length} product images with this message. You MUST LOOK AT AND ANALYZE EACH IMAGE THOROUGHLY to extract REAL information about the product.
+
+- **Extract the following information from images:**
+  1. **Material & Surface:** Smooth fabric, ribbed fabric, glossy surface, matte, leather material, wood, metal, plastic, stainless steel...?
+  2. **Design Details:** Round or V-neck collar, pockets or not, zipper, buttons, laser-engraved details, patterns, logos, prints...?
+  3. **Colors:** Accurately describe colors visible in images (e.g., navy blue, pastel pink, gold...)
+  4. **Size/Shape:** Large, small, long, short, round, square, oval... (if visible in images)
+  5. **Usage Context (if any):** Where is the product photographed? Indoors, outdoors, office, beach, bedroom...?
+
+- **Use the real information you extracted** to make benefit descriptions and transformations more specific and trustworthy. DO NOT fabricate details not visible in images.
+
+- **Example:** Instead of writing "premium material", write "brushed cotton material that's soft to the touch, clearly visible in the image" or "316 stainless steel surface with mirror finish as shown in the photo".
+
+- SELF-SELECT 2-3 most suitable images from ${imageUrls.length} available images, based on content, persona "${personaName}" and pain points
+- INSERT selected image URLs directly into HTML description using <img> tags
+- Choose images suitable for each section:
+  * Hero section: Most beautiful, attractive image from ${imageUrls.length} available images
+  * Benefits section: Best image illustrating features/benefits
+  * Lifestyle section: Best image showing product in suitable usage context
+- Ensure images enhance persuasiveness and match persona
+- DO NOT choose same images for different personas
+
+Content must tell a story, evoke emotion, and convince customers this is exactly the solution they're looking for.
+
+[REQUIREMENTS & CONSTRAINTS]
+- **Tone Type:** ${toneType}
+- **Voice Guideline:** ${voiceGuideline}
+- **Writing Style:** Use short sentences, bullet points for easy reading
+- **Icons:** DO NOT use emojis - Use clean SVG icons (no inline style)
+- **CLEAN HTML:** DO NOT use style="..." except for <img> tags
+- **Font:** Theme will auto-style - Only use semantic tags (<h2>, <h3>, <h4>, <strong>)
+- **Avoid complex technical terms** - Focus on BENEFITS instead of FEATURES
+- **DO NOT:** Write generic, cliché content. Must personalize for persona "${personaName}"
+- **CRITICAL:** ALL content (title, description, headings, text, FAQ questions and answers, table headers and values) MUST be written in ${language}. Do NOT mix languages.
+
+[OUTPUT FORMAT]
+Return JSON with the following structure (NO markdown, NO additional text outside JSON):
+
+{
+  "title": "New highly compelling title (50-80 characters) - MUST be in ${language}",
+  "description": "<article class='product-description'>
     
-    **Product Information:**
-    - **Product Title:** ${title}
-    - **Current Description:** ${description || 'No description provided'}
-    - **Target Market:** ${targetMarket}
-    - **Output Language:** ${language} - **CRITICAL: ALL content MUST be written in ${language}**
+    <!-- 1. Hero Section: Compelling headline + hook -->
+    <header class='product-hero'>
+      <h1>Tiêu đề chính đánh vào kết quả - compelling & benefit-driven</h1>
+      <p class='lead'>Câu hook chạm vào pain point, tạo kết nối cảm xúc ngay lập tức</p>
+      <figure>
+        <img src='URL_HÌNH_ẢNH_HERO' alt='Product hero image' style='max-width: 100%; height: auto;' />
+      </figure>
+    </header>
     
-    **AVAILABLE IMAGE URLs (YOU MUST USE ONE OF THESE EXACT URLs):**
-    ${imageUrlsList}
+    <!-- 2. Key Benefits: Visual + Concise -->
+    <section class='benefits'>
+      <h2>Tại Sao Bạn Sẽ Yêu Thích Sản Phẩm Này</h2>
+      <dl class='benefits-grid'>
+        <div class='benefit-card'>
+          <dt>
+            <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'>
+              <path d='M20 6L9 17l-5-5'/>
+            </svg>
+            <strong>Benefit Title 1</strong>
+          </dt>
+          <dd>Chi tiết lợi ích cụ thể, không phải tính năng. Focus vào outcome/result.</dd>
+    </div>
     
-    **Target Customer Segment (Persona):**
-    - **Persona Name:** ${personaName}
+        <div class='benefit-card'>
+          <dt>
+            <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'>
+              <path d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z'/>
+            </svg>
+            <strong>Benefit Title 2</strong>
+          </dt>
+          <dd>Chi tiết lợi ích thứ hai, nhấn mạnh transformation.</dd>
+    </div>
     
-    **Their Pain Points & Issues:**
-    ${painPointText}
+        <div class='benefit-card'>
+          <dt>
+            <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'>
+              <path d='M12 2v20M2 12h20'/>
+            </svg>
+            <strong>Benefit Title 3</strong>
+          </dt>
+          <dd>Chi tiết lợi ích thứ ba, emotional connection.</dd>
+    </div>
+      </dl>
+      <figure>
+        <img src='URL_HÌNH_ẢNH_BENEFITS' alt='Product benefits showcase' style='max-width: 100%; height: auto;' />
+      </figure>
+    </section>
     
-    **Product Benefits - Desired Transformation:**
-    ${productBenefits?.map((benefit: string, index: number) => `${index + 1}. ${benefit}`).join('\n') || 'N/A'}
+    <!-- 3. Product Details: Clean Table -->
+    <section class='specifications'>
+      <h2>Thông Tin Sản Phẩm</h2>
+      <table>
+        <tbody>
+          <tr>
+            <th>Chất liệu</th>
+            <td>Trích xuất từ mô tả/hình ảnh - cụ thể, chi tiết</td>
+          </tr>
+          <tr>
+            <th>Thiết kế</th>
+            <td>Mô tả thiết kế cụ thể nhìn thấy từ ảnh</td>
+          </tr>
+          <tr>
+            <th>Màu sắc</th>
+            <td>Tên màu cụ thể từ hình ảnh</td>
+          </tr>
+          <tr>
+            <th>Phù hợp với</th>
+            <td>Use cases cụ thể dựa trên persona</td>
+          </tr>
+          <tr>
+            <th>Bảo quản</th>
+            <td>Hướng dẫn care instructions</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
     
-    **SEO Keywords to Integrate:**
-    ${keywordSuggestions?.slice(0, 5).join(', ') || 'N/A'}${previousContentSection}
+    <!-- 4. Social Proof / Use Case -->
+    <section class='use-case'>
+      <h2>Ai Nên Sở Hữu Sản Phẩm Này</h2>
+      <p>Mô tả chi tiết về ideal customer, use cases, và transformation. Nhấn mạnh versatility và value.</p>
+      <figure>
+        <img src='URL_HÌNH_ẢNH_LIFESTYLE' alt='Product in use' style='max-width: 100%; height: auto;' />
+        <figcaption>Lifestyle context caption (optional)</figcaption>
+      </figure>
+    </section>
     
-    [TASK & CONTENT REQUIREMENTS]
-    You are an expert eCommerce Copywriter who specializes in **Emotional Storytelling** and **Conversion Optimization**. 
-    Your task is to write a new **Title** and a complete **HTML Description** for the product below.
-    
-    **1. Image Analysis & Insertion (CRITICAL TASK):**
-    - **Analyze all ${imageUrls.length} images** provided above to extract FACTUAL details: Material, Color, Design specifics.
-    - **You MUST select the single best image** from the list of ${imageUrls.length} URLs above that represents the product well.
-    - **You MUST insert its EXACT URL** into the \`<img src='...'>\` tag in the 'Chi Tiết' tab. 
-    - **Replace the 'URL_CHO_HERO_IMAGE' placeholder** with the real URL you selected from the list above.
-    - **Copy the EXACT URL** - do not modify or create new URLs.
-    
-    [FORMATTING & HTML RULES]
-    - **CRITICAL WRITING STYLE: BE DIRECT AND CONCISE.**
-    - **Use short sentences. MAXIMUM 15 words per sentence.**
-    - **NO marketing fluff. NO long paragraphs.** Get straight to the point.
-    - **Language:** ALL content MUST be in **${language}**.
-    - **Focus:** Emphasize BENEFITS (the outcome) over features.
-    
-    [OUTPUT FORMAT]
-    Return a single, clean JSON object. NO markdown or extra text outside the JSON.
-    
-    {
-      "title": "New direct, benefit-focused title (50-70 characters) - MUST be in ${language}",
-      "description": "<article class='product-description-tabs'>
-
-        <!-- MINIMAL CSS FOR TAB LAYOUT - DESIGNED TO INHERIT THEME STYLES -->
-        <style>
-          .product-tabs-wrapper { max-width: 100%; }
-          .product-tabs-nav { display: flex; align-items: center; border-bottom: 1px solid #e0e0e0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-          .product-tab-link {
-            font-family: inherit; font-size: inherit; color: inherit;
-            background-color: transparent; border: none; border-bottom: 2px solid transparent;
-            padding: 12px 16px; cursor: pointer; margin-bottom: -1px; white-space: nowrap; transition: border-color 0.2s ease, opacity 0.2s ease;
-            opacity: 0.7;
-          }
-          .product-tab-link.active { border-bottom-color: currentColor; opacity: 1; font-weight: 600; }
-          .product-tab-content { display: none; padding: 24px 4px; }
-          .product-tab-content.active { display: block; }
-          .product-tab-content table { border: none; width: 100%; border-collapse: collapse; }
-          .product-tab-content th, .product-tab-content td { border: none; border-bottom: 1px solid #f0f0f0; padding: 10px 0; text-align: left; }
-          .product-tab-content ul { list-style-position: inside; padding-left: 0; }
-        </style>
-
-        <div class='product-tabs-wrapper'>
-          <!-- Tab Navigation -->
-          <nav class='product-tabs-nav'>
-            <button class='product-tab-link active' onclick='switchProductTab(event, \"overview\")'>Tổng Quan</button>
-            <button class='product-tab-link' onclick='switchProductTab(event, \"details\")'>Chi Tiết</button>
-            <button class='product-tab-link' onclick='switchProductTab(event, \"specs\")'>Thông Số</button>
-          </nav>
-
-          <!-- Tab Content Panels -->
-<!-- Tab 1: Overview (Key Highlights) -->
-<div id='overview' class='product-tab-content active'>
-  <h2>Điểm Nổi Bật Chính</h2>
-  <ul>
-    <!-- 3–4 bullet ngắn gọn, vừa cảm xúc vừa chức năng -->
-    <li><strong>[Benefit 1 – tiêu đề ngắn]:</strong> [Mô tả giá trị rõ ràng, mang lại kết quả hoặc sự thay đổi tích cực].</li>
-    <li><strong>[Benefit 2 – tiêu đề ngắn]:</strong> [Tiện ích thực tế, giải quyết rắc rối quen thuộc của người dùng].</li>
-    <li><strong>[Benefit 3 – tiêu đề ngắn]:</strong> [Cảm giác hoặc lợi ích lâu dài khi sử dụng sản phẩm].</li>
-    <!-- Optional -->
-    <li><strong>[Benefit 4 – nếu có]:</strong> [Tính năng tăng trải nghiệm hoặc nâng hiệu quả sử dụng].</li>
-  </ul>
-</div>
-
-
-
-<!-- Tab 2: Product Details -->
-<div id='details' class='product-tab-content'>
-  <h2>[productName] — [Một tagline mô tả trải nghiệm hoặc giá trị chính]</h2>
-
-  <p>
-    <!-- Opening: sử dụng primary pain point để tạo cảm xúc tự nhiên -->
-    Viết một đoạn mở đầu 1–2 câu cho thấy bạn hiểu cảm giác hoặc vấn đề mà khách hàng đang gặp phải 
-    (dựa trên primary pain point), sau đó dẫn vào cách sản phẩm mang lại sự nhẹ nhõm, thoải mái hoặc cảm giác đúng với những gì họ đang tìm kiếm.
-    Không gọi tên persona trực tiếp và không mô tả họ theo kiểu máy móc.
-  </p>
-
-  <figure style='margin:16px 0;'>
-    <img src='[heroImageUrl]' alt='Product main image' style='max-width:100%;height:auto;border-radius:8px;' />
-  </figure>
-
-  <h3>[Benefit Group 1 – tiêu đề mô tả kết quả mong muốn]</h3>
-  <p>
-    Viết 2–3 câu diễn giải cách lợi ích này giải quyết đúng primary pain point 
-    và mang đến kết quả thực tế (giảm lo lắng, tiết kiệm thời gian, tăng sự tự tin, mang lại ý nghĩa...). 
-    Tập trung vào outcome, cảm giác, trải nghiệm.
-  </p>
-
-  <h3>[Benefit Group 2 – tiêu đề mô tả tính năng + trải nghiệm sử dụng]</h3>
-  <p>
-    Viết 2–3 câu mô tả trải nghiệm thực tế khi sử dụng sản phẩm: cảm giác khi cầm, đeo, sử dụng, 
-    tại sao tiện hơn sản phẩm thông thường, tình huống sử dụng thật, hoặc cách nó tạo trải nghiệm tốt hơn.
-  </p>
-
-  <p><strong>Kết luận:</strong> 
-    Viết một câu CTA nhẹ nhàng, ấm áp hoặc đáng tin, phù hợp với tone. 
-    Tránh bán hàng mạnh, chỉ mời họ khám phá hoặc mang đến niềm vui cho người nhận.
-  </p>
-</div>
-
-
-
-<!-- Tab 3: Specifications -->
-<div id='specs' class='product-tab-content'>
-  <h2>Thông Tin Chi Tiết</h2>
-  <ul class='product-specs'>
-    <!-- Thay bằng specs thật từ input -->
-    <li><strong>Chất liệu:</strong> [Chất liệu chính + đặc tính nổi bật].</li>
-    <li><strong>Thiết kế:</strong> [Điểm chính về cấu trúc, hình dạng, công năng].</li>
-    <li><strong>Màu sắc:</strong> [List màu].</li>
-    <li><strong>Kích thước / Dung tích (nếu có):</strong> [Thông số cụ thể].</li>
-    <li><strong>Phù hợp cho:</strong> [Nhóm người dùng / tình huống sử dụng].</li>
-    <li><strong>Hướng dẫn sử dụng / Bảo quản:</strong> [Optional].</li>
-    <li><strong>Gói hàng:</strong> [Những gì có trong hộp].</li>
-  </ul>
-</div>
-
-
-        </div> 
-
-        <!-- SELF-CONTAINED JAVASCRIPT - NO EXTERNAL FILES NEEDED -->
-        <script>
-          function switchProductTab(evt, tabId) {
-            const wrapper = evt.currentTarget.closest('.product-tabs-wrapper');
-            if (!wrapper) return;
-            const contents = wrapper.querySelectorAll('.product-tab-content');
-            const links = wrapper.querySelectorAll('.product-tab-link');
-            
-            contents.forEach(content => content.classList.remove('active'));
-            links.forEach(link => link.classList.remove('active'));
-            
-            const targetContent = wrapper.querySelector('#' + tabId);
-            if (targetContent) { targetContent.classList.add('active'); }
-            evt.currentTarget.classList.add('active');
-          }
-        </script>
-
-      </article>"
-    }
-    `;
-    const messageContent: any[] = [
-      {
-        type: 'text',
-        text: contentPrompt
-      }
-    ];
-
-    // Add ALL images to context - let AI choose the best ones
-    if (imageUrls && imageUrls.length > 0) {
-      console.log('🖼️ Sending ALL images to AI for analysis:', imageUrls.length);
-      imageUrls.forEach((imageUrl: string, index: number) => {
-        console.log(`📸 Image ${index + 1}:`, imageUrl);
-        messageContent.push({
-          type: 'image_url',
-          image_url: {
-            url: imageUrl
-          }
-        });
-      });
-    } else {
-      console.log('⚠️ No images provided for AI analysis');
-    }
-
-    // Get model config for generate-content-from-segmentation API
-    const modelConfig = AI_MODELS_CONFIG.generateContentFromSegmentation;
-    
-    // Call AI API for content generation
-    console.log('🤖 Calling AI for content generation...');
-    console.log(`🤖 Model: ${modelConfig.model}`);
-    console.log(`🌍 Language: ${language}, Market: ${targetMarket}`);
-    
-    // Simple system message - just tell AI to use the specified language
-    const systemMessage = `You are an e-commerce copywriter expert. Create content in ${language}. Return ONLY JSON, no markdown. ALL text in title and description MUST be in ${language}.`;
-    
-    const response = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
-      {
-        model: modelConfig.model,
-        messages: [
-          {
-            role: 'system',
-            content: systemMessage
-          },
-          {
-            role: 'user',
-            content: messageContent
-          }
-        ],
-        max_tokens: modelConfig.maxTokens,
-        temperature: modelConfig.temperature
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${openRouterApiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'http://localhost:3000',
-          'X-Title': 'Product Content Generator',
-        },
-        timeout: modelConfig.timeout
-      }
-    );
-
-    // Validate API response structure
-    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
-      console.error('Invalid API response structure:', JSON.stringify(response.data, null, 2));
-      throw new Error('Invalid API response: missing choices array');
-    }
-
-    if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
-      console.error('Invalid message structure:', JSON.stringify(response.data.choices[0], null, 2));
-      throw new Error('Invalid API response: missing message content');
-    }
-
-    let content = response.data.choices[0].message.content;
-    console.log('📝 Raw AI response length:', content.length);
-    console.log('🖼️ Response contains images:', content.includes('<img'));
-    console.log('📊 Number of <img> tags:', (content.match(/<img/g) || []).length);
-
-    // Parse JSON response
-    try {
-      // Clean up markdown if present
-      content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+    <!-- 5. FAQ: Professional Q&A Format -->
+    <section class='faq'>
+      <h2>Câu Hỏi Thường Gặp</h2>
       
-      // Find JSON boundaries
-      let jsonStart = content.indexOf('{');
-      let jsonEnd = content.lastIndexOf('}');
-      
-      if (jsonStart === -1 || jsonEnd === -1) {
-        throw new Error('No valid JSON found in response');
-      }
-      
-      let jsonString = content.substring(jsonStart, jsonEnd + 1);
-      
-      // Parse the JSON
-      const result = JSON.parse(jsonString);
-      
-      console.log('✅ Content generated successfully');
-      console.log('📌 New title:', result.title);
-      
-      res.json({
-        success: true,
-        data: {
-          title: result.title,
-          description: result.description
-        }
-      });
-      
-    } catch (parseError: any) {
-      console.error('❌ JSON parse error:', parseError.message);
-      console.log('Raw content:', content);
-      
-      // Return fallback response
-      res.json({
-        success: true,
-        data: {
-          title: title, // Keep original title
-          description: `<div class="product-description">
-            <div class="hero-section">
-              <h2>✨ ${title}</h2>
-              <p>${description || ''}</p>
-            </div>
-            <div class="benefits-section">
-              <h3>🌟 Lợi Ích Nổi Bật:</h3>
-              <ul class="benefits-list">
-                ${productBenefits?.map((benefit: string) => `<li>✅ ${benefit}</li>`).join('\n                ') || ''}
-              </ul>
-            </div>
-          </div>`
-        }
-      });
-    }
-
-  } catch (error: any) {
-    console.error('Error in generate-content-from-segmentation:', error.message);
-    res.status(500).json({ 
-      error: 'Failed to generate content',
-      message: error.message 
-    });
-  }
-});
-
-router.post('/generate-content-from-segmentation-old', async (req, res) => {
-  try {
-    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
-    
-    const { 
-      title, 
-      description, 
-      images, 
-      productImages, // Frontend sends this
-      segmentation,
-      targetMarket = 'vi',
-      language = 'vi-VN',
-      previousContent // Optional: { title: string, description: string } - for retry/optimize
-    } = req.body;
-
-    // Support both formats: string[] or object[]
-    const rawImages = images || productImages || [];
-    const imageUrls = rawImages
-      .map((img: any) => {
-        if (typeof img === 'string') return img;
-        if (typeof img === 'object' && img !== null) return img.url || img.src || img;
-        return null;
-      })
-      .filter((url: any): url is string => Boolean(url) && typeof url === 'string');
-
-    console.log('🎨 Content Generation - Segmentation:', segmentation?.name);
-    console.log('🖼️ Images received:', imageUrls.length, 'images');
-    console.log('🔄 Is Retry/Optimize:', !!previousContent);
-
-    // Validate required fields
-    if (!title || !segmentation) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: title and segmentation' 
-      });
-    }
-
-    // Simple: Just pass language and targetMarket to AI - let AI handle it
-    console.log('🌍 Content Generation - Market:', targetMarket, 'Language:', language);
-
-    // Extract segmentation data
-    const {
-      name: personaName,
-      painpoints,
-      painpoint, // Old format for backward compatibility
-      personaProfile,
-      productBenefits,
-      toneType,
-      voiceGuideline,
-      keywordSuggestions,
-      seasonalTrends,
-      locations
-    } = segmentation;
-
-    // Handle both old and new painpoints structure
-    let primaryPainPoint = '';
-    let secondaryPainPoints: string[] = [];
-    
-    if (painpoints && typeof painpoints === 'object') {
-      // New structure
-      primaryPainPoint = painpoints.primary || '';
-      secondaryPainPoints = painpoints.secondary || [];
-    } else if (painpoint && typeof painpoint === 'string') {
-      // Old structure - use as primary
-      primaryPainPoint = painpoint;
-    }
-
-    // Format pain points for prompt
-    const painPointText = secondaryPainPoints.length > 0
-      ? `**Primary Pain Point:**
-${primaryPainPoint}
-
-**Secondary Pain Points:**
-${secondaryPainPoints.map((p, i) => `${i + 1}. ${p}`).join('\n')}`
-      : `**Pain Points & Issues:**
-${primaryPainPoint}`;
-
-    // Build previous content section if retry/optimize
-    const previousContentSection = previousContent 
-    ? `
-      
-  [CRITICAL TASK: RE-GENERATION MODE]
-  You are in optimization mode. The previous version was rejected. Your primary goal is to generate a COMPLETELY NEW and SUPERIOR version.
-  
-  [PREVIOUSLY GENERATED CONTENT - AVOID THIS AT ALL COSTS]
-  **Previous Title:**
-  ${previousContent.title}
-  **Previous Description:**
-  ${previousContent.description}
-  
-  [YOUR NEW INSTRUCTIONS - FOLLOW THESE STRICTLY]
-  - **New Angle:** You MUST create a fresh, creative angle. Do not reuse the old one.
-  - **New Phrasing:** You MUST use different vocabulary and sentence structures.
-  - **Be Better:** You MUST make this version more persuasive and emotionally engaging.
-  - **NO REPETITION:** Do NOT repeat headlines, benefit descriptions, or key phrases from the previous version.
-  `
-    : '';
-
-    // Build prompt - simple: just pass language and targetMarket to AI
-    const contentPrompt = `[ROLE]
-    You are a world-class e-commerce copywriter specializing in Direct Response marketing. Your ability to deeply understand customer psychology and create emotionally compelling content that drives purchase action is unmatched.
-    
-    [CONTEXT]
-    I need you to write product content for a Shopify store. Below is all the strategic information:
-    
-    **Product Information:**
-    - **Product Title:** ${title}
-    - **Current Description:** ${description || 'No description provided'}
-    - **Target Market:** ${targetMarket}
-    - **Output Language:** ${language} - **CRITICAL: ALL content MUST be written in ${language}**
-    - **Available Product Images:** ${imageUrls && imageUrls.length > 0 ? imageUrls.map((url: string, index: number) => `${index + 1}. ${url}`).join('\n') : 'No images provided'}
-    
-    **Target Customer Segment (Persona):**
-    - **Persona Name:** ${personaName}
-    - **Demographics:** ${personaProfile?.demographics || 'N/A'}
-    - **Behaviors:** ${personaProfile?.behaviors || 'N/A'}
-    - **Motivations:** ${personaProfile?.motivations || 'N/A'}
-    - **Locations:** ${locations?.join(', ') || 'N/A'}
-    
-    **Their Pain Points & Issues:**
-    ${painPointText}
-    
-    **Product Benefits - Desired Transformation:**
-    ${productBenefits?.map((benefit: string, index: number) => `${index + 1}. ${benefit}`).join('\n') || 'N/A'}
-    
-    **SEO Keywords to Integrate:**
-    ${keywordSuggestions?.slice(0, 5).join(', ') || 'N/A'}${previousContentSection}
-    
-    [TASK & CONTENT REQUIREMENTS]
-    Based on all the provided information, your task is to write a new **Title** and a complete **HTML Description**.${previousContent ? '\n\n    **IMPORTANT - This is a RETRY/OPTIMIZE request:**\n    - You must create a SIGNIFICANTLY IMPROVED version compared to the previous content shown above\n    - Avoid repetition of phrases, structure, or approach from the previous version\n    - Focus on making this version more compelling, persuasive, and conversion-focused\n    - Think of new angles, benefits, and emotional hooks that weren\'t used before' : ''}
-    
-    **1. KEY STRATEGIC CHANGE: Integrate Persona into Benefits**
-    - Instead of a separate "Who Should Own This Product" section, you MUST weave the persona "${personaName}" and their specific life situations directly into the description of each benefit.
-    - Frame each benefit as a direct solution for them. This makes the content far more personal and compelling.
-    
-    **2. Image Analysis is CRITICAL**
-    - You MUST thoroughly analyze all ${imageUrls.length} images to extract REAL factual details: Material, Surface, Design Details, Colors, Usage Context.
-    - Use this information to make the copy specific and trustworthy. Example: Instead of "durable material", write "crafted from 316L stainless steel with a matte finish, as seen in the photos".
-    - SELF-SELECT the 3 best images (for Hero, Benefits, and an illustrative detail shot) and insert their URLs into the HTML.
-    
-    **3. Content Sections**
-    - **"Key Features" Table:** Fill this with FACTUAL information extracted from the description and images.
-    - **FAQ Section (2-3 questions):** Convert the persona's pain points and practical concerns into natural questions with reassuring, fact-based answers.
-    
-    [FORMATTING & HTML RULES]
-    - **Language:** ALL content (titles, headings, text, tables, FAQs) MUST be in **${language}**.
-    - **Tone & Voice:** Use a **${toneType}** tone and follow the **${voiceGuideline}** guideline. Use short sentences.
-    - **Focus:** Emphasize BENEFITS (the transformation/outcome) over features.
-    - **Personalization:** All content must be highly personalized for the persona "${personaName}".
-    - **Semantic HTML:** You MUST use semantic tags: <article>, <header>, <section>, <footer>, <figure>, <dl>, <dt>, <dd>.
-    - **NO Inline Styles:** DO NOT use \`style="..."\` attribute, EXCEPT for \`<img>\` tags (\`style='max-width: 100%; height: auto;'\`).
-    - **Hierarchy:** Use <h1> for the main title, <h2> for section titles, and <h3> for FAQ questions.
-    - **Icons:** Use the provided clean SVG icons. DO NOT use emojis.
-    
-    [OUTPUT FORMAT]
-    Return a single, clean JSON object with the following structure. NO markdown or extra text outside the JSON.
-    
-    {
-      "title": "New highly compelling title (50-80 characters) - MUST be in ${language}",
-      "description": "<article class='product-description'>
+      <div class='faq-list'>
+        <div class='faq-item'>
+          <h3 class='faq-question'>Câu hỏi 1 từ primary pain point?</h3>
+          <div class='faq-answer'>
+            <p>Câu trả lời chi tiết, dựa trên facts và benefits. 2-3 câu.</p>
+    </div>
+        </div>
         
-        <!-- 1. Hero Section: Headline + Hook -->
-        <header class='product-hero'>
-          <h1>Headline that hits the desired result for '${personaName}'</h1>
-          <p class='lead'>Hook sentence that touches on their core pain point, creating an immediate emotional connection.</p>
-          <figure>
-            <img src='URL_CHO_HERO_IMAGE' alt='Product hero image' style='max-width: 100%; height: auto;' />
-          </figure>
-        </header>
-        
-        <!-- 2. Personalized Benefits: Weaving Persona and Use Case -->
-        <section class='benefits'>
-          <h2>Đây Là Cách [Tên Sản Phẩm] Giải Quyết Vấn Đề Của Bạn</h2>
-          <dl class='benefits-grid'>
-            <div class='benefit-card'>
-              <dt>
-                <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'><path d='M20 6L9 17l-5-5'/></svg>
-                <strong>Benefit Title 1 (Outcome-focused)</strong>
-              </dt>
-              <dd>Describe the benefit by directly addressing '${personaName}'. How does this product fit into their specific life? E.g., 'Là một [nghề nghiệp/vai trò của persona], bạn hiểu rằng... Sản phẩm này giúp bạn...'</dd>
-            </div>
-            
-            <div class='benefit-card'>
-              <dt>
-                <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'><path d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z'/></svg>
-                <strong>Benefit Title 2 (Transformation)</strong>
-              </dt>
-              <dd>Explain the emotional transformation. Connect the product's use to the persona's motivations. E.g., 'Hãy tưởng tượng cảm giác tự tin/thư thái/năng suất hơn khi bạn không còn phải lo lắng về [pain_point]... '</dd>
-            </div>
-          </dl>
-          <figure>
-            <img src='URL_CHO_BENEFITS_IMAGE' alt='Image showcasing product benefits' style='max-width: 100%; height: auto;' />
-          </figure>
-        </section>
-        
-        <!-- 3. Product Details: Clean Table -->
-        <section class='specifications'>
-          <h2>Thông Tin Chi Tiết</h2>
-          <table>
-            <tbody>
-              <tr>
-                <th>Chất liệu</th>
-                <td>Extracted from description/images - be specific, e.g., 'Vải cotton thoáng khí với bề mặt mềm mại'.</td>
-              </tr>
-              <tr>
-                <th>Thiết kế</th>
-                <td>Specific design details visible from images, e.g., 'Cổ tròn, có túi hai bên tiện lợi'.</td>
-              </tr>
-              <tr>
-                <th>Màu sắc</th>
-                <td>Specific color name from images, e.g., 'Xanh navy đậm'.</td>
-              </tr>
-              <tr>
-                <th>Phù hợp cho</th>
-                <td>Specific use cases for '${personaName}', e.g., 'Những buổi họp quan trọng, sự kiện networking'.</td>
-              </tr>
-              <tr>
-                <th>Hướng dẫn bảo quản</th>
-                <td>Simple, practical care instructions.</td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
-        
-        <!-- 4. FAQ: Addressing Concerns -->
-        <section class='faq'>
-          <h2>Câu Hỏi Thường Gặp</h2>
-          <div class='faq-list'>
-            <div class='faq-item'>
-              <h3 class='faq-question'>Question 1 based on a primary pain point?</h3>
-              <div class='faq-answer'><p>Detailed answer based on facts and benefits to build trust.</p></div>
-            </div>
-            <div class='faq-item'>
-              <h3 class='faq-question'>Question 2 about a practical concern for '${personaName}'?</h3>
-              <div class='faq-answer'><p>Answer that addresses the concern and reinforces value.</p></div>
-            </div>
+        <div class='faq-item'>
+          <h3 class='faq-question'>Câu hỏi 2 về practical concerns?</h3>
+          <div class='faq-answer'>
+            <p>Câu trả lời addressing concern, building trust.</p>
           </div>
-        </section>
+        </div>
         
-        <!-- 5. Final CTA -->
-        <footer class='product-cta'>
-          <p><strong>Strong, clear call-to-action that creates urgency for '${personaName}'.</strong></p>
-        </footer>
+        <div class='faq-item'>
+          <h3 class='faq-question'>Câu hỏi 3 về value proposition?</h3>
+          <div class='faq-answer'>
+            <p>Câu trả lời về unique value, differentiation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 6. Final CTA -->
+    <footer class='product-cta'>
+      <p><strong>Lời kêu gọi hành động mạnh mẽ, rõ ràng, tạo urgency</strong></p>
+    </footer>
+    
+  </article>"
+}
+
+**LƯU Ý QUAN TRỌNG - SEMANTIC HTML:**
+- Description PHẢI dùng semantic HTML5: <article>, <header>, <section>, <footer>, <figure>, <dl>, <dt>, <dd>
+- PHẢI có đầy đủ 6 sections: header (hero), benefits, specifications (table), use-case, faq, footer (cta)
+- Benefits dùng <dl> (definition list) với <dt> (term) và <dd> (description) - cấu trúc card-based
+- Table dùng <th> cho headers, <td> cho values - clean & scannable
+- FAQ format: <div class='faq-list'> với <div class='faq-item'>, <h3 class='faq-question'>, <div class='faq-answer'>
+- Images wrap trong <figure> tag (semantic)
+
+**QUY TẮC VÀNG VỀ HTML & CSS:**
+1. **CẤM TUYỆT ĐỐI** style="..." trừ <img> (style='max-width: 100%; height: auto;')
+2. **SEMANTIC TAGS:** <article>, <header>, <section>, <footer>, <figure>, <figcaption>, <dl>, <dt>, <dd>
+3. **BENEFITS:** Dùng <dl class='benefits-grid'> với benefit-card wrappers
+   - Icon: 20px, stroke-width 1.5, opacity 0.6 (subtle)
+   - <dt> chứa icon + benefit title (bold)
+   - <dd> chứa benefit description
+4. **TABLE:** Clean <table> với <th> và <td>, NO wrapper divs
+   - <th> cho label column (bold)
+   - <td> cho value column
+5. **FAQ:** Professional Q&A format (NO <details>, NO accordion)
+   - Structure: <div class='faq-list'> → <div class='faq-item'> → <h3 class='faq-question'> + <div class='faq-answer'><p>
+   - Questions dùng <h3 class='faq-question'>
+   - Answers trong <div class='faq-answer'><p>
+   - Theme sẽ style đẹp với borders, spacing, colors
+6. **HIERARCHY:** <h1> cho hero title, <h2> cho section titles, <h3> cho FAQ questions
+
+**QUY TẮC VIẾT CONTENT:**
+- **Specs Table:** Trích xuất thông tin thật từ mô tả/hình ảnh
+  * Chất liệu: Cotton, thép, da... + chi tiết (mềm mại, bóng gương...)
+  * Thiết kế: Mô tả cụ thể nhìn thấy được (cổ tròn, khóa kéo, pattern...)
+  * Màu sắc: Tên màu cụ thể từ ảnh (Navy xanh đậm, Hồng pastel...)
+  * Phù hợp với: Use cases dựa trên persona
+  * Bảo quản: Hướng dẫn care thực tế
+
+- **Benefits:** Focus vào OUTCOMES, không phải features
+  * Title: Benefit headline (emotional/practical result)
+  * Description: Chi tiết cụ thể về transformation
+  * Example: "Tự Tin Tỏa Sáng" thay vì "Chất Lượng Cao"
+
+- **FAQ:** Từ pain points thành câu hỏi tự nhiên
+  * Q1: Primary pain point → question
+  * Q2: Secondary pain point/practical concern → question
+  * Q3: Value proposition/differentiation → question
+  * Answers: 2-3 câu, fact-based, trust-building
+
+- **Use Case Section:** Describe ideal customer and transformation
+  * Versatility, value proposition
+  * Real-world usage scenarios
+
+[OUTPUT FORMAT]
+Return JSON with the following structure (NO markdown, NO additional text outside JSON):
+
+{
+  "title": "New highly compelling title (50-80 characters)",
+  "description": "<article class='product-description'>
+    
+    <!-- 1. Hero Section: Compelling headline + hook -->
+    <header class='product-hero'>
+      <h1>Main headline hitting result - compelling & benefit-driven</h1>
+      <p class='lead'>Hook sentence touching pain point, creating emotional connection instantly</p>
+      <figure>
+        <img src='HERO_IMAGE_URL' alt='Product hero image' style='max-width: 100%; height: auto;' />
+      </figure>
+    </header>
+    
+    <!-- 2. Key Benefits: Visual + Concise -->
+    <section class='benefits'>
+      <h2>Why You'll Love This Product</h2>
+      <dl class='benefits-grid'>
+        <div class='benefit-card'>
+          <dt>
+            <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'>
+              <path d='M20 6L9 17l-5-5'/>
+            </svg>
+            <strong>Benefit Title 1</strong>
+          </dt>
+          <dd>Specific benefit details, not features. Focus on outcome/result.</dd>
+        </div>
         
-      </article>"
-    }
-    `;
-    const messageContent: any[] = [
-      {
-        type: 'text',
-        text: contentPrompt
-      }
-    ];
-
-    // Add ALL images to context - let AI choose the best ones
-    if (imageUrls && imageUrls.length > 0) {
-      console.log('🖼️ Sending ALL images to AI for analysis:', imageUrls.length);
-      imageUrls.forEach((imageUrl: string, index: number) => {
-        console.log(`📸 Image ${index + 1}:`, imageUrl);
-        messageContent.push({
-          type: 'image_url',
-          image_url: {
-            url: imageUrl
-          }
-        });
-      });
-    } else {
-      console.log('⚠️ No images provided for AI analysis');
-    }
-
-    // Get model config for generate-content-from-segmentation API
-    const modelConfig = AI_MODELS_CONFIG.generateContentFromSegmentation;
+        <div class='benefit-card'>
+          <dt>
+            <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'>
+              <path d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z'/>
+            </svg>
+            <strong>Benefit Title 2</strong>
+          </dt>
+          <dd>Second benefit detail, emphasizing transformation.</dd>
+        </div>
+        
+        <div class='benefit-card'>
+          <dt>
+            <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' opacity='0.6' aria-hidden='true'>
+              <path d='M12 2v20M2 12h20'/>
+            </svg>
+            <strong>Benefit Title 3</strong>
+          </dt>
+          <dd>Third benefit detail, emotional connection.</dd>
+        </div>
+      </dl>
+      <figure>
+        <img src='BENEFITS_IMAGE_URL' alt='Product benefits showcase' style='max-width: 100%; height: auto;' />
+      </figure>
+    </section>
     
-    // Call AI API for content generation
-    console.log('🤖 Calling AI for content generation...');
-    console.log(`🤖 Model: ${modelConfig.model}`);
-    console.log(`🌍 Language: ${language}, Market: ${targetMarket}`);
+    <!-- 3. Product Details: Clean Table -->
+    <section class='specifications'>
+      <h2>Product Information</h2>
+      <table>
+        <tbody>
+          <tr>
+            <th>Material</th>
+            <td>Extracted from description/images - specific, detailed</td>
+          </tr>
+          <tr>
+            <th>Design</th>
+            <td>Specific design description visible from images</td>
+          </tr>
+          <tr>
+            <th>Colors</th>
+            <td>Specific color names from images</td>
+          </tr>
+          <tr>
+            <th>Suitable For</th>
+            <td>Specific use cases based on persona</td>
+          </tr>
+          <tr>
+            <th>Care Instructions</th>
+            <td>Actual care guidance</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
     
-    // Simple system message - just tell AI to use the specified language
-    const systemMessage = `You are an e-commerce copywriter expert. Create content in ${language}. Return ONLY JSON, no markdown. ALL text in title and description MUST be in ${language}.`;
+    <!-- 4. Social Proof / Use Case -->
+    <section class='use-case'>
+      <h2>Who Should Own This Product</h2>
+      <p>Detailed description of ideal customer, use cases, and transformation. Emphasize versatility and value.</p>
+      <figure>
+        <img src='LIFESTYLE_IMAGE_URL' alt='Product in use' style='max-width: 100%; height: auto;' />
+        <figcaption>Lifestyle context caption (optional)</figcaption>
+      </figure>
+    </section>
     
-    const response = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
-      {
-        model: modelConfig.model,
-        messages: [
-          {
-            role: 'system',
-            content: systemMessage
-          },
-          {
-            role: 'user',
-            content: messageContent
-          }
-        ],
-        max_tokens: modelConfig.maxTokens,
-        temperature: modelConfig.temperature
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${openRouterApiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'http://localhost:3000',
-          'X-Title': 'Product Content Generator',
-        },
-        timeout: modelConfig.timeout
-      }
-    );
-
-    // Validate API response structure
-    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
-      console.error('Invalid API response structure:', JSON.stringify(response.data, null, 2));
-      throw new Error('Invalid API response: missing choices array');
-    }
-
-    if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
-      console.error('Invalid message structure:', JSON.stringify(response.data.choices[0], null, 2));
-      throw new Error('Invalid API response: missing message content');
-    }
-
-    let content = response.data.choices[0].message.content;
-    console.log('📝 Raw AI response length:', content.length);
-    console.log('🖼️ Response contains images:', content.includes('<img'));
-    console.log('📊 Number of <img> tags:', (content.match(/<img/g) || []).length);
-
-    // Parse JSON response
-    try {
-      // Clean up markdown if present
-      content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+    <!-- 5. FAQ: Professional Q&A Format -->
+    <section class='faq'>
+      <h2>Frequently Asked Questions</h2>
       
-      // Find JSON boundaries
-      let jsonStart = content.indexOf('{');
-      let jsonEnd = content.lastIndexOf('}');
-      
-      if (jsonStart === -1 || jsonEnd === -1) {
-        throw new Error('No valid JSON found in response');
-      }
-      
-      let jsonString = content.substring(jsonStart, jsonEnd + 1);
-      
-      // Parse the JSON
-      const result = JSON.parse(jsonString);
-      
-      console.log('✅ Content generated successfully');
-      console.log('📌 New title:', result.title);
-      
-      res.json({
-        success: true,
-        data: {
-          title: result.title,
-          description: result.description
-        }
-      });
-      
-    } catch (parseError: any) {
-      console.error('❌ JSON parse error:', parseError.message);
-      console.log('Raw content:', content);
-      
-      // Return fallback response
-      res.json({
-        success: true,
-        data: {
-          title: title, // Keep original title
-          description: `<div class="product-description">
-            <div class="hero-section">
-              <h2>✨ ${title}</h2>
-              <p>${description || ''}</p>
-            </div>
-            <div class="benefits-section">
-              <h3>🌟 Lợi Ích Nổi Bật:</h3>
-              <ul class="benefits-list">
-                ${productBenefits?.map((benefit: string) => `<li>✅ ${benefit}</li>`).join('\n                ') || ''}
-              </ul>
-            </div>
-          </div>`
-        }
-      });
-    }
-
-  } catch (error: any) {
-    console.error('Error in generate-content-from-segmentation:', error.message);
-    res.status(500).json({ 
-      error: 'Failed to generate content',
-      message: error.message 
-    });
-  }
-});
-
-router.post('/generate-content-from-segmentation-cofaq', async (req, res) => {
-  try {
-    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
-    
-    const { 
-      title, 
-      description, 
-      images, 
-      productImages, // Frontend sends this
-      segmentation,
-      targetMarket = 'vi',
-      language = 'vi-VN',
-      previousContent // Optional: { title: string, description: string } - for retry/optimize
-    } = req.body;
-
-    // Support both formats: string[] or object[]
-    const rawImages = images || productImages || [];
-    const imageUrls = rawImages
-      .map((img: any) => {
-        if (typeof img === 'string') return img;
-        if (typeof img === 'object' && img !== null) return img.url || img.src || img;
-        return null;
-      })
-      .filter((url: any): url is string => Boolean(url) && typeof url === 'string');
-
-    console.log('🎨 Content Generation - Segmentation:', segmentation?.name);
-    console.log('🖼️ Images received:', imageUrls.length, 'images');
-    console.log('🔄 Is Retry/Optimize:', !!previousContent);
-
-    // Validate required fields
-    if (!title || !segmentation) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: title and segmentation' 
-      });
-    }
-
-    // Simple: Just pass language and targetMarket to AI - let AI handle it
-    console.log('🌍 Content Generation - Market:', targetMarket, 'Language:', language);
-
-    // Extract segmentation data
-    const {
-      name: personaName,
-      painpoints,
-      painpoint, // Old format for backward compatibility
-      personaProfile,
-      productBenefits,
-      toneType,
-      voiceGuideline,
-      keywordSuggestions,
-      seasonalTrends,
-      locations
-    } = segmentation;
-
-    // Handle both old and new painpoints structure
-    let primaryPainPoint = '';
-    let secondaryPainPoints: string[] = [];
-    
-    if (painpoints && typeof painpoints === 'object') {
-      // New structure
-      primaryPainPoint = painpoints.primary || '';
-      secondaryPainPoints = painpoints.secondary || [];
-    } else if (painpoint && typeof painpoint === 'string') {
-      // Old structure - use as primary
-      primaryPainPoint = painpoint;
-    }
-
-    // Format pain points for prompt
-    const painPointText = secondaryPainPoints.length > 0
-      ? `**Primary Pain Point:**
-${primaryPainPoint}
-
-**Secondary Pain Points:**
-${secondaryPainPoints.map((p, i) => `${i + 1}. ${p}`).join('\n')}`
-      : `**Pain Points & Issues:**
-${primaryPainPoint}`;
-
-    // Build previous content section if retry/optimize
-    const previousContentSection = previousContent 
-    ? `
-      
-  [CRITICAL TASK: RE-GENERATION MODE]
-  You are in optimization mode. The previous version was rejected. Your primary goal is to generate a COMPLETELY NEW and SUPERIOR version.
-  
-  [PREVIOUSLY GENERATED CONTENT - AVOID THIS AT ALL COSTS]
-  **Previous Title:**
-  ${previousContent.title}
-  **Previous Description:**
-  ${previousContent.description}
-  
-  [YOUR NEW INSTRUCTIONS - FOLLOW THESE STRICTLY]
-  - **New Angle:** You MUST create a fresh, creative angle. Do not reuse the old one.
-  - **New Phrasing:** You MUST use different vocabulary and sentence structures.
-  - **Be Better:** You MUST make this version more persuasive and emotionally engaging.
-  - **NO REPETITION:** Do NOT repeat headlines, benefit descriptions, or key phrases from the previous version.
-  `
-    : '';
-
-    // List all image URLs in the prompt so AI knows exactly which URLs are available
-    const imageUrlsList = imageUrls.length > 0 
-      ? imageUrls.map((url: string, index: number) => `${index + 1}. ${url}`).join('\n')
-      : 'No images provided';
-
-    // Build prompt - simple: just pass language and targetMarket to AI
-    const contentPrompt = `[ROLE]
-    You are an expert copywriter who specializes in CLEAR, CONCISE, and PUNCHY e-commerce content. Your goal is to get information to the customer as quickly as possible.
-
-    [CONTEXT]
-    I need you to write product content for a Shopify store. Below is all the strategic information:
-    
-    **Product Information:**
-    - **Product Title:** ${title}
-    - **Current Description:** ${description || 'No description provided'}
-    - **Target Market:** ${targetMarket}
-    - **Output Language:** ${language} - **CRITICAL: ALL content MUST be written in ${language}**
-    
-    **AVAILABLE IMAGE URLs (YOU MUST USE ONE OF THESE EXACT URLs):**
-    ${imageUrlsList}
-    
-    **Target Customer Segment (Persona):**
-    - **Persona Name:** ${personaName}
-    
-    **Their Pain Points & Issues:**
-    ${painPointText}
-    
-    **Product Benefits - Desired Transformation:**
-    ${productBenefits?.map((benefit: string, index: number) => `${index + 1}. ${benefit}`).join('\n') || 'N/A'}
-    
-    **SEO Keywords to Integrate:**
-    ${keywordSuggestions?.slice(0, 5).join(', ') || 'N/A'}${previousContentSection}
-    
-    [TASK & CONTENT REQUIREMENTS]
-    Your task is to write a new **Title** and a complete **HTML Description**. The main goal is EXTREME CLARITY and BREVITY.
-    
-    **1. Image Analysis & Insertion (CRITICAL TASK):**
-    - **Analyze all ${imageUrls.length} images** provided above to extract FACTUAL details: Material, Color, Design specifics.
-    - **You MUST select the single best image** from the list of ${imageUrls.length} URLs above that represents the product well.
-    - **You MUST insert its EXACT URL** into the \`<img src='...'>\` tag in the 'Chi Tiết' tab. 
-    - **Replace the 'URL_CHO_HERO_IMAGE' placeholder** with the real URL you selected from the list above.
-    - **Copy the EXACT URL** - do not modify or create new URLs.
-    
-    [FORMATTING & HTML RULES]
-    - **CRITICAL WRITING STYLE: BE DIRECT AND CONCISE.**
-    - **Use short sentences. MAXIMUM 15 words per sentence.**
-    - **NO marketing fluff. NO long paragraphs.** Get straight to the point.
-    - **Language:** ALL content MUST be in **${language}**.
-    - **Focus:** Emphasize BENEFITS (the outcome) over features.
-    
-    [OUTPUT FORMAT]
-    Return a single, clean JSON object. NO markdown or extra text outside the JSON.
-    
-    {
-      "title": "New direct, benefit-focused title (50-70 characters) - MUST be in ${language}",
-      "description": "<article class='product-description-tabs'>
-
-        <!-- MINIMAL CSS FOR TAB LAYOUT - DESIGNED TO INHERIT THEME STYLES -->
-        <style>
-          .product-tabs-wrapper { max-width: 100%; }
-          .product-tabs-nav { display: flex; align-items: center; border-bottom: 1px solid #e0e0e0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-          .product-tab-link {
-            font-family: inherit; font-size: inherit; color: inherit;
-            background-color: transparent; border: none; border-bottom: 2px solid transparent;
-            padding: 12px 16px; cursor: pointer; margin-bottom: -1px; white-space: nowrap; transition: border-color 0.2s ease, opacity 0.2s ease;
-            opacity: 0.7;
-          }
-          .product-tab-link.active { border-bottom-color: currentColor; opacity: 1; font-weight: 600; }
-          .product-tab-content { display: none; padding: 24px 4px; }
-          .product-tab-content.active { display: block; }
-          .product-tab-content table { border: none; width: 100%; border-collapse: collapse; }
-          .product-tab-content th, .product-tab-content td { border: none; border-bottom: 1px solid #f0f0f0; padding: 10px 0; text-align: left; }
-          .product-tab-content ul { list-style-position: inside; padding-left: 0; }
-        </style>
-
-        <div class='product-tabs-wrapper'>
-          <!-- Tab Navigation -->
-          <nav class='product-tabs-nav'>
-            <button class='product-tab-link active' onclick='switchProductTab(event, \"overview\")'>Tổng Quan</button>
-            <button class='product-tab-link' onclick='switchProductTab(event, \"details\")'>Chi Tiết</button>
-            <button class='product-tab-link' onclick='switchProductTab(event, \"specs\")'>Thông Số</button>
-            <!--  <button class='product-tab-link' onclick='switchProductTab(event, \"faq\")'>Hỏi & Đáp</button> -->
-          </nav>
-
-          <!-- Tab Content Panels -->
-          <!-- Tab 1: Overview (TEXT-ONLY KEY HIGHLIGHTS) -->
-          <div id='overview' class='product-tab-content active'>
-            <h2>Điểm Nổi Bật Chính</h2>
-            <ul>
-              <!-- MANDATORY: Write 3-4 bullet points. Each bullet point MUST follow the format: '<strong>Benefit Title:</strong> Short fragment explaining the result. MAX 12 WORDS TOTAL.' -->
-              <li><strong>[Lợi Ích 1]:</strong> [Kết quả trực tiếp. Tối đa 10 từ].</li>
-              <li><strong>[Lợi Ích 2]:</strong> [Kết quả trực tiếp. Tối đa 10 từ].</li>
-              <li><strong>[Lợi Ích 3]:</strong> [Kết quả trực tiếp. Tối đa 10 từ].</li>
-            </ul>
+      <div class='faq-list'>
+        <div class='faq-item'>
+          <h3 class='faq-question'>Question 1 from primary pain point?</h3>
+          <div class='faq-answer'>
+            <p>Detailed answer based on facts and benefits. 2-3 sentences.</p>
           </div>
-
-          <!-- Tab 2: Product Details (DETAILED TEXT + IMAGES) -->
-          <div id='details' class='product-tab-content'>
-            <h2>Đây Là Cách [Tên Sản Phẩm] Dành Cho Bạn</h2>
-            <p>Mở đầu ngắn gọn (1-2 câu) kết nối với '${personaName}'.</p>
-            <figure style='margin: 16px 0;'>
-              <img src='URL_CHO_HERO_IMAGE' alt='Product main image' style='max-width: 100%; height: auto; border-radius: 8px;' />
-            </figure>
-            <h3>[Diễn Giải Chi Tiết Lợi Ích 1]</h3>
-            <p>Giải thích lợi ích 1. Tối đa 2-3 câu ngắn.</p>
-            <h3>[Diễn Giải Chi Tiết Lợi Ích 2]</h3>
-            <p>Giải thích lợi ích 2. Tối đa 2-3 câu ngắn.</p>
+        </div>
+        
+        <div class='faq-item'>
+          <h3 class='faq-question'>Question 2 about practical concerns?</h3>
+          <div class='faq-answer'>
+            <p>Answer addressing concern, building trust.</p>
           </div>
-
-          <!-- Tab 3: Specifications -->
-          <div id='specs' class='product-tab-content'>
-            <h2>Thông Số Kỹ Thuật</h2>
-            <table>
-              <tbody>
-                <tr><th>Chất liệu</th><td>Factual data from images.</td></tr>
-                <tr><th>Thiết kế</th><td>Factual data from images.</td></tr>
-                <tr><th>Màu sắc</th><td>Factual data from images.</td></tr>
-                <tr><th>Phù hợp cho</th><td>Use case for '${personaName}'.</td></tr>
-              </tbody>
-            </table>
+        </div>
+        
+        <div class='faq-item'>
+          <h3 class='faq-question'>Question 3 about value proposition?</h3>
+          <div class='faq-answer'>
+            <p>Answer about unique value, differentiation.</p>
           </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 6. Final CTA -->
+    <footer class='product-cta'>
+      <p><strong>Strong, clear call-to-action creating urgency</strong></p>
+    </footer>
+    
+  </article>"
+}
 
-          <!-- Tab 4: FAQ -->
-          <div id='faq' class='product-tab-content'>
-            <h2>Câu Hỏi Thường Gặp</h2>
-            <h4>Câu hỏi 1 dựa trên nỗi đau chính?</h4>
-            <p>Trả lời thẳng, ngắn gọn, đáng tin cậy.</p>
-            <h4>Câu hỏi 2 về một lo ngại thực tế?</h4>
-            <p>Trả lời thẳng, ngắn gọn, đáng tin cậy.</p>
-          </div> 
-        </div> 
+**IMPORTANT NOTES - SEMANTIC HTML:**
+- Description MUST use semantic HTML5: <article>, <header>, <section>, <footer>, <figure>, <dl>, <dt>, <dd>
+- MUST have all 6 sections: header (hero), benefits, specifications (table), use-case, faq, footer (cta)
+- Benefits use <dl> (definition list) with <dt> (term) and <dd> (description) - card-based structure
+- Table uses <th> for headers, <td> for values - clean & scannable
+- FAQ format: <div class='faq-list'> with <div class='faq-item'>, <h3 class='faq-question'>, <div class='faq-answer'>
+- Images wrap in <figure> tag (semantic)
 
-        <!-- SELF-CONTAINED JAVASCRIPT - NO EXTERNAL FILES NEEDED -->
-        <script>
-          function switchProductTab(evt, tabId) {
-            const wrapper = evt.currentTarget.closest('.product-tabs-wrapper');
-            if (!wrapper) return;
-            const contents = wrapper.querySelectorAll('.product-tab-content');
-            const links = wrapper.querySelectorAll('.product-tab-link');
-            
-            contents.forEach(content => content.classList.remove('active'));
-            links.forEach(link => link.classList.remove('active'));
-            
-            const targetContent = wrapper.querySelector('#' + tabId);
-            if (targetContent) { targetContent.classList.add('active'); }
-            evt.currentTarget.classList.add('active');
-          }
-        </script>
+**GOLDEN RULES FOR HTML & CSS:**
+1. **ABSOLUTELY FORBIDDEN** style="..." except <img> (style='max-width: 100%; height: auto;')
+2. **SEMANTIC TAGS:** <article>, <header>, <section>, <footer>, <figure>, <figcaption>, <dl>, <dt>, <dd>
+3. **BENEFITS:** Use <dl class='benefits-grid'> with benefit-card wrappers
+   - Icon: 20px, stroke-width 1.5, opacity 0.6 (subtle)
+   - <dt> contains icon + benefit title (bold)
+   - <dd> contains benefit description
+4. **TABLE:** Clean <table> with <th> and <td>, NO wrapper divs
+   - <th> for label column (bold)
+   - <td> for value column
+5. **FAQ:** Professional Q&A format (NO <details>, NO accordion)
+   - Structure: <div class='faq-list'> → <div class='faq-item'> → <h3 class='faq-question'> + <div class='faq-answer'><p>
+   - Questions use <h3 class='faq-question'>
+   - Answers in <div class='faq-answer'><p>
+   - Theme will style beautifully with borders, spacing, colors
+6. **HIERARCHY:** <h1> for hero title, <h2> for section titles, <h3> for FAQ questions
 
-      </article>"
-    }
-    `;
+**CONTENT WRITING RULES:**
+- **Specs Table:** Extract real information from description/images
+  * Material: Cotton, steel, leather... + details (soft, mirror finish...)
+  * Design: Specific visible design (round collar, zipper, pattern...)
+  * Colors: Specific color names from images (Navy blue, Pastel pink...)
+  * Suitable For: Use cases based on persona
+  * Care: Actual care instructions
+
+- **Benefits:** Focus on OUTCOMES, not features
+  * Title: Benefit headline (emotional/practical result)
+  * Description: Specific details about transformation
+  * Example: "Confident Shine" instead of "High Quality"
+
+- **FAQ:** Transform pain points into natural questions
+  * Q1: Primary pain point → question
+  * Q2: Secondary pain point/practical concern → question
+  * Q3: Value proposition/differentiation → question
+  * Answers: 2-3 sentences, fact-based, trust-building
+
+- **Use Case Section:** Describe ideal customer and transformation
+  * Versatility, value proposition
+  * Real-world usage scenarios
+
+**CRITICAL LANGUAGE REQUIREMENT:**
+ALL content including title, headings, descriptions, FAQ questions and answers, table headers and values MUST be written in ${language}. Do NOT mix languages.`;
+
+    // Prepare messages with images (if available)
     const messageContent: any[] = [
       {
         type: 'text',
@@ -3561,49 +3000,26 @@ STEP 1. ANALYZE IMAGES
 - If there are multiple variants (e.g. different sizes), describe the differences.
 - Identify visual USP: e.g. "leak-proof screw cap", "316 mirror-finish stainless steel", "dragon mosaic print on navy shirt", etc.
 
-STEP 2. SELECT BEST REFERENCE IMAGE FOR OPTIMIZATION
-From all the images provided, your primary goal is to select the single BEST image to serve as a high-fidelity reference for generating new scenes.
-
-**Selection Criteria (in order of priority):**
-1.  **Highest Detail & Clarity:** Choose the image with the sharpest focus, best lighting, and clearest view of the product's key details (texture, text, logos, seams, etc.).
-2.  **Most Comprehensive Angle:** Prioritize a 3/4 front view or an angle that shows the most important features of the product at once. Avoid flat top-down or side-on views unless they are the only ones available.
-3.  **Clean Background:** An image with a simple, non-distracting background is preferred as it makes the product easier to analyze.
-
-=> Name this image URL \`bestImageUrl\`.
-Explain your choice in \`imageSelectionReason\`, specifically mentioning why it's the best reference based on the criteria above (e.g., "Selected because it's a sharp 3/4 view that clearly shows the leather texture and buckle details").
+STEP 2. SELECT BEST IMAGE
+From all images you receive:
+- Choose the clearest image with the most stable lighting and complete product visibility.
+- Prioritize images where the product is not obscured.
+- If an image clearly shows material texture → prioritize it.
+=> Call this bestImageUrl.
+Explain why you selected it (imageSelectionReason).
 
 STEP 3. GENERATE PROMPT FOR REQUESTED STYLE: "${requestedStyle}"
-**3.1. Create a "Product Fact Sheet"**
-Based on your analysis from STEP 1 and the provided product data, create a concise, factual description of the product. This is your internal reference.
-- **Product Name:** ${productTitle}
-- **Core Function:** [e.g., A portable coffee mug, a leather handbag, a set of ceramic bowls]
-- **Key Visual Attributes:**
-    - **Material:** [e.g., Brushed stainless steel, grained vegan leather, glossy ceramic]
-    - **Color(s):** [e.g., Matte black with a silver logo, pastel pink body with a gold lid]
-    - **Shape & Structure:** [e.g., Cylindrical body with a tapered base, rectangular tote with two top handles, round bowl with a slightly flared rim]
-    - **Dimensions/Size (if visible/known):** [e.g., Appears to be a 12oz mug, a medium-sized handbag]
-    - **Unique Details:** [e.g., Leak-proof screw-on lid, intricate dragon embroidery, magnetic snap closure]
-
-**3.2. Generate the Final Prompt**
-Now, create ONE prompt for the "${requestedStyle}" style. This prompt MUST start with a detailed product description derived from your "Product Fact Sheet" above.
-
-
+With the product in bestImageUrl, create ONE prompt for the "${requestedStyle}" style that keeps the product exactly the same.
 
 REQUESTED STYLE DEFINITION:
 ${selectedStyleDefinition}
 
-**PROMPT STRUCTURE REQUIREMENT:**
-Your final prompt MUST follow this structure:
-1.  **Product Description Prefix:** Start with a detailed, factual description of the product. Example: "A photorealistic image of a matte black 12oz stainless steel coffee mug with a silver engraved logo and a leak-proof screw-on lid..."
-2.  **Scene & Style Description:** Continue with the scene, environment, lighting, and persona alignment based on the requested style. Example: "...placed on a rustic wooden desk next to a laptop and a notebook, creating a focused work-from-home lifestyle scene for a busy professional. The lighting is soft morning daylight coming from a window on the side."
-3.  **Technical Keywords:** End with technical terms. Example: "commercial product photography, hyper-detailed, sharp focus, high-end look."
-
 MANDATORY CONSTRAINTS FOR THE PROMPT:
-- "Use the provided image as the exact visual reference for the product."
-- "The product in the final image MUST be pixel-identical to the reference: same shape, material, texture, proportions, logo, and color. These are non-negotiable."
-- "Only change the background, setting, lighting, and camera angle."
-- "No redesigning, recoloring, or altering any part of the product itself."
-- "Photorealistic only, no illustration or cartoon styles."
+- "Use the provided image as the exact product reference."
+- "The product must be pixel-identical to the reference image; treat its shape, material, texture, proportions, logo/print (if any), and color as locked geometry."
+- "Do not repaint or redesign any part of the product. No recolor. No added or removed elements. No modifying labels or details."
+- "Only replace background, camera angle, environment, lighting, or presentation style."
+- "No duplication, no resizing of the main product shape, no cartoon look, no illustration, photorealistic only."
 
 PERSONA-DRIVEN PROMPT REQUIREMENTS:
 - The environment, props, and overall aesthetic MUST align with the target persona's lifestyle
@@ -4221,44 +3637,58 @@ router.post('/generate-alt-text', async (req, res) => {
 
     console.log(`📸 Found ${imageUrls.length} image URLs out of ${images.length} images`);
     
-// Thay thế biến prompt cũ bằng biến này
-const prompt = `[ROLE]
-You are a senior E-commerce SEO Specialist. Your expertise is in creating highly effective, descriptive, and keyword-rich alt text that improves search rankings and accessibility.
+    // Simple prompt - just pass language and targetMarket directly to AI
+    const prompt = `# BACKGROUND & ROLE
 
-[TASK]
-You will receive ${images.length} images for a single product. For EACH image, you must perform a 3-step analysis to generate one unique alt text.
+You are a Search Engine Optimization (SEO) and Artificial Intelligence (AI) expert for e-commerce. Your task is to ANALYZE THE PROVIDED IMAGES DIRECTLY and create accurate alt text based on the actual content of each image.
 
-[INPUT DATA]
-- **Product Title:** ${productTitle}
-- **Primary Keywords:** ${primaryKeywords || 'high-quality product'}
-- **What the Target Audience Cares About (${targetAudience}):** [Focus on describing visual details that this audience would find most valuable or persuasive.]
-- **Output Language:** ${language} (CRITICAL: All output MUST be in this language).
+# IMPORTANT - IMAGE ANALYSIS
 
-[METHODOLOGY FOR EACH IMAGE]
-For each image from 1 to ${images.length}, follow these steps:
-1.  **Analyze the Image:** What is the subject? What are the key visual details (color, material, texture, shape)? What is the background? Is there a model?
-2.  **Determine the Image's PURPOSE:** Why was this specific photo taken?
-    - Is it a **Studio Shot** (to show the product cleanly)?
-    - Is it a **Lifestyle Shot** (to show the product in use)?
-    - Is it a **Close-up / Macro Shot** (to show quality, material, or a specific feature)?
-    - Is it an **Infographic Shot** (to explain a benefit)?
-    - Is it a **Packaging Shot** (to show what the customer will receive)?
-3.  **Synthesize the Alt Text:** Combine the analysis from Step 1 and 2 with the Primary Keywords. The final alt text should:
-    - Be a direct description of the image.
-    - Start with the most important information.
-    - Naturally include keywords.
-    - Be under 125 characters.
-    - Be unique from the other alt texts.
-    - Be written entirely in **${language}**.
+**YOU MUST:**
+1. **LOOK AT AND ANALYZE** each image sent with this message
+2. **ACCURATELY DESCRIBE** what you see in each image (angle, context, product details, colors, etc.)
+3. **CREATE ALT TEXT** based on the actual content of the image, not assumptions
+4. **WRITE ALL ALT TEXT IN THE LANGUAGE SPECIFIED:** ${language}
 
-[OUTPUT FORMAT]
-Return ONLY a numbered list from 1 to ${images.length}. Do not include any other text, titles, or explanations.
+# OBJECTIVE
 
-1. [Alt text for the first image in ${language}]
-2. [Alt text for the second image in ${language}]
+Analyze ${images.length} product images and write ${images.length} unique, accurate alt texts in ${language}, optimized for Google Images and enhanced AI recognition.
+
+# INPUT DATA
+
+*   **Product Title:** ${productTitle}
+*   **Image Count:** ${images.length}
+*   **Primary Keywords:** ${primaryKeywords || 'elegant product'}
+*   **Secondary Keywords:** ${secondaryKeywords || primaryKeywords || 'elegant product'}
+*   **Target Audience:** ${targetAudience}
+*   **Tone:** ${tone}
+*   **Target Market:** ${targetMarket}
+*   **Output Language:** ${language} - **CRITICAL: All alt text MUST be written in this language**
+
+# DETAILED REQUIREMENTS
+
+1.  **ANALYZE EACH IMAGE:** 
+    - Carefully examine each image sent with this message
+    - Identify the photography angle (studio, close-up, lifestyle, model wearing, packaging, etc.)
+    - Describe what you see: colors, details, context, models (if any)
+
+2.  **CREATE ACCURATE ALT TEXT:**
+    - Based on the actual content of the image, not assumptions
+    - Naturally integrate keywords
+    - Direct description, don't start with "Image of..." or "Picture of..."
+    - Keep reasonable length (under 125 characters)
+    - **MUST BE WRITTEN IN ${language}**
+
+# OUTPUT FORMAT
+
+Present results as a numbered list from 1 to ${images.length}, corresponding to the order of images sent:
+
+1. [alt text for first image in ${language} - accurately describe the image content]
+2. [alt text for second image in ${language} - accurately describe the image content]
 ...
-${images.length}. [Alt text for the last image in ${language}]
-`;
+${images.length}. [alt text for last image in ${language} - accurately describe the image content]
+
+Return only the numbered list, no additional text before or after. All alt text MUST be in ${language}.`;
 
     // Get model config for generate-alt-text API
     const modelConfig = AI_MODELS_CONFIG.generateAltText;
@@ -4426,327 +3856,6 @@ ${images.length}. [Alt text for the last image in ${language}]
       success: false,
       error: 'Failed to generate alt text',
       message: error.message
-    });
-  }
-});
-
-router.post('/generate-feature-highlights', async (req, res) => {
-  try {
-    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
-    
-    // 1. LẤY DỮ LIỆU ĐẦU VÀO
-    const { 
-      productTitle, 
-      productDescription,
-      images, 
-      productImages, // Alternative field name
-      segmentation, // Persona và các thông tin chiến lược khác
-      language = 'vi-VN',
-      targetMarket = 'vi',
-      currentDate, // Optional: Date string (ISO format or any parseable date) - if not provided, uses current date
-      requestDate // Alternative field name
-    } = req.body;
-
-    // Get current date for context - use provided date or current date
-    let contentDate: Date;
-    if (currentDate || requestDate) {
-      const dateString = currentDate || requestDate;
-      contentDate = new Date(dateString);
-      // Validate date
-      if (isNaN(contentDate.getTime())) {
-        console.warn('⚠️ Invalid date provided, using current date instead');
-        contentDate = new Date();
-      }
-    } else {
-      contentDate = new Date();
-    }
-
-    // Format date for AI context (multiple formats for better understanding)
-    const dateISO = contentDate.toISOString().split('T')[0]; // YYYY-MM-DD
-    const dateFormatted = contentDate.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric',
-      weekday: 'long'
-    }); // e.g., "Monday, November 10, 2025"
-    const monthYear = contentDate.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long' 
-    }); // e.g., "November 2025"
-    const season = getSeason(contentDate); // e.g., "Winter", "Spring", "Summer", "Fall"
-
-    // Support both formats: string[] or object[]
-    const rawImages = images || productImages || [];
-    const imageUrls = rawImages
-      .map((img: any) => {
-        if (typeof img === 'string') return img;
-        if (typeof img === 'object' && img !== null) return img.url || img.src || img;
-        return null;
-      })
-      .filter((url: any): url is string => Boolean(url) && typeof url === 'string');
-
-    console.log('✨ Generating Feature Highlights for:', productTitle);
-    console.log('🖼️ Images received:', imageUrls.length);
-    console.log('📅 Content creation date:', dateFormatted, `(${season})`);
-
-    // 2. VALIDATE DỮ LIỆU
-    if (!productTitle || !segmentation || imageUrls.length === 0) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: productTitle, segmentation, and at least one image.' 
-      });
-    }
-
-    // 3. TRÍCH XUẤT DỮ LIỆU CHIẾN LƯỢC TỪ SEGMENTATION
-    const {
-      name: personaName,
-      painpoints,
-      painpoint, // Old format for backward compatibility
-      productBenefits,
-      toneType,
-      voiceGuideline,
-      keywordSuggestions
-    } = segmentation;
-
-    // Handle both old and new painpoints structure
-    let primaryPainPoint = '';
-    if (painpoints && typeof painpoints === 'object') {
-      primaryPainPoint = painpoints.primary || painpoints || '';
-    } else if (typeof painpoints === 'string') {
-      primaryPainPoint = painpoints;
-    } else if (painpoint && typeof painpoint === 'string') {
-      primaryPainPoint = painpoint;
-    }
-
-    // Lấy 3-5 keywords quan trọng nhất
-    const primaryKeywords = keywordSuggestions?.slice(0, 5).join(', ') || productTitle;
-
-    // 4. XÂY DỰNG PROMPT CHẤT LƯỢNG CAO
-    // List all image URLs in the prompt so AI knows exactly which URLs are available
-    const imageUrlsList = imageUrls.map((url: string, index: number) => `${index + 1}. ${url}`).join('\n');
-    
-    const featurePrompt = `[ROLE]
-You are a Senior E-commerce Merchandiser and a world-class Direct Response Copywriter. Your mission is to analyze a product and create compelling "Feature Highlights" for a Shopify store that grab attention, build desire, and drive sales.
-
-[PRIMARY GOAL]
-Analyze the provided product information and images to create 2 to 4 feature highlights. Each highlight MUST be a combination of:
-1. A compelling title (5-10 words)
-2. A persuasive description (2-3 sentences)
-3. The single best image URL that showcases that feature
-
-The final output MUST be a JSON array with NO markdown, NO explanations, ONLY the raw JSON array.
-
-[INPUT DATA]
-- **Product Title:** ${productTitle}
-- **Product Description:** ${productDescription || 'N/A'}
-- **Target Persona:** ${personaName || 'N/A'}
-- **Persona's Pain Points:** ${primaryPainPoint || 'N/A'}
-- **Desired Benefits for Persona:** ${productBenefits?.join(', ') || 'N/A'}
-- **Primary Keywords for SEO:** ${primaryKeywords}
-- **Tone & Voice:** ${toneType || 'Friendly'}, guided by: "${voiceGuideline || ''}"
-- **Output Language:** ${language} (CRITICAL: All text must be in this language)
-- **Content Creation Date:** ${dateFormatted} (${dateISO}) - Current Season: ${season}
-
-**AVAILABLE IMAGE URLs (YOU MUST USE ONE OF THESE EXACT URLs FOR EACH HIGHLIGHT):**
-${imageUrlsList}
-
-[METHODOLOGY & STEP-BY-STEP INSTRUCTIONS]
-1. **ANALYZE ALL IMAGES:** Look at every single image provided. Identify what each image shows (material, design, color, usage context, detail shots, lifestyle shots, etc.).
-
-2. **IDENTIFY KEY FEATURES:** Based on the product title, description, and your image analysis, identify the top 2-4 most powerful features or benefits that would resonate most with **${personaName}**. Think about what truly solves their pain points or helps them achieve their desired transformation.
-   
-   **TIME CONTEXT:** Today is ${dateFormatted} (${season} season). Consider seasonal relevance, current trends, and time-appropriate messaging when creating highlights. For example, if it's ${season}, you might emphasize features relevant to this season (e.g., warmth/coziness in winter, breathability in summer).
-
-3. **CREATE EACH HIGHLIGHT:** For each key feature you identified:
-   a. **Title:** Write a short, benefit-driven title (5-10 words) in ${language}. Don't just name the feature; state the outcome or feeling it provides.
-   b. **Description:** Write 2-3 sentences in ${language} that expand on the title. Connect the feature directly to the persona's life. Explain WHY it matters to them. Naturally weave in the primary keywords: "${primaryKeywords}".
-   c. **Image Selection (CRITICAL):** From the list of ${imageUrls.length} image URLs above, you MUST select the SINGLE most relevant image URL that best illustrates or showcases that specific feature. 
-      - Copy the EXACT URL from the list above
-      - For material/quality features: choose close-up detail shots
-      - For design/style features: choose images showing the design clearly
-      - For usage context: choose lifestyle/usage images
-      - DO NOT create new URLs or modify existing URLs
-      - Each highlight MUST have a different image (don't reuse the same image)
-
-[OUTPUT FORMAT - CRITICAL REQUIREMENTS]
-- **MUST return ONLY a raw JSON array** - NO markdown code blocks, NO explanations, NO text before or after
-- The array must contain 2 to 4 highlight objects
-- **EACH object MUST have EXACTLY three keys:** "title", "description", and "image"
-- **"title"** must be a string in ${language}
-- **"description"** must be a string in ${language}
-- **"image"** must be an EXACT URL from the list above (one of the ${imageUrls.length} URLs provided)
-- **DO NOT** include markdown formatting like \`\`\`json
-- **DO NOT** add any text outside the JSON array
-
-**Example of CORRECT response format:**
-[
-  {"title":"Feature Title 1 in ${language}","description":"Description 1 in ${language} with keywords. Explain why this matters.","image":"${imageUrls[0] || 'https://example.com/image1.jpg'}"},
-  {"title":"Feature Title 2 in ${language}","description":"Description 2 in ${language} with keywords. Explain the benefit.","image":"${imageUrls[1] || imageUrls[0] || 'https://example.com/image2.jpg'}"}
-]
-
-**REMEMBER:**
-- Every highlight MUST have an "image" field with a valid URL from the list above
-- Every highlight MUST have a "title" and "description" in ${language}
-- Return ONLY the JSON array, nothing else
-`;
-
-    // 5. CHUẨN BỊ VÀ GỌI API
-    const messageContent: any[] = [{ type: 'text', text: featurePrompt }];
-    imageUrls.forEach((url: string) => {
-      messageContent.push({ type: 'image_url', image_url: { url } });
-    });
-
-    const modelConfig = AI_MODELS_CONFIG.generateFeatureHighlights;
-    
-    console.log('🤖 Calling AI for feature highlights...');
-    console.log(`🤖 Model: ${modelConfig.model}`);
-    console.log(`🌍 Language: ${language}, Market: ${targetMarket}`);
-    
-    // System message to ensure JSON array output
-    const systemMessage = `You are an expert e-commerce copywriter. Generate feature highlights in ${language}. 
-
-CRITICAL REQUIREMENTS:
-1. Return ONLY a raw JSON array - NO markdown code blocks (\`\`\`json), NO explanations
-2. Each object MUST have exactly 3 keys: "title", "description", and "image"
-3. The "image" value MUST be one of the ${imageUrls.length} image URLs provided in the user message
-4. All text in "title" and "description" MUST be in ${language}
-5. The array should contain 2-4 highlight objects
-
-Example format:
-[{"title":"...","description":"...","image":"https://exact-url-from-list.com/image.jpg"},...]`;
-    
-    const response = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
-      {
-        model: modelConfig.model,
-        messages: [
-          {
-            role: 'system',
-            content: systemMessage
-          },
-          {
-            role: 'user',
-            content: messageContent
-          }
-        ],
-        max_tokens: modelConfig.maxTokens,
-        temperature: modelConfig.temperature
-        // Note: Not using response_format because we need JSON array, not object
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${openRouterApiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'http://localhost:3000',
-          'X-Title': 'Feature Highlights Generator',
-        },
-        timeout: modelConfig.timeout
-      }
-    );
-
-    // 6. XỬ LÝ KẾT QUẢ
-    // Validate API response structure
-    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
-      console.error('Invalid API response structure:', JSON.stringify(response.data, null, 2));
-      throw new Error('Invalid API response: missing choices array');
-    }
-
-    if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
-      console.error('Invalid message structure:', JSON.stringify(response.data.choices[0], null, 2));
-      throw new Error('Invalid API response: missing message content');
-    }
-
-    let content = response.data.choices[0].message.content;
-    console.log('📝 Raw AI response length:', content.length);
-    console.log('📝 Raw AI response preview:', content.substring(0, 200) + '...');
-    
-    try {
-      // Dọn dẹp và parse JSON
-      content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-      
-      // Tìm vị trí của mảng JSON
-      const arrayStartIndex = content.indexOf('[');
-      const arrayEndIndex = content.lastIndexOf(']');
-      
-      if (arrayStartIndex === -1 || arrayEndIndex === -1) {
-        throw new Error('Valid JSON array not found in AI response.');
-      }
-      
-      const jsonString = content.substring(arrayStartIndex, arrayEndIndex + 1);
-      const result = JSON.parse(jsonString);
-
-      // Validate lại cấu trúc của kết quả
-      if (!Array.isArray(result)) {
-        throw new Error('AI response is not an array.');
-      }
-
-      if (result.length < 2 || result.length > 4) {
-        console.warn(`⚠️ Warning: Expected 2-4 highlights, got ${result.length}`);
-      }
-
-      // Validate từng item trong array
-      const invalidItems: number[] = [];
-      const missingImages: number[] = [];
-      const invalidImageUrls: number[] = [];
-
-      result.forEach((item: any, index: number) => {
-        if (!item || typeof item !== 'object') {
-          console.error(`❌ Item ${index} is not an object:`, item);
-          invalidItems.push(index);
-          return;
-        }
-        if (!item.title || typeof item.title !== 'string' || item.title.trim() === '') {
-          console.error(`❌ Item ${index} missing or invalid title:`, item.title);
-          invalidItems.push(index);
-        }
-        if (!item.description || typeof item.description !== 'string' || item.description.trim() === '') {
-          console.error(`❌ Item ${index} missing or invalid description:`, item.description);
-          invalidItems.push(index);
-        }
-        if (!item.image || typeof item.image !== 'string' || item.image.trim() === '') {
-          console.error(`❌ Item ${index} missing or invalid image URL:`, item.image);
-          missingImages.push(index);
-          invalidItems.push(index);
-        } else if (!imageUrls.includes(item.image)) {
-          console.warn(`⚠️ Item ${index} image URL not in provided list:`, item.image);
-          console.warn(`   Available URLs:`, imageUrls.slice(0, 3).join(', '), '...');
-          invalidImageUrls.push(index);
-          // Don't mark as invalid, just warn - AI might have valid reason
-        }
-      });
-
-      if (invalidItems.length > 0) {
-        const errorMsg = `Invalid highlight objects found: ${invalidItems.length} items are invalid. ` +
-          (missingImages.length > 0 ? `Missing images in items: ${missingImages.join(', ')}. ` : '') +
-          `Please ensure each highlight has title, description, and image.`;
-        throw new Error(errorMsg);
-      }
-
-      if (invalidImageUrls.length > 0) {
-        console.warn(`⚠️ ${invalidImageUrls.length} highlights have image URLs not in provided list. This might be acceptable if URLs are valid.`);
-      }
-      
-      console.log(`✅ Generated ${result.length} feature highlights successfully.`);
-      result.forEach((item: any, index: number) => {
-        console.log(`  ${index + 1}. ${item.title} - Image: ${item.image.substring(0, 50)}...`);
-      });
-      
-      res.json({ success: true, data: result });
-      
-    } catch (parseError: any) {
-      console.error('❌ JSON parse error:', parseError.message);
-      console.log('Raw content received from AI:', content);
-      res.status(500).json({ 
-        error: 'Failed to parse AI response.', 
-        message: parseError.message,
-        rawData: content.substring(0, 500) // Only send first 500 chars to avoid huge response
-      });
-    }
-
-  } catch (error: any) {
-    console.error('Error in /generate-feature-highlights:', error.message);
-    res.status(500).json({ 
-      error: 'Failed to generate feature highlights',
-      message: error.response?.data?.error?.message || error.message 
     });
   }
 });
