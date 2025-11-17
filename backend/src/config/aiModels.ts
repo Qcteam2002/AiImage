@@ -104,7 +104,7 @@ export const AI_MODELS_CONFIG = {
    * Mục đích: Phân tích hình ảnh và tạo prompt cho 1 style được chỉ định
    */
   generateImagePrompt: {
-    model: 'x-ai/grok-4-fast',
+    model: 'openai/gpt-4.1-mini',//'x-ai/grok-4-fast',
     temperature: 1,
     maxTokens: 2048,
     timeout: 60000,

@@ -1680,7 +1680,7 @@ ${include_testimonials ? '**Testimonials:** 3 customer reviews with 5-star ratin
 });
 
 // Gợi ý: Tách prompt ra một hàm riêng để code sạch hơn
-function createSegmentationPrompt(data: any) {
+function createSegmentationPrompt1(data: any) {
   const { title, description, images, marketName, productType, brandTone, goals, responseLanguage, dateRange, currentDate } = data;
 
   // Format date information for better context
@@ -1741,17 +1741,24 @@ function createSegmentationPrompt(data: any) {
 
   return `# Yêu cầu: Phân tích và Xây dựng Chân dung Khách hàng Chiến lược
 
-Bạn là một Giám đốc Chiến lược Marketing (Marketing Strategist) chuyên về phân tích dữ liệu thị trường và xây dựng chân dung khách hàng (customer persona). Nhiệm vụ của bạn là phân tích sâu sản phẩm dưới đây và đề xuất 3 phân khúc khách hàng tiềm năng nhất.
+You are a Marketing Strategist specializing in customer segmentation. Your task is to deeply analyze the product and produce exactly **3 customer personas** in strict JSON format.
 
-**Thông tin sản phẩm:**
-- **Tên sản phẩm:** ${title}
-- **Mô tả:** ${description}
-- **Hình ảnh:** ${images ? images.join(', ') : 'Không có'}
-- **Thị trường mục tiêu:** ${marketName}
-- **Loại sản phẩm:** ${productType || 'Chưa xác định'}
-- **Tông giọng thương hiệu:** ${brandTone || 'Chưa xác định'}
-- **Mục tiêu Marketing:** ${goals ? goals.join(', ') : 'Chưa xác định'}
-- **Ngôn ngữ phản hồi:** ${responseLanguage}
+IMPORTANT:
+- All JSON **values** must be written *strictly* in the target language: ${responseLanguage}.
+- Absolutely no mixing languages. No English if the target language is Japanese; no Vietnamese if the target language is English, etc.
+- JSON keys remain in English.
+- Output must adapt fully to the cultural context, behavior, and language style of the target market: ${marketName}.
+- Ignore the language used in the instructions below. OUTPUT LANGUAGE MUST ALWAYS FOLLOW: ${responseLanguage}.
+
+**PRODUCT INFORMATION**
+- **Product Title:** ${title}
+- **Product Description:** ${description}
+- **Images:** ${images ? images.join(', ') : 'None'}
+- **Target Market:** ${marketName}
+- **Product Type:** ${productType || 'Unknown'}
+- **Brand Tone:** ${brandTone || 'Unknown'}
+- **Marketing Goals:** ${goals ? goals.join(', ') : 'Unknown'}
+- **Date Context:** ${responseLanguage}
 - ${dateContext}
 
 ## 🌍 YÊU CẦU QUAN TRỌNG VỀ THỊ TRƯỜNG:
@@ -2005,6 +2012,152 @@ Cấu trúc JSON phải chính xác như ví dụ dưới đây. Chỉ thay đ�
 - ✅ ĐÚNG (VN market): ["TP.HCM (Quận 1, 3, Bình Thạnh)", "Hà Nội (Hoàn Kiếm, Cầu Giấy)", "Đà Nẵng"]`;
 }
 
+function createSegmentationPrompt(data: any) {
+  const { 
+    title, 
+    description, 
+    images, 
+    marketName, 
+    productType, 
+    brandTone, 
+    goals, 
+    responseLanguage, 
+    dateRange, 
+    currentDate 
+  } = data;
+
+  const dateContext = dateRange 
+    ? `Analysis Period: ${dateRange.startDate} to ${dateRange.endDate}`
+    : `Analysis Date: ${currentDate || new Date().toISOString().split('T')[0]}`;
+
+  return `
+You are a Marketing Strategist specializing in customer segmentation. Your task is to analyze the provided product information and generate exactly 3 fully detailed customer personas in strict JSON format.
+
+IMPORTANT GLOBAL RULES:
+1. All JSON values MUST be written strictly in the target language: ${responseLanguage}
+2. No mixing languages under any circumstances
+3. JSON keys remain in English
+4. All persona content MUST be culturally and linguistically aligned with the target market: ${marketName}
+5. Ignore the language used in these instructions; only follow ${responseLanguage} for OUTPUT
+6. Output ONLY the JSON object, no explanations, no headers, no markdown
+
+PRODUCT INFORMATION:
+Product Title: ${title}
+Product Description: ${description}
+Images: ${images ? images.join(", ") : "None"}
+Target Market: ${marketName}
+Product Type: ${productType || "Unknown"}
+Brand Tone: ${brandTone || "Unknown"}
+Marketing Goals: ${goals ? goals.join(", ") : "Unknown"}
+${dateContext}
+
+MARKET ADAPTATION RULES:
+You MUST adapt personas based on ${marketName}:
+
+If marketName = "United States":
+- Behaviors: Amazon, TikTok, Instagram, YouTube
+- Keywords: English only
+- Trends: Black Friday, Cyber Monday, Holiday shopping, Back-to-School
+
+If marketName = "Vietnam":
+- Behaviors: Shopee, TikTok Shop, Facebook, Zalo
+- Keywords: Vietnamese with full diacritics
+- Trends: Tet holiday, double-digit sale days (11/11, 12/12), 8/3, 20/10
+
+For all other markets:
+- Use platforms, holidays, and shopping behavior relevant to that country
+- Keywords must be fully written in the market's primary language
+
+STRUCTURE REQUIREMENTS FOR EACH PERSONA:
+Each persona object must include ALL fields below. No field may be omitted.
+
+name: string
+painpoints: object
+    primary: string (core emotional pain)
+    secondary: array of 2–4 short, practical problems
+winRate: number (0.0 to 1.0)
+reason: string (2–4 sentence strategic explanation)
+personaProfile: object
+    demographics: string
+    behaviors: string
+    motivations: string
+    communicationChannels: array of 4–6 items, each describing a specific content format
+locations: array of 3–5 specific locations relevant to ${marketName}
+keywordSuggestions: array of 6–8 keywords, including long-tail forms
+seasonalTrends: string (market-specific seasonal behavior)
+productBenefits: array of 4–5 persona-specific benefits directly addressing their pain points
+toneType: string (e.g., Friendly & Casual, Professional & Trustworthy, Edgy & Bold)
+voiceGuideline: string (2–4 sentences; empathy phase then inspiration phase)
+
+DETAILED GUIDELINES:
+
+PAIN POINTS:
+primary: must express a deep emotional struggle such as fear, frustration, anxiety, or insecurity
+secondary: must list practical problems such as price issues, quality concerns, difficulty finding the right product, poor fit, unreliable delivery, lack of versatility, etc.
+
+COMMUNICATION CHANNELS:
+Must be implementation-ready, not generic
+Examples: 
+- Short-form video series showing transformations
+- UGC challenge encouraging user submissions
+- Lookbook-style content demonstrating multiple use cases
+- Educational breakdown of features
+
+LOCATIONS:
+Must be realistic and relevant to ${marketName}
+If ${marketName} = United States:
+Use major cities or well-known districts
+If ${marketName} = Vietnam:
+Use districts such as "TP.HCM (Quan 1, Quan 3)" written in ${responseLanguage}
+If ${responseLanguage} differs from the market (e.g., Japanese output for Vietnam market):
+Use romanized city names in the target language
+
+KEYWORDS:
+At least 6–8 items, including long-tail keywords
+MUST be written entirely in ${responseLanguage}
+
+SEASONAL TRENDS:
+Must reflect buying cycles and local holidays relevant to ${marketName}
+
+PRODUCT BENEFITS:
+Must be tailored to that persona’s pain points
+No generic benefits
+Focused, high-impact, one-sentence bullets
+
+TONE TYPE AND VOICE:
+toneType must reflect persona psychology
+voiceGuideline must follow:
+1. Empathy sentence addressing emotional pain
+2. Inspiration or solution sentence
+3. Optional encouragement/call-to-action style sentence
+
+FINAL OUTPUT FORMAT (MANDATORY):
+Return a single JSON object in the following shape:
+
+{
+  "status": "success",
+  "segmentations": [
+    { PERSONA_1_OBJECT },
+    { PERSONA_2_OBJECT },
+    { PERSONA_3_OBJECT }
+  ]
+}
+
+CRITICAL VALIDATION BEFORE RESPONDING:
+Before outputting JSON, check:
+- Language purity: every value is in ${responseLanguage}
+- Market alignment: locations, behaviors, seasonalTrends must match ${marketName}
+- Keywords fully match ${responseLanguage}
+- All fields present for all 3 personas
+- No markdown, no explanation text
+
+Begin now. Return ONLY the JSON object.
+`;
+}
+
+
+
+
 // 🧠 API: POST /api/suggestDataSegmentation
 // 🎯 Mục tiêu: Tạo API mới để gọi AI, phân tích thông tin sản phẩm và đề xuất 3 nhóm phân khúc khách hàng (market segmentation) tiềm năng nhất
 router.post('/suggestDataSegmentation', async (req, res) => {
@@ -2079,6 +2232,16 @@ CRITICAL JSON RULES:
 6. NO trailing commas
 7. Complete the ENTIRE JSON structure - ALL 3 personas with ALL fields
 8. Content language: ${responseLanguage}
+
+LANGUAGE RULES (MANDATORY):
+- Write ALL content strictly in the target language: ${responseLanguage}.
+- ABSOLUTELY NO MIXING languages.
+- Do NOT include ANY word, phrase, punctuation style, loanword, or transliteration from other languages.
+- Ignore the input language completely — output MUST follow ${responseLanguage}.
+- JSON keys must remain in English exactly as shown, but ALL JSON values must be in ${responseLanguage}.
+- If you are unsure of a term, translate it fully into ${responseLanguage} rather than leaving it in another language.
+- If ANY part of the response is not in ${responseLanguage}, the entire output is INVALID. Regenerate strictly using the target language.
+
 9. ONLY return fields shown in the example - do NOT add extra fields like "productAnalysis"
 
 STRUCTURE MUST BE:
@@ -3458,7 +3621,7 @@ ${primaryPainPoint}`;
 
 // 🎨 API: POST /api/product-optimize/generate-image
 // 🎯 Mục tiêu: Tạo API mới để phân tích hình ảnh sản phẩm và tạo ra 6 prompt cho các phong cách ảnh khác nhau
-router.post('/generate-image', async (req, res) => {
+  router.post('/generate-image', async (req, res) => {
   try {
     const openRouterApiKey = process.env.OPENROUTER_API_KEY;
     
@@ -3515,12 +3678,22 @@ router.post('/generate-image', async (req, res) => {
 
     // Get style definition based on requested style
     const styleDefinitions: Record<string, string> = {
-      studio: `Studio Shot → pure white or light-gray seamless background, balanced soft studio lighting, eCommerce product catalog look. Clean, professional, high-end marketplace ready.`,
-      lifestyle: `Lifestyle Shot → real-life environment that resonates with the target persona. Natural daylight with warm soft shadows. Show product in authentic usage context that the persona can relate to.`,
-      infographic: `Infographic Style → clean light neutral background with product-centered composition, add simple text callouts, arrows, or icons highlighting key features or specs that matter most to the target persona.`,
-      ugc: `UGC (User Generated Content) → casual human context that matches the target persona's lifestyle, handheld or natural composition, slight imperfections, natural daylight, smartphone photo realism. Must feel authentic to the persona's daily life and usage patterns.`,
-      closeup: `Close-up → macro or detailed shot focusing on textures, materials, stitching, surface reflection that address the persona's concerns and pain points. Realistic depth of field, angled light to showcase quality.`,
-      motion: `Motion / Animated → 360° product rotation or looped showcase on a reflective white surface with consistent lighting and soft shadows. Comprehensive view for online shoppers.`
+      studio: `Studio Shot → Pure white or light-gray seamless background with even softbox lighting and minimal soft shadows. Use a clean 3/4 or eye-level camera angle to clearly reveal the product’s true shape, material, and colors. High-end eCommerce catalog aesthetic (Amazon/Shopify ready) with realistic light falloff and crisp surface reflection. No props, no distractions.`,
+
+      lifestyle: `Lifestyle Shot → Product placed naturally in a real-life environment matching the persona (home office, bedroom, kitchen counter, car interior…). Warm natural daylight, subtle shadow play, and shallow depth of field. Composition is polished and intentional, using minimal curated props to tell a usage story while keeping the product as the clear focal point.`,
+    
+      infographic: `Infographic Style → Clean, bright neutral background (white / light gray / beige). Flat, even lighting for maximum clarity. Product centered with simple vector icons, thin arrows, and concise callouts highlighting 3–6 essential features or specs. Structured, educational layout optimized for fast visual scanning, similar to Amazon detail images.`,
+    
+      ugc_social_proof: `UGC (User Generated Content) → Smartphone realism with slight grain, slight tilt, and natural imperfections. Handheld perspective or casually placed product on everyday surfaces. Must include a hand or a person to emphasize real human interaction. The image must feel like a genuine customer review or micro-influencer post — trust-first, authentic, imperfect, emotionally warm.`,
+    
+      meta_ugly_ad: `Meta “Ugly Ad” → Quick, imperfect phone snapshot with tilted framing, slightly messy or busy background, uneven warm lighting, visible grain, or minor lens smudge. Add crude, handwritten-style overlay text expressing urgency, excitement, or emotional reaction (e.g., “OMG this works!”, “Can’t believe this!”). Prioritize raw, unfiltered, chaotic realism over aesthetic polish. Must look spontaneous, unedited, and user-created — typical of high-performing direct-response Meta ads.`,
+    
+      luxury_editorial: `Luxury Editorial → Minimalist high-end setting (marble, frosted glass, linen, matte stone). Soft diffused lighting with refined shadows and smooth tonal gradients. Large negative space and balanced composition, often symmetrical. Elegant surface reflections and a calm, timeless mood. Optional fine serif typography for a premium finish.`,
+    
+      ecommerce_sale_banner: `E-commerce Sale Banner → High-contrast, attention-grabbing hero layout. Product spotlighted on a podium or floating against a dramatic gradient or dynamic background. Bold, high-impact sale typography (discount %, price slash, CTA). Vibrant or metallic accent colors to maximize visibility. Built for instant conversion and immediate action.`,
+    
+      futuristic_product_hero: `Futuristic Product Hero (Hyperreal) → Product centered or floating, surrounded by neon glow, energy arcs, liquid light effects, or particle halos. High-contrast lighting (bright edge lights on a darker background). Cinematic sci-fi mood with volumetric blue/cyan/purple light. Vibe: power, innovation, advanced technology — while keeping product shape/colors 100% true to reality.`,
+    
     };
 
     const selectedStyleDefinition = styleDefinitions[requestedStyle] || styleDefinitions.studio;
@@ -3830,6 +4003,365 @@ ${productImages.map((u,i)=>`${i+1}. ${u}`).join('\n')}
   }
 });
 
+// 🎨 API: POST /api/product-optimize/generate-image-prompt
+// 🎯 Mục tiêu: Tạo prompt cho hình ảnh sản phẩm dựa trên URL hình, title, description và style
+router.post('/generate-image-prompt', async (req, res) => {
+  try {
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    
+    const { 
+      productImages, // Array of image URLs
+      productTitle,
+      productDescription,
+      requestedStyle = 'studio' // Style: studio, lifestyle, infographic, ugc_social_proof, meta_ugly_ad, luxury_editorial, ecommerce_sale_banner, futuristic_product_hero
+    } = req.body;
+
+    console.log('🎨 Image Prompt Generation - Product:', productTitle);
+    console.log('📥 Request Body:', JSON.stringify({
+      productTitle,
+      productImages: productImages?.length || 0,
+      productDescription: productDescription?.substring(0, 100) + '...',
+      requestedStyle
+    }, null, 2));
+
+    // Validate required fields
+    if (!productTitle || !productImages || !Array.isArray(productImages) || productImages.length === 0) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: productTitle and productImages (at least one image URL)' 
+      });
+    }
+
+    // Image style definitions
+    const IMAGE_STYLES = {
+      studio: `Studio Shot → Pure white (#FFFFFF) or very light-gray (#F8F8F8) seamless background with absolutely no gradients, no textures, no horizon line, and no environmental elements. Even diffused softbox lighting from both sides with a gentle top fill, creating minimal soft shadows directly beneath the product. Capture at a clean 3/4 or eye-level angle. High-end eCommerce catalog aesthetic with realistic light falloff and crisp, accurate material reflections. No props, no text, no distractions.`,
+
+      lifestyle: `Lifestyle Shot → Product placed naturally in a believable real-life environment such as a home, workspace, vanity, bedroom, kitchen counter, or outdoor setting. Soft natural daylight, shallow depth of field, subtle shadows. Composition is intentional and visually balanced, with minimal curated props that support a usage story while keeping the product as the clear focal point.`,
+    
+      infographic: `Infographic Style → Clean neutral background (white, light gray, or beige) with flat, even lighting and a soft, subtle shadow. Product centered and unobstructed. Add simple vector icons, thin arrows, short text callouts, and clean structured layout highlighting 3–6 of the product’s key features or benefits. Clear, organized, Amazon-style technical presentation.`,
+    
+      ugc_social_proof: `UGC (User Generated Content) → Smartphone realism with natural imperfections: slight grain, slight tilt, uneven natural lighting. Casual handheld perspective or product placed on an everyday surface. May include a hand or human presence but not required. Image should feel authentic, unpolished, and emotionally warm, like a genuine customer or micro-influencer photo.`,
+    
+      meta_ugly_ad: `Meta “Ugly Ad” → Fast, imperfect phone snapshot with tilted framing, messy background, uneven 
+warm lighting, grain, and flaws. Any hands or human elements must be newly generated — never 
+copied from the reference image. The reference photo’s hand must NOT be used. Add crude handwritten 
+overlay text expressing surprise or urgency. Raw, chaotic, unfiltered realism.`,//`Meta “Ugly Ad” → Fast, imperfect phone snapshot with tilted framing, slightly messy or busy background, uneven warm lighting, visible grain, and natural flaws. Add crude handwritten-style overlay text expressing urgency or emotional reaction (e.g., “OMG this works!”, “Can’t believe this!”). Raw, unfiltered, chaotic realism — prioritizing emotional impact over visual polish.`,
+    
+      luxury_editorial: `Luxury Editorial → Minimalist high-end aesthetic using premium surfaces such as marble, frosted glass, linen, matte stone, or soft textured fabric. Soft diffused directional lighting with refined shadows and smooth tonal gradients. Large negative space, balanced composition, elegant reflections, and a calm, timeless, premium mood. Optional minimal serif typography allowed.`,
+    
+      ecommerce_sale_banner: `E-commerce Sale Banner → High-contrast hero layout with a dramatic gradient or dynamic background. Strong spotlight or rim lighting on the product, often placed on a podium or floating for added visual impact. Use vibrant or metallic accent colors, energetic highlights, glow effects, or subtle motion elements to create powerful visual punch. Composition must remain clean and product-focused without adding any text, discount labels, or CTA zones. The goal is a visually striking commercial hero image that captures attention instantly while keeping the product as the primary focal point.`,
+    
+      futuristic_product_hero: `Futuristic Product Hero (Adaptive Hyperreal) → 
+      Automatically adapt the futuristic aesthetic depending on the product category:
+      
+      - For tech, electronics, lighting, and gadgets → Use strong sci-fi elements such as neon glow, volumetric beams, energy arcs, and particle halos. High-contrast rim lighting on a dark background, emphasizing power and innovation.
+      
+      - For jewelry, accessories, or beauty products → Switch to a refined futuristic mood: soft holographic shimmer, prismatic reflections, subtle iridescent glow, elegant volumetric haze, and premium dark gradient backgrounds. No harsh neon or chaotic effects. Maintain a luxurious, hyperreal, modern aesthetic.
+      
+      - For home décor or soft goods → Use minimal futuristic cues: subtle glow, ambient reflections, soft diffusion, and clean atmospheric light gradients without heavy sci-fi elements.
+      
+      Always keep the product pixel-identical. Product centered or gently floating. Hyperreal detail. No text or UI elements.`
+       };
+
+    const selectedStyleDefinition = IMAGE_STYLES[requestedStyle as keyof typeof IMAGE_STYLES] || IMAGE_STYLES.studio;
+
+    // Style to example mapping
+    const styleExamples: Record<string, string> = {
+      ugc_social_proof: `Pretend you're a TikTok creator filming your morning routine. Handheld iPhone photo of **the product** by the sink or in your hand, bright daylight, slightly tilted frame. Feels casual, human, and real — not staged. Natural grain and imperfect focus. Add simple overlay text in a handwritten Story style: "This actually works 😍" or "Can't believe how good this is 💧". Make it like a user post. Aspect ratio 9:16.`,
+
+      lifestyle: `Imagine a cozy morning scene in a real home. **The product** sits naturally on a counter or table with everyday objects like books, plants, or a coffee mug around it. Soft window light and warm tones create a relaxed, believable atmosphere. Feels spontaneous, not styled. Optional overlay text in minimalist font: "for everyday calm ☕️". Avoid clutter, harsh light, or overly perfect arrangement. Aspect ratio 1:1.`,
+
+      meta_ugly_ad: `Quick phone snapshot, slightly tilted, capturing a woman (30s-40s, relatable, natural look) applying "The Therapy" Anti-Aging Formula to her face with one hand, looking candidly into a slightly smudged bathroom mirror (reflecting a messy counter). Natural, uneven bathroom lighting, visible soft shadows and a bit of grain — looks spontaneous and real. Add a scribbled text overlay: "OMG 😱 BOGO on my FAVE anti-aging serum! You HAVE to try this, ladies! 🔥 #BlackFriday". Emotion over polish; chaos over perfection. Feels like a genuine user discovery shared urgently by a friend. Avoid filters or symmetry. Aspect ratio 1:1.`,
+
+      luxury_editorial: `High-end studio photo of **the product** placed on a minimalist surface — marble, linen, or frosted glass. Soft diffused lighting, smooth gradients, refined shadows. Clean symmetry, negative space, sharp focus. Optional overlay text in fine serif: "timeless essentials". Mood is calm, sophisticated, and aspirational. Avoid bright colors, handwriting, or clutter. Aspect ratio 16:9.`,
+
+      ecommerce_sale_banner: `Vibrant, high-contrast sale visual designed to grab attention instantly. The product is spotlighted with glowing lighting, glossy reflections, and motion energy — water splashes, sparkles, or liquid effects. Use bold typography and metallic or gradient text for discount and callouts (e.g., "-40% OFF ✨"). Background should feel dynamic and luxurious, with rich color tones (green, gold, or gradient blends). Perfect for beauty, skincare, or premium sale campaigns that need drama, shine, and power. Avoid minimal or muted tones. Aspect ratio 1:1 or 16:9.`,
+
+      futuristic_product_hero: `Create a cinematic hero ad for **the product**, glowing with energy and motion. The product floats or stands in the center, surrounded by dynamic lighting effects — neon glow, liquid splash, vapor trail, or subtle energy arcs. Lighting is high-contrast and alive, highlighting texture and form. Mood is powerful, futuristic, and bold. Add tagline in bold italic sans-serif: "Power. Precision. Performance." If it's a softer category (serum, perfume, fashion), adapt the energy into light aura or fluid glow instead of electricity. Aspect ratio 1:1 (social ad).`,
+
+      infographic: `Design a clean, educational image that visualizes **the product's** key features or benefits. Use clear icons, short labels, and a structured layout with consistent spacing. Highlight product USPs, comparisons, or step-by-step usage in a visually digestible format. Soft neutral background, flat lighting, and simple typography for clarity. Feels professional, trustworthy, and easy to understand. Aspect ratio 4:5 or 16:9.`,
+
+      studio: `Pure white or light-gray seamless background with even softbox lighting and minimal soft shadows. **The product** centered with a clean 3/4 or eye-level camera angle to clearly reveal its true shape, material, and colors. High-end eCommerce catalog aesthetic (Amazon/Shopify ready) with realistic light falloff and crisp surface reflection. No props, no distractions. Photorealistic, commercial product photography, high detail. Aspect ratio 1:1 or 16:9.`
+    };
+
+    const styleExample = styleExamples[requestedStyle] || styleExamples.studio;
+
+    // Build comprehensive prompt for AI
+    const imagePrompt = `
+IMPORTANT: Only the product must be preserved exactly as shown in the reference image. 
+Do NOT preserve hands, people, props, clutter, or background elements from the reference image. 
+These may be replaced, removed, or reimagined according to the selected style. 
+If the selected style includes hands or human interaction (e.g., UGC or Meta Ugly), 
+the hands must be NEWLY GENERATED — never copied from the reference image. 
+Only the product’s physical form (shape, proportions, design, texture, colors) must stay identical.
+
+You are a world-class creative director and AI prompt architect who builds *commercial-grade ad image prompts*.
+
+Your goal is to help the user generate a realistic and goal-fitting ad image prompt based on their product and the selected creative style.
+
+
+## TASK
+You will receive product images + product information + a selected creative style.
+You must analyze the product in the images, then create an optimized image prompt for the REQUESTED STYLE: "${requestedStyle}".
+
+## STEP 1 — Product Analysis
+
+Look directly at each image I send. Describe what you actually see:
+- Material, color, surface, shape, structure
+- Key visual features (cap/strap/pattern/logo/layers/unique details that cannot be changed)
+- If there are multiple variants, describe the differences
+- Identify visual USP: e.g. "leak-proof screw cap", "316 mirror-finish stainless steel", "dragon mosaic print on navy shirt", etc.
+
+## STEP 2 — Product Integrity Rules (NON-NEGOTIABLE)
+
+- Always use the **uploaded or described product** as the primary subject. Never change the main product.
+- You may modify **angle, environment, lighting, composition, and context** to enhance appeal.
+- If the selected style naturally includes hands or human context (UGC, Meta Ugly, etc.):  
+  **hands must be newly generated**, not copied or preserved from the reference image.
+- Never fabricate, substitute, redesign, or reimagine a different product.
+- The product in the final image MUST be pixel-identical to the reference: same shape, material, texture, proportions, logo, and color.
+
+## STEP 3 — Generate Final Prompt
+
+Based on your analysis and the selected style, generate a prompt that includes:
+- POV / context
+- Setting & lighting
+- Product / action focus
+- Mood & style
+- Text overlay (if any)
+- Avoids
+- Aspect ratio (should be fit into the platform that uses the image)
+
+### REQUESTED STYLE DEFINITION:
+${selectedStyleDefinition}
+
+### EXAMPLE FORMAT FOR STYLE "${requestedStyle}":
+${styleExample}
+
+**IMPORTANT:** Your prompt should NOT copy the example but adapt creatively to this specific product.
+
+**PROMPT STRUCTURE REQUIREMENT:**
+Your final prompt MUST follow this structure:
+1. **Product Description Prefix:** Detailed, factual description of the product as seen in the images.
+2. **Scene & Style Description:** Match the requested style exactly.
+3. **Technical Keywords:** Photorealistic, commercial quality, sharp detail, lighting cues.
+
+MANDATORY CONSTRAINTS FOR THE PROMPT:
+- “Use the provided product image as the exact visual reference.”
+- “Product must remain pixel-identical — shape, material, texture, proportions, colors.”
+- “Do NOT preserve hands, fingers, people, props, or background elements from the reference image.”
+- “Hands are allowed ONLY if newly generated and only when appropriate to the selected style.”
+- “Only modify background, environment, lighting, camera angle.”
+- “Never redesign or recolor the product.”
+- “Photorealistic only — no illustration/cartoon.”
+
+## STEP 4 — Output Format
+
+Return pure JSON, no markdown, no additional explanation outside JSON:
+
+{
+  "product": "product name from the provided title",
+  "analysis": "brief description of product as seen in images, noting material/structure/key selling features",
+  "bestImageUrl": "URL of the best image you selected from the list below (choose the clearest, most detailed image)",
+  "imageSelectionReason": "why you chose this image as the reference",
+  "requestedStyle": "${requestedStyle}",
+  "prompt": "the detailed image generation prompt for ${requestedStyle} style, following the example format but adapted to this specific product",
+  "aspectRatio": "appropriate aspect ratio for ${requestedStyle} style (e.g., 1:1, 16:9, 9:16, 4:5)",
+  "platform": "primary platform for this style (e.g., TikTok/Instagram Stories, Meta Ads, Website hero, etc.)"
+}
+
+## PRODUCT DATA PROVIDED:
+- Product Title: ${productTitle}
+- Product Description: ${productDescription || 'No description provided'}
+- Requested Style: ${requestedStyle}
+
+## IMAGE INPUTS:
+I have sent ${productImages.length} product images at the following URLs. Use them to analyze and select the single bestImageUrl:
+${productImages.map((u: string, i: number) => `${i + 1}. ${u}`).join('\n')}
+`;
+
+    // Prepare messages with images
+    const messageContent: any[] = [
+      {
+        type: 'text',
+        text: imagePrompt
+      }
+    ];
+
+    // Add ALL product images to context
+    if (productImages && productImages.length > 0) {
+      console.log('🖼️ Sending ALL product images to AI for analysis:', productImages.length);
+      productImages.forEach((imageUrl: string, index: number) => {
+        console.log(`📸 Product Image ${index + 1}:`, imageUrl);
+        messageContent.push({
+          type: 'image_url',
+          image_url: {
+            url: imageUrl
+          }
+        });
+      });
+    } else {
+      console.log('⚠️ No product images provided for AI analysis');
+    }
+
+    // Get model config for generate-image-prompt API
+    const modelConfig = AI_MODELS_CONFIG.generateImagePrompt;
+    
+    // Call AI API for image analysis and prompt generation
+    console.log('🤖 Calling AI for image analysis and prompt generation...');
+    console.log('📊 AI Request Details:', {
+      model: modelConfig.model,
+      messageCount: messageContent.length,
+      imageCount: productImages?.length || 0,
+      promptLength: imagePrompt.length,
+      maxTokens: modelConfig.maxTokens,
+      temperature: modelConfig.temperature
+    });
+    
+    const response = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
+        model: modelConfig.model,
+        messages: [
+          {
+            role: 'user',
+            content: messageContent
+          }
+        ],
+        max_tokens: modelConfig.maxTokens,
+        temperature: modelConfig.temperature
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${openRouterApiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'http://localhost:3000',
+          'X-Title': 'Product Image Prompt Generator',
+        },
+        timeout: modelConfig.timeout
+      }
+    );
+
+    // Validate API response structure
+    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
+      console.error('Invalid API response structure:', JSON.stringify(response.data, null, 2));
+      throw new Error('Invalid API response: missing choices array');
+    }
+
+    if (!response.data.choices[0].message || !response.data.choices[0].message.content) {
+      console.error('Invalid message structure:', JSON.stringify(response.data.choices[0], null, 2));
+      throw new Error('Invalid API response: missing message content');
+    }
+
+    let content = response.data.choices[0].message.content;
+    console.log('📝 Raw AI response length:', content.length);
+    console.log('📝 AI Response Preview:', content.substring(0, 200) + '...');
+
+    // Parse JSON response
+    try {
+      // Clean up markdown if present
+      content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+      
+      // Find JSON boundaries
+      let jsonStart = content.indexOf('{');
+      let jsonEnd = content.lastIndexOf('}');
+      
+      if (jsonStart === -1 || jsonEnd === -1) {
+        throw new Error('No valid JSON found in response');
+      }
+      
+      let jsonString = content.substring(jsonStart, jsonEnd + 1);
+      
+      // Parse the JSON
+      const result = JSON.parse(jsonString);
+      
+      console.log('✅ Image prompt generated successfully');
+      console.log('📌 Product:', result.product);
+      console.log('🎨 Requested Style:', result.requestedStyle);
+      console.log('🖼️ Best Image URL:', result.bestImageUrl);
+      console.log('💭 Selection Reason:', result.imageSelectionReason);
+      console.log('📝 Generated Prompt Preview:', result.prompt?.substring(0, 200) + '...');
+      
+      const apiResponse = {
+        success: true,
+        data: result
+      };
+      
+      console.log('📤 Response:', JSON.stringify({
+        success: apiResponse.success,
+        product: apiResponse.data.product,
+        bestImageUrl: apiResponse.data.bestImageUrl,
+        requestedStyle: apiResponse.data.requestedStyle,
+        hasPrompt: !!apiResponse.data.prompt,
+        aspectRatio: apiResponse.data.aspectRatio
+      }, null, 2));
+      
+      res.json(apiResponse);
+      
+    } catch (parseError: any) {
+      console.error('❌ JSON parse error:', parseError.message);
+      console.log('Raw content:', content);
+      
+      // Get fallback prompt based on requested style
+      const fallbackPrompts: Record<string, string> = {
+        studio: `Use the provided image as the exact product reference. Keep the product identical — same structure, material, color, and geometry. Place the product centered on a white-to-light gray seamless background under soft balanced studio lighting. Emphasize realistic highlights and reflections for a premium look. Photorealistic, commercial eCommerce ready. Aspect ratio 1:1.`,
+        lifestyle: `Use the provided image as the exact product reference. Keep the product identical — same structure, material, and proportions. Remove current background and place the product in a natural lifestyle setting with appropriate props and natural lighting. Photorealistic, commercial-ready. Aspect ratio 1:1.`,
+        infographic: `Use the provided image as the exact product reference. Keep product identical in color, shape, and design. Center the product on a clean light background with soft shadow. Add minimalist infographic text and icons around it highlighting key features. Use clean typography and subtle design elements. Aspect ratio 4:5.`,
+        ugc_social_proof: `Handheld iPhone photo of **the product** by the sink or in your hand, bright daylight, slightly tilted frame. Feels casual, human, and real — not staged. Natural grain and imperfect focus. Add simple overlay text in a handwritten Story style: "This actually works 😍". Make it like a user post. Aspect ratio 9:16.`,
+        meta_ugly_ad: `Quick phone snapshot, slightly tilted, capturing **the product** in use. Natural, uneven lighting, visible soft shadows and a bit of grain — looks spontaneous and real. Add a scribbled text overlay: "OMG 😱 BOGO! You HAVE to try this! 🔥". Emotion over polish; chaos over perfection. Aspect ratio 1:1.`,
+        luxury_editorial: `High-end studio photo of **the product** placed on a minimalist surface — marble, linen, or frosted glass. Soft diffused lighting, smooth gradients, refined shadows. Clean symmetry, negative space, sharp focus. Mood is calm, sophisticated, and aspirational. Aspect ratio 16:9.`,
+        ecommerce_sale_banner: `Vibrant, high-contrast sale visual. **The product** is spotlighted with glowing lighting, glossy reflections, and motion energy. Use bold typography and metallic or gradient text for discount and callouts (e.g., "-40% OFF ✨"). Background should feel dynamic and luxurious. Aspect ratio 1:1 or 16:9.`,
+        futuristic_product_hero: `Cinematic hero ad for **the product**, glowing with energy and motion. The product floats or stands in the center, surrounded by dynamic lighting effects — neon glow, liquid splash, vapor trail, or subtle energy arcs. Lighting is high-contrast and alive. Mood is powerful, futuristic, and bold. Aspect ratio 1:1.`
+      };
+      
+      // Platform mapping
+      const platformMap: Record<string, string> = {
+        studio: 'Website/Amazon/Shopify',
+        lifestyle: 'Meta Ads, Pinterest, brand website',
+        infographic: 'Landing pages, Amazon listings, educational ads',
+        ugc_social_proof: 'TikTok, Instagram Stories, Reels',
+        meta_ugly_ad: 'Facebook, Instagram Feed',
+        luxury_editorial: 'Instagram Feed, luxury brand sites',
+        ecommerce_sale_banner: 'Website hero, Google Ads, paid banners',
+        futuristic_product_hero: 'Website hero, Google Ads, paid banners'
+      };
+
+      // Return fallback response
+      res.json({
+        success: true,
+        data: {
+          product: productTitle,
+          analysis: `Product analysis for ${productTitle}`,
+          bestImageUrl: productImages && productImages.length > 0 ? productImages[0] : null,
+          imageSelectionReason: "Selected first image as fallback due to AI analysis failure",
+          requestedStyle: requestedStyle,
+          prompt: fallbackPrompts[requestedStyle] || fallbackPrompts.studio,
+          aspectRatio: requestedStyle === 'ugc_social_proof' ? '9:16' : requestedStyle === 'infographic' ? '4:5' : requestedStyle === 'luxury_editorial' ? '16:9' : '1:1',
+          platform: platformMap[requestedStyle] || 'General platform'
+        }
+      });
+    }
+
+  } catch (error: any) {
+    console.error('❌ Error in generate-image-prompt:', error.message);
+    console.error('❌ Error details:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        headers: error.config?.headers
+      }
+    });
+    
+    res.status(500).json({ 
+      error: 'Failed to generate image prompt',
+      message: error.message,
+      details: error.response?.data || 'No additional details'
+    });
+  }
+});
+
 // 🎨 API: POST /api/product-optimize/generate-image-result
 // 🎯 Mục tiêu: Step 2 - Sử dụng prompt từ Step 1 để tạo ra hình ảnh mới bằng AI
 // Validate request API
@@ -3943,24 +4475,17 @@ router.post('/generate-image-result', async (req, res) => {
   try {
     const openRouterApiKey = process.env.OPENROUTER_API_KEY;
     
+    // 1. FIX: CHỈ GIỮ LẠI CÁC THAM SỐ CẦN THIẾT
     const { 
       prompt,
-      originalImageUrl,
-      style = 'studio', // studio, lifestyle, infographic, ugc, closeup, motion
-      techSettings = {
-        img2img_strength: 0.3,
-        cfg_scale: 9,
-        lighting: "natural daylight or balanced studio light",
-        style: "photorealistic commercial product photography"
-      }
+      originalImageUrl
     } = req.body;
 
-    console.log('🎨 Image Generation Result - Style:', style);
+    // 2. FIX: CẬP NHẬT LOGGING (Đã xóa style và techSettings)
+    console.log('🤖 Image Generation Result - Starting Process');
     console.log('📥 Request Body:', JSON.stringify({
       prompt: prompt?.substring(0, 100) + '...',
-      originalImageUrl,
-      style,
-      techSettings
+      originalImageUrl
     }, null, 2));
 
     // Validate required fields
@@ -3970,19 +4495,16 @@ router.post('/generate-image-result', async (req, res) => {
       });
     }
 
-    // Validate style
-    const validStyles = ['studio', 'lifestyle', 'infographic', 'ugc', 'closeup', 'motion'];
-    if (!validStyles.includes(style)) {
-      return res.status(400).json({ 
-        error: `Invalid style. Must be one of: ${validStyles.join(', ')}` 
-      });
-    }
+    // 3. FIX: XÓA TOÀN BỘ KHỐI VALIDATE STYLE KHÔNG CẦN THIẾT (đã được xóa)
+    // Lý do: Thông tin style đã nằm trong 'prompt' chi tiết.
 
-    // Prepare message content with image and prompt for Gemini
+    // 4. FIX: SỬ DỤNG TRỰC TIẾP PROMPT CHI TIẾT
+    // Logic này là đúng: Gửi PROMPT đã được tối ưu và ảnh gốc làm context cho mô hình
     const messageContent: any[] = [
       {
         type: 'text',
-        text: `Create a professional e-commerce product photo. Use the provided image as reference and create a new image following this style: ${prompt}. Generate a high-quality, photorealistic result that looks authentic and appealing.`
+        // CHỈ DÙNG PROMPT GỐC ĐỂ TỐI ĐA HÓA CHẤT LƯỢNG VÀ QUY TẮC
+        text: prompt
       },
       {
         type: 'image_url',
@@ -3997,12 +4519,13 @@ router.post('/generate-image-result', async (req, res) => {
     
     // Call AI API for image generation
     console.log('🤖 Calling AI for image generation...');
+    
+    // 5. FIX: CẬP NHẬT LOGGING (Đã xóa style, finalStyle, originalStyle)
     console.log('📊 AI Request Details:', {
       model: modelConfig.model,
       messageCount: messageContent.length,
       promptLength: prompt.length,
       originalImageUrl,
-      style,
       maxTokens: modelConfig.maxTokens,
       temperature: modelConfig.temperature
     });
@@ -4033,7 +4556,267 @@ router.post('/generate-image-result', async (req, res) => {
 
     const apiResult = response.data;
     console.log('✅ Image generated successfully');
-    console.log('📌 Style:', style);
+    
+    // 6. FIX: XÓA LOGGING STYLE KHÔNG TỒN TẠI
+    // console.log('📌 Style:', finalStyle, '(original:', style, ')'); // Đã bị xóa
+    
+    console.log('📸 API Response:', JSON.stringify(apiResult, null, 2));
+    
+    // Extract the generated image URL from Gemini 2.5 Flash Image Preview response
+    let generatedImageUrl = null;
+    
+    console.log('🔍 Analyzing OpenRouter response structure...');
+    console.log('Result choices:', apiResult.choices);
+    
+    // *** KHỐI LOGIC PHÂN TÍCH RESPONSE (Đã giữ nguyên vì nó phức tạp và cần thiết) ***
+    if (apiResult.choices && apiResult.choices[0] && apiResult.choices[0].message) {
+      const content = apiResult.choices[0].message.content;
+      console.log('Message content type:', typeof content);
+      console.log('Message content:', content);
+      
+      // Check if content is an array (multimodal response)
+      if (Array.isArray(content)) {
+        console.log('Content is array, looking for image_url...');
+        const imageContent = content.find((item: any) => item.type === 'image_url');
+        if (imageContent && imageContent.image_url) {
+          generatedImageUrl = imageContent.image_url.url;
+          console.log('Found image URL in array:', generatedImageUrl);
+        }
+      }
+      // Check if content is a string with URL or base64 data
+      else if (typeof content === 'string') {
+        console.log('Content is string, looking for URLs or base64 data...');
+        console.log('Content length:', content.length);
+        console.log('Content preview:', content.substring(0, 200) + '...');
+        
+        // Check for HTTP URLs first
+        if (content.includes('http')) {
+          const urlMatch = content.match(/https?:\/\/[^\s]+\.(jpg|jpeg|png|webp|gif)/i);
+          if (urlMatch) {
+            generatedImageUrl = urlMatch[0];
+            console.log('Found image URL in string:', generatedImageUrl);
+          }
+        }
+        
+        // Check for base64 data URLs - look for the pattern more carefully
+        if (!generatedImageUrl && content.includes('data:image/')) {
+          console.log('Found data:image/ in content, searching for base64...');
+          const base64Match = content.match(/data:image\/[^;]+;base64,[A-Za-z0-9+/=]+/);
+          if (base64Match) {
+            generatedImageUrl = base64Match[0];
+            console.log('Found base64 data URL in string:', generatedImageUrl.substring(0, 100) + '...');
+          } else {
+            console.log('No base64 match found, trying alternative pattern...');
+            // Try a more flexible pattern
+            const altMatch = content.match(/data:image\/[^;]+;base64,[A-Za-z0-9+/=]+/g);
+            if (altMatch && altMatch.length > 0) {
+              generatedImageUrl = altMatch[0];
+              console.log('Found base64 with alternative pattern:', generatedImageUrl.substring(0, 100) + '...');
+            }
+          }
+        }
+        
+        // If still no match, check if the entire content is a base64 string
+        if (!generatedImageUrl && content.length > 1000 && /^[A-Za-z0-9+/=]+$/.test(content.trim())) {
+          console.log('Content appears to be pure base64, converting to data URL...');
+          generatedImageUrl = `data:image/jpeg;base64,${content}`;
+          console.log('Created data URL from pure base64');
+        }
+      }
+      // Check if content is an object with image_url
+      else if (content && typeof content === 'object' && (content as any).image_url) {
+        generatedImageUrl = (content as any).image_url.url;
+        console.log('Found image URL in object:', generatedImageUrl);
+      }
+    }
+    
+    // Check if there are any other possible image sources in the response
+    if (!generatedImageUrl) {
+      console.log('🔍 Checking for alternative image sources...');
+      console.log('Full response structure:', JSON.stringify(apiResult, null, 2));
+      
+      // Check if there's a data field with images
+      if (apiResult.data && Array.isArray(apiResult.data)) {
+        const imageData = apiResult.data.find((item: any) => item.url);
+        if (imageData) {
+          generatedImageUrl = imageData.url;
+          console.log('Found image URL in data array:', generatedImageUrl);
+        }
+      }
+      
+      // Check the entire response string for base64 data URLs
+      if (!generatedImageUrl) {
+        const responseString = JSON.stringify(apiResult);
+        const base64Match = responseString.match(/data:image\/[^;]+;base64,[A-Za-z0-9+/=]+/);
+        if (base64Match) {
+          generatedImageUrl = base64Match[0];
+          console.log('Found base64 data URL in full response:', generatedImageUrl.substring(0, 100) + '...');
+        }
+      }
+    }
+    // *** KẾT THÚC KHỐI LOGIC PHÂN TÍCH RESPONSE ***
+
+    
+    // Fallback to original image if no image URL found
+    if (!generatedImageUrl) {
+      console.log('❌ No image URL found in response, using original image');
+      console.log('Response content:', apiResult.choices?.[0]?.message?.content);
+      console.log('This means the AI model did not generate an image, only returned text description');
+      generatedImageUrl = originalImageUrl;
+    } else {
+      console.log('✅ Generated image URL found:', generatedImageUrl);
+    }
+    
+    const responseData = {
+      success: true,
+      data: {
+        generatedImage: generatedImageUrl,
+        // 7. FIX: XÓA style, finalStyle, techSettings không còn tồn tại
+        prompt: prompt,
+        originalImageUrl: originalImageUrl,
+        timestamp: new Date().toISOString(),
+        note: generatedImageUrl === originalImageUrl ? "AI image generation not supported via OpenRouter, returning original image" : "Image generated successfully"
+      }
+    };
+    
+    // 8. FIX: CẬP NHẬT LOGGING RESPONSE CUỐI CÙNG
+    console.log('📤 Response:', JSON.stringify({
+      success: responseData.success,
+      generatedImageLength: responseData.data.generatedImage?.length || 0,
+      originalImageUrl: responseData.data.originalImageUrl,
+      timestamp: responseData.data.timestamp,
+      note: responseData.data.note
+    }, null, 2));
+    
+    res.json(responseData);
+
+  } catch (error: any) {
+    console.error('Error in generate-image-result:', error.message);
+    res.status(500).json({ 
+      error: 'Failed to generate image result',
+      message: error.message 
+    });
+  }
+});
+
+router.post('/generate-image-result-old', async (req, res) => {
+  try {
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    
+    const { 
+      prompt,
+      originalImageUrl,
+      style = 'studio', // studio, lifestyle, infographic, ugc_social_proof, meta_ugly_ad, luxury_editorial, ecommerce_sale_banner, futuristic_product_hero
+      techSettings = {
+        img2img_strength: 0.3,
+        cfg_scale: 9,
+        lighting: "natural daylight or balanced studio light",
+        style: "photorealistic commercial product photography"
+      }
+    } = req.body;
+
+    console.log('🎨 Image Generation Result - Style:', style);
+    console.log('📥 Request Body:', JSON.stringify({
+      prompt: prompt?.substring(0, 100) + '...',
+      originalImageUrl,
+      style,
+      techSettings
+    }, null, 2));
+
+    // Validate required fields
+    if (!prompt || !originalImageUrl) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: prompt and originalImageUrl' 
+      });
+    }
+
+    // Validate style - Support all 8 new styles plus backward compatibility
+    const validStyles = [
+      'studio', 
+      'lifestyle', 
+      'infographic', 
+      'ugc', // Legacy support
+      'ugc_social_proof', // New style
+      'meta_ugly_ad', // New style
+      'luxury_editorial', // New style
+      'ecommerce_sale_banner', // New style
+      'futuristic_product_hero', // New style
+      'closeup', // Legacy support
+      'motion' // Legacy support
+    ];
+    
+    // Normalize style for backward compatibility (ugc -> ugc_social_proof)
+    let normalizedStyle = style;
+    if (style === 'ugc') {
+      normalizedStyle = 'ugc_social_proof';
+    }
+    
+    if (!validStyles.includes(style) && !validStyles.includes(normalizedStyle)) {
+      return res.status(400).json({ 
+        error: `Invalid style "${style}". Must be one of: ${validStyles.filter(s => s !== 'ugc').join(', ')}, or 'ugc' (deprecated, use 'ugc_social_proof')` 
+      });
+    }
+    
+    // Use normalized style if applicable
+    const finalStyle = normalizedStyle !== style ? normalizedStyle : style;
+
+    // Prepare message content with image and prompt for Gemini
+    const messageContent: any[] = [
+      {
+        type: 'text',
+        text: prompt
+      },
+      {
+        type: 'image_url',
+        image_url: {
+          url: originalImageUrl
+        }
+      }
+    ];
+
+    // Get model config for generate-image-result API
+    const modelConfig = AI_MODELS_CONFIG.generateImageResult;
+    
+    // Call AI API for image generation
+    console.log('🤖 Calling AI for image generation...');
+    console.log('📊 AI Request Details:', {
+      model: modelConfig.model,
+      messageCount: messageContent.length,
+      promptLength: prompt.length,
+      originalImageUrl,
+      style: finalStyle,
+      originalStyle: style,
+      maxTokens: modelConfig.maxTokens,
+      temperature: modelConfig.temperature
+    });
+    
+    const response = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
+        model: modelConfig.model,
+        messages: [
+          {
+            role: 'user',
+            content: messageContent
+          }
+        ],
+        max_tokens: modelConfig.maxTokens,
+        temperature: modelConfig.temperature
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${openRouterApiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'http://localhost:3000',
+          'X-Title': 'Product Image Generator',
+        },
+        timeout: modelConfig.timeout
+      }
+    );
+
+    const apiResult = response.data;
+    console.log('✅ Image generated successfully');
+    console.log('📌 Style:', finalStyle, '(original:', style, ')');
     console.log('📸 API Response:', JSON.stringify(apiResult, null, 2));
     
     // Extract the generated image URL from Gemini 2.5 Flash Image Preview response
@@ -4142,7 +4925,8 @@ router.post('/generate-image-result', async (req, res) => {
       success: true,
       data: {
         generatedImage: generatedImageUrl,
-        style: style,
+        style: finalStyle, // Use normalized style
+        originalStyle: style, // Keep original for reference
         originalImageUrl: originalImageUrl,
         prompt: prompt,
         techSettings: techSettings,
@@ -4154,6 +4938,7 @@ router.post('/generate-image-result', async (req, res) => {
     console.log('📤 Response:', JSON.stringify({
       success: responseData.success,
       style: responseData.data.style,
+      originalStyle: responseData.data.originalStyle,
       generatedImageLength: responseData.data.generatedImage?.length || 0,
       originalImageUrl: responseData.data.originalImageUrl,
       timestamp: responseData.data.timestamp,
