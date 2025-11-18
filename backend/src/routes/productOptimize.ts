@@ -2580,9 +2580,10 @@ ${primaryPainPoint}`;
     
     [OUTPUT FORMAT]
     Return a single, clean JSON object. NO markdown or extra text outside the JSON.
+    **IMPORTANT:** The title should be 50-70 characters long, but DO NOT include any character count text like "(53 characters)" in the actual title value.
     
     {
-      "title": "New direct, benefit-focused title (50-70 characters) - MUST be in ${language}",
+      "title": "New direct, benefit-focused title - MUST be in ${language}",
       "description": "<article class='product-description-tabs'>
 
         <!-- MINIMAL CSS FOR TAB LAYOUT - DESIGNED TO INHERIT THEME STYLES -->
