@@ -158,7 +158,7 @@ Sử dụng prompt từ Step 1 + hình ảnh gốc để tạo ra hình ảnh m�
 #### Optional Fields
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `style` | string | ❌ | Phong cách ảnh ('studio', 'lifestyle', 'infographic', 'ugc', 'closeup', 'motion'). Mặc định: 'studio' |
+| `style` | string | ❌ | Phong cách ảnh. **Supported styles:** 'studio', 'lifestyle', 'infographic', 'ugc_social_proof', 'meta_ugly_ad', 'luxury_editorial', 'ecommerce_sale_banner', 'futuristic_product_hero', 'ugc' (deprecated, use 'ugc_social_proof'), 'closeup' (legacy), 'motion' (legacy). Mặc định: 'studio' |
 | `techSettings` | object | ❌ | Cài đặt kỹ thuật cho việc tạo ảnh |
 
 ### Response Format
@@ -283,6 +283,30 @@ curl -X POST http://localhost:3001/api/product-optimize/generate-image-result \
     "style": "lifestyle"
   }'
 ```
+
+### Step 2: Generate Meta Ugly Ad Image
+```bash
+curl -X POST http://localhost:3001/api/product-optimize/generate-image-result \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "Quick phone snapshot, slightly tilted, capturing the product in use. Natural, uneven lighting, visible soft shadows and a bit of grain — looks spontaneous and real. Add a scribbled text overlay: \"OMG 😱 BOGO! You HAVE to try this! 🔥\". Emotion over polish; chaos over perfection.",
+    "originalImageUrl": "https://example.com/product-image-1.jpg",
+    "style": "meta_ugly_ad"
+  }'
+```
+
+**Supported Styles:**
+- `studio` - Studio Shot với nền trắng/xám nhạt
+- `lifestyle` - Lifestyle trong môi trường thực tế
+- `infographic` - Infographic với icons và labels
+- `ugc_social_proof` - UGC style với smartphone realism
+- `meta_ugly_ad` - Meta Ugly Ad với text overlay urgency
+- `luxury_editorial` - Luxury Editorial với setting cao cấp
+- `ecommerce_sale_banner` - E-commerce Sale Banner với typography đậm
+- `futuristic_product_hero` - Futuristic Product Hero với neon glow
+- `ugc` - **Deprecated**, sử dụng `ugc_social_proof` thay thế
+- `closeup` - Legacy support
+- `motion` - Legacy support
 
 ---
 

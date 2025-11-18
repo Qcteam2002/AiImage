@@ -2784,12 +2784,32 @@ ${primaryPainPoint}`;
       // Clean up markdown if present
       content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
       
-      // Find JSON boundaries
+      // Find JSON boundaries using brace matching (more robust than lastIndexOf)
       let jsonStart = content.indexOf('{');
-      let jsonEnd = content.lastIndexOf('}');
-      
-      if (jsonStart === -1 || jsonEnd === -1) {
+      if (jsonStart === -1) {
         throw new Error('No valid JSON found in response');
+      }
+      
+      // Find matching closing brace by counting braces
+      let braceCount = 0;
+      let jsonEnd = -1;
+      for (let i = jsonStart; i < content.length; i++) {
+        if (content[i] === '{') braceCount++;
+        if (content[i] === '}') braceCount--;
+        if (braceCount === 0) {
+          jsonEnd = i;
+          break;
+        }
+      }
+      
+      if (jsonEnd === -1) {
+        // Fallback: try to find the last complete object
+        let lastCompleteEnd = content.lastIndexOf('}');
+        if (lastCompleteEnd > jsonStart) {
+          jsonEnd = lastCompleteEnd;
+        } else {
+          throw new Error('Incomplete JSON found in response');
+        }
       }
       
       let jsonString = content.substring(jsonStart, jsonEnd + 1);
@@ -3171,12 +3191,32 @@ ${primaryPainPoint}`;
       // Clean up markdown if present
       content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
       
-      // Find JSON boundaries
+      // Find JSON boundaries using brace matching (more robust than lastIndexOf)
       let jsonStart = content.indexOf('{');
-      let jsonEnd = content.lastIndexOf('}');
-      
-      if (jsonStart === -1 || jsonEnd === -1) {
+      if (jsonStart === -1) {
         throw new Error('No valid JSON found in response');
+      }
+      
+      // Find matching closing brace by counting braces
+      let braceCount = 0;
+      let jsonEnd = -1;
+      for (let i = jsonStart; i < content.length; i++) {
+        if (content[i] === '{') braceCount++;
+        if (content[i] === '}') braceCount--;
+        if (braceCount === 0) {
+          jsonEnd = i;
+          break;
+        }
+      }
+      
+      if (jsonEnd === -1) {
+        // Fallback: try to find the last complete object
+        let lastCompleteEnd = content.lastIndexOf('}');
+        if (lastCompleteEnd > jsonStart) {
+          jsonEnd = lastCompleteEnd;
+        } else {
+          throw new Error('Incomplete JSON found in response');
+        }
       }
       
       let jsonString = content.substring(jsonStart, jsonEnd + 1);
@@ -3561,12 +3601,32 @@ ${primaryPainPoint}`;
       // Clean up markdown if present
       content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
       
-      // Find JSON boundaries
+      // Find JSON boundaries using brace matching (more robust than lastIndexOf)
       let jsonStart = content.indexOf('{');
-      let jsonEnd = content.lastIndexOf('}');
-      
-      if (jsonStart === -1 || jsonEnd === -1) {
+      if (jsonStart === -1) {
         throw new Error('No valid JSON found in response');
+      }
+      
+      // Find matching closing brace by counting braces
+      let braceCount = 0;
+      let jsonEnd = -1;
+      for (let i = jsonStart; i < content.length; i++) {
+        if (content[i] === '{') braceCount++;
+        if (content[i] === '}') braceCount--;
+        if (braceCount === 0) {
+          jsonEnd = i;
+          break;
+        }
+      }
+      
+      if (jsonEnd === -1) {
+        // Fallback: try to find the last complete object
+        let lastCompleteEnd = content.lastIndexOf('}');
+        if (lastCompleteEnd > jsonStart) {
+          jsonEnd = lastCompleteEnd;
+        } else {
+          throw new Error('Incomplete JSON found in response');
+        }
       }
       
       let jsonString = content.substring(jsonStart, jsonEnd + 1);
@@ -3910,12 +3970,32 @@ ${productImages.map((u,i)=>`${i+1}. ${u}`).join('\n')}
       // Clean up markdown if present
       content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
       
-      // Find JSON boundaries
+      // Find JSON boundaries using brace matching (more robust than lastIndexOf)
       let jsonStart = content.indexOf('{');
-      let jsonEnd = content.lastIndexOf('}');
-      
-      if (jsonStart === -1 || jsonEnd === -1) {
+      if (jsonStart === -1) {
         throw new Error('No valid JSON found in response');
+      }
+      
+      // Find matching closing brace by counting braces
+      let braceCount = 0;
+      let jsonEnd = -1;
+      for (let i = jsonStart; i < content.length; i++) {
+        if (content[i] === '{') braceCount++;
+        if (content[i] === '}') braceCount--;
+        if (braceCount === 0) {
+          jsonEnd = i;
+          break;
+        }
+      }
+      
+      if (jsonEnd === -1) {
+        // Fallback: try to find the last complete object
+        let lastCompleteEnd = content.lastIndexOf('}');
+        if (lastCompleteEnd > jsonStart) {
+          jsonEnd = lastCompleteEnd;
+        } else {
+          throw new Error('Incomplete JSON found in response');
+        }
       }
       
       let jsonString = content.substring(jsonStart, jsonEnd + 1);
@@ -4261,12 +4341,32 @@ ${productImages.map((u: string, i: number) => `${i + 1}. ${u}`).join('\n')}
       // Clean up markdown if present
       content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
       
-      // Find JSON boundaries
+      // Find JSON boundaries using brace matching (more robust than lastIndexOf)
       let jsonStart = content.indexOf('{');
-      let jsonEnd = content.lastIndexOf('}');
-      
-      if (jsonStart === -1 || jsonEnd === -1) {
+      if (jsonStart === -1) {
         throw new Error('No valid JSON found in response');
+      }
+      
+      // Find matching closing brace by counting braces
+      let braceCount = 0;
+      let jsonEnd = -1;
+      for (let i = jsonStart; i < content.length; i++) {
+        if (content[i] === '{') braceCount++;
+        if (content[i] === '}') braceCount--;
+        if (braceCount === 0) {
+          jsonEnd = i;
+          break;
+        }
+      }
+      
+      if (jsonEnd === -1) {
+        // Fallback: try to find the last complete object
+        let lastCompleteEnd = content.lastIndexOf('}');
+        if (lastCompleteEnd > jsonStart) {
+          jsonEnd = lastCompleteEnd;
+        } else {
+          throw new Error('Incomplete JSON found in response');
+        }
       }
       
       let jsonString = content.substring(jsonStart, jsonEnd + 1);
